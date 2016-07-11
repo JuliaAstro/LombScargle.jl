@@ -15,7 +15,7 @@ __precompile__()
 
 module LombScargle
 
-export lombscargle, power, freq
+export lombscargle, power, freq, autofrequency
 
 # This is similar to Periodogram type of DSP.Periodograms module, but for
 # unevenly spaced frequencies.
@@ -26,6 +26,23 @@ end
 
 power(p::Periodogram) = p.power
 freq(p::Periodogram) = p.freq
+
+# Determine a suitable frequency grid for the given array of `times'.  This is
+# based on prescription given at
+# https://jakevdp.github.io/blog/2015/06/13/lomb-scargle-in-python/.
+function autofrequency{V<:AbstractVector}(times::V; samples_per_peak::Int=5,
+                                          nyquist_factor::Integer=5,
+                                          minimum_frequency::Real=NaN,
+                                          maximum_frequency::Real=NaN)
+    T = maximum(times) - minimum(times)
+    δf = inv(samples_per_peak*T)
+    f_min = isfinite(minimum_frequency) ? minimum_frequency : 0.5*δf
+    if isfinite(maximum_frequency)
+        return f_min:δf:maximum_frequency
+    else
+        return f_min:δf:0.5*nyquist_factor*length(times)/T
+    end
+end
 
 # Original algorithm that doesn't take into account uncertainties and doesn't
 # fit the mean of the signal.  This is implemented following the recipe by
@@ -123,7 +140,7 @@ function _generalised_lombscargle{T<:Real}(times::AbstractVector{T},
 end
 
 function lombscargle{T<:Real}(times::AbstractVector{T}, signal::AbstractVector{T},
-                              freqs::AbstractVector{T},
+                              freqs::AbstractVector{T}=autofrequency(times),
                               errors::AbstractVector{T}=ones(signal);
                               center_data::Bool=true, fit_mean::Bool=true)
     @assert length(times) == length(signal)
