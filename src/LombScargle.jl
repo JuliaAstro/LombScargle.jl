@@ -64,11 +64,75 @@ function _lombscargle_orig{T<:Real}(times::AbstractVector{T}, signal::AbstractVe
     return Periodogram(P, freqs)
 end
 
+# Generalised Lomb-Scargle algorithm: this takes into account uncertainties and
+# fit the mean of the signal.  This is implemented following the recipe by
+# * Zechmeister, M., Kürster, M. 2009, A&A, 496, 577  (URL:
+#   http://dx.doi.org/10.1051/0004-6361:200811296,
+#   Bibcode: http://adsabs.harvard.edu/abs/2009A%26A...496..577Z)
+function _generalised_lombscargle{T<:Real}(times::AbstractVector{T},
+                                           signal::AbstractVector{T},
+                                           freqs::AbstractVector{T},
+                                           errors::AbstractVector{T},
+                                           center_data::Bool, fit_mean::Bool)
+    P = Vector{T}(freqs)
+    # If "center_data" keyword is true, subtract the mean from each point.
+    signal_mean = center_data ? mean(signal) : zero(T)
+    w = 1./errors.^2
+    W = sum(w)
+    w /= W
+    @inbounds for n in eachindex(freqs)
+        ω = 2pi*freqs[n]
+
+        # Find τ for current angular frequency
+        C = S = CS = CC = SS = zero(float(T))
+        for i in eachindex(times)
+            ωt = ω*times[i]
+            c = cos(ωt)
+            s = sin(ωt)
+            C += w[i]*c
+            S += w[i]*s
+            CS += w[i]*c*s
+            CC += w[i]*c*c
+            SS += w[i]*s*s
+        end
+        CS -= C*S
+        CC -= C*C
+        SS -= S*S
+        τ   = 0.5*atan2(2CS, CC - SS)/ω
+
+        # Now we can compute the power
+        Y = YY = C_τ = S_τ = YC_τ = YS_τ = CC_τ = SS_τ = zero(float(T))
+        for i in eachindex(times)
+            y = signal[i] - signal_mean
+            ωt = ω*(times[i] - τ)
+            c = cos(ωt)
+            s = sin(ωt)
+            Y += w[i]*y
+            YY += w[i]*y*y
+            C_τ += w[i]*c
+            S_τ += w[i]*s
+            YC_τ += w[i]*y*c
+            YS_τ += w[i]*y*s
+            CC_τ += w[i]*c*c
+            SS_τ += w[i]*s*s
+        end
+        P[n] = (abs2(YC_τ - Y*C_τ)/(CC_τ - C*C) +
+                abs2(YS_τ - Y*S_τ)/(SS_τ - S*S))/(YY - Y*Y)
+    end
+    return Periodogram(P, freqs)
+end
+
 function lombscargle{T<:Real}(times::AbstractVector{T}, signal::AbstractVector{T},
-                              angfreqs::AbstractVector{T};
-                              center_data::Bool=true)
+                              freqs::AbstractVector{T},
+                              errors::AbstractVector{T}=ones(signal);
+                              center_data::Bool=true, fit_mean::Bool=true)
     @assert length(times) == length(signal)
-    return _lombscargle_orig(times, signal, angfreqs, center_data)
+    if fit_mean
+        return _generalised_lombscargle(times, signal, freqs, errors,
+                                        center_data, fit_mean)
+    else
+        return _lombscargle_orig(times, signal, freqs, center_data)
+    end
 end
 
 end # module
