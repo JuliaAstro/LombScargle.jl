@@ -39,12 +39,13 @@ function _lombscargle_orig{T<:Real}(times::AbstractVector{T}, signal::AbstractVe
     signal_mean = center_data ? mean(signal) : zero(T)
     @inbounds for n in eachindex(freqs)
         ω = 2pi*freqs[n]
-        XC = XS = CC = SS = CS = zero(float(T))
+        XX = XC = XS = CC = SS = CS = zero(float(T))
         for j in eachindex(times)
             ωt = ω*times[j]
             C = cos(ωt)
             S = sin(ωt)
             X = signal[j] - signal_mean
+            XX += X*X
             XC += X*C
             XS += X*S
             CC += C*C
@@ -57,8 +58,8 @@ function _lombscargle_orig{T<:Real}(times::AbstractVector{T}, signal::AbstractVe
         c_τ2    = c_τ*c_τ
         s_τ2    = s_τ*s_τ
         cs_τ_CS = 2c_τ*s_τ*CS
-        P[n] = 0.5*(abs2(c_τ*XC + s_τ*XS)/(c_τ2*CC + cs_τ_CS + s_τ2*SS) +
-                    abs2(c_τ*XS - s_τ*XC)/(c_τ2*SS - cs_τ_CS + s_τ2*CC))
+        P[n] = (abs2(c_τ*XC + s_τ*XS)/(c_τ2*CC + cs_τ_CS + s_τ2*SS) +
+                abs2(c_τ*XS - s_τ*XC)/(c_τ2*SS - cs_τ_CS + s_τ2*CC))/XX
     end
     return Periodogram(P, freqs)
 end
