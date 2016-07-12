@@ -15,7 +15,7 @@ __precompile__()
 
 module LombScargle
 
-export lombscargle, power, freq, freqpower, autofrequency
+export lombscargle, power, freq, freqpower, findmaxfreq, autofrequency
 
 # This is similar to Periodogram type of DSP.Periodograms module, but for
 # unevenly spaced frequencies.
@@ -27,6 +27,9 @@ end
 power(p::Periodogram) = p.power
 freq(p::Periodogram) = p.freq
 freqpower(p::Periodogram) = (freq(p), power(p))
+
+findmaxfreq(p::Periodogram, threshold::Real=maximum(power(p))) =
+    freq(p)[find(x -> x >= threshold, power(p))]
 
 # Determine a suitable frequency grid for the given array of `times'.  This is
 # based on prescription given at
