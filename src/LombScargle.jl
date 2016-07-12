@@ -93,25 +93,26 @@ function _generalised_lombscargle{T<:Real}(times::AbstractVector{T},
                                            errors::AbstractVector{T},
                                            center_data::Bool, fit_mean::Bool)
     P = Vector{T}(freqs)
+    nil = zero(float(T))
     # If "center_data" keyword is true, subtract the mean from each point.
-    signal_mean = center_data ? mean(signal) : zero(T)
-    w = 1./errors.^2
-    W = sum(w)
-    w /= W
+    signal_mean = center_data ? mean(signal) : nil
+    w = 1.0./errors.^2
+    w /= sum(w)
     @inbounds for n in eachindex(freqs)
         ω = 2pi*freqs[n]
 
         # Find τ for current angular frequency
-        C = S = CS = CC = SS = zero(float(T))
+        C = S = CS = CC = SS = nil
         for i in eachindex(times)
-            ωt = ω*times[i]
-            c = cos(ωt)
-            s = sin(ωt)
-            C += w[i]*c
-            S += w[i]*s
-            CS += w[i]*c*s
-            CC += w[i]*c*c
-            SS += w[i]*s*s
+            ωt  = ω*times[i]
+            W   = w[i]
+            c   = cos(ωt)
+            s   = sin(ωt)
+            C  += W*c
+            S  += W*s
+            CS += W*c*s
+            CC += W*c*c
+            SS += W*s*s
         end
         CS -= C*S
         CC -= C*C
@@ -119,20 +120,21 @@ function _generalised_lombscargle{T<:Real}(times::AbstractVector{T},
         τ   = 0.5*atan2(2CS, CC - SS)/ω
 
         # Now we can compute the power
-        Y = YY = C_τ = S_τ = YC_τ = YS_τ = CC_τ = SS_τ = zero(float(T))
+        Y = YY = C_τ = S_τ = YC_τ = YS_τ = CC_τ = SS_τ = nil
         for i in eachindex(times)
-            y = signal[i] - signal_mean
-            ωt = ω*(times[i] - τ)
-            c = cos(ωt)
-            s = sin(ωt)
-            Y += w[i]*y
-            YY += w[i]*y*y
-            C_τ += w[i]*c
-            S_τ += w[i]*s
-            YC_τ += w[i]*y*c
-            YS_τ += w[i]*y*s
-            CC_τ += w[i]*c*c
-            SS_τ += w[i]*s*s
+            y     = signal[i] - signal_mean
+            ωt    = ω*(times[i] - τ)
+            W     = w[i]
+            c     = cos(ωt)
+            s     = sin(ωt)
+            Y    += W*y
+            YY   += W*y*y
+            C_τ  += W*c
+            S_τ  += W*s
+            YC_τ += W*y*c
+            YS_τ += W*y*s
+            CC_τ += W*c*c
+            SS_τ += W*s*s
         end
         P[n] = (abs2(YC_τ - Y*C_τ)/(CC_τ - C_τ*C_τ) +
                 abs2(YS_τ - Y*S_τ)/(SS_τ - S_τ*S_τ))/(YY - Y*Y)
