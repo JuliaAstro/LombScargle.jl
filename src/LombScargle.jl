@@ -134,8 +134,8 @@ function _generalised_lombscargle{T<:Real}(times::AbstractVector{T},
             CC_τ += w[i]*c*c
             SS_τ += w[i]*s*s
         end
-        P[n] = (abs2(YC_τ - Y*C_τ)/(CC_τ - C*C) +
-                abs2(YS_τ - Y*S_τ)/(SS_τ - S*S))/(YY - Y*Y)
+        P[n] = (abs2(YC_τ - Y*C_τ)/(CC_τ - C_τ*C_τ) +
+                abs2(YS_τ - Y*S_τ)/(SS_τ - S_τ*S_τ))/(YY - Y*Y)
     end
     return Periodogram(P, freqs)
 end
