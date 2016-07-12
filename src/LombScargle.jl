@@ -24,20 +24,68 @@ immutable Periodogram{T<:AbstractFloat}
     freq::AbstractVector{T}
 end
 
+"""
+    power(p::Periodogram)
+
+Return the power vector of Lomb-Scargle periodogram `p`.
+"""
 power(p::Periodogram) = p.power
+
+"""
+    freq(p::Periodogram)
+
+Return the frequency vector of Lomb-Scargle periodogram `p`.
+"""
 freq(p::Periodogram) = p.freq
+
+"""
+    freqpower(p::Periodogram)
+
+Return the 2-tuple `(freq(p), power(p))`, where `freq(p)` and `power(p)` are the
+frequency vector and the power vector of Lomb-Scargle periodogram `p`
+respectively.
+"""
 freqpower(p::Periodogram) = (freq(p), power(p))
 
+"""
+    findmaxfreq(p::Periodogram)
+    findmaxfreq(p::Periodogram, threshold::Real)
+
+Return the frequencies with the highest power in the periodogram `p`.  If a
+second argument `threshold` is provided, return the frequencies with power
+larger than or equal to `threshold`.
+"""
 findmaxfreq(p::Periodogram, threshold::Real=maximum(power(p))) =
     freq(p)[find(x -> x >= threshold, power(p))]
 
-# Determine a suitable frequency grid for the given array of `times'.  This is
-# based on prescription given at
-# https://jakevdp.github.io/blog/2015/06/13/lomb-scargle-in-python/.
-function autofrequency{V<:AbstractVector}(times::V; samples_per_peak::Int=5,
-                                          nyquist_factor::Integer=5,
-                                          minimum_frequency::Real=NaN,
-                                          maximum_frequency::Real=NaN)
+"""
+    autofrequency(times::AbstractVector{Real};
+                  samples_per_peak::Int=5,
+                  nyquist_factor::Integer=5,
+                  minimum_frequency::Real=NaN,
+                  maximum_frequency::Real=NaN)
+
+Determine a suitable frequency grid for the given vector of `times`.
+
+Optional keyword arguments are:
+
+* `samples_per_peak`: the approximate number of desired samples across the
+  typical peak
+* `nyquist_factor`: the multiple of the average Nyquist frequency used to choose
+  the maximum frequency if `maximum_frequency` is not provided
+* `minimum_frequency`: if specified, then use this minimum frequency rather than
+  one chosen based on the size of the baseline
+* `maximum_frequency`: if specified, then use this maximum frequency rather than
+  one chosen based on the average Nyquist frequency
+
+This is based on prescription given at
+https://jakevdp.github.io/blog/2015/06/13/lomb-scargle-in-python/ and uses the
+same keywords names adopted in Astropy.
+"""
+function autofrequency{R<:Real}(times::AbstractVector{R}; samples_per_peak::Int=5,
+                                nyquist_factor::Integer=5,
+                                minimum_frequency::Real=NaN,
+                                maximum_frequency::Real=NaN)
     T = maximum(times) - minimum(times)
     δf = inv(samples_per_peak*T)
     f_min = isfinite(minimum_frequency) ? minimum_frequency : 0.5*δf
@@ -145,11 +193,42 @@ function _generalised_lombscargle{T<:Real}(times::AbstractVector{T},
     return Periodogram(P, freqs)
 end
 
+"""
+    lombscargle(times::AbstractVector{Real}, signal::AbstractVector{Real},
+                freqs::AbstractVector{Real}=autofrequency(times),
+                errors::AbstractVector{Real}=ones(signal);
+                center_data::Bool=true, fit_mean::Bool=true)
+
+Compute the Lomb-Scargle periodogram of the `signal` vector, observed at
+`times`.  The frequecy grid `freqs` at which the periodogram will be computed is
+automatically determined with `autofrequency` function, which see, if not
+specified.  You can also specify the uncertainties for each signal point with in
+`errors` argument.
+
+Optional keywords arguments are:
+
+* `fit_mean`: if `true`, fit for the mean of the signal using the Generalised
+  Lomb-Scargle algorithm.  If this is `false`, the original algorithm by Lomb
+  and Scargle will be employed, which does not take into account a non-null mean
+  and uncertainties for observations
+* `center_data`: if `true`, subtract the mean of `signal` from `signal` itself
+  before performing the periodogram.  This is especially important if `fit_mean`
+  is `false`
+
+The algorithm used here are reported in the following papers:
+
+* Townsend, R. H. D. 2010, ApJS, 191, 247 (URL:
+  http://dx.doi.org/10.1088/0067-0049/191/2/247,
+  Bibcode: http://adsabs.harvard.edu/abs/2010ApJS..191..247T)
+* Zechmeister, M., Kürster, M. 2009, A&A, 496, 577  (URL:
+  http://dx.doi.org/10.1051/0004-6361:200811296,
+  Bibcode: http://adsabs.harvard.edu/abs/2009A%26A...496..577Z)
+"""
 function lombscargle{T<:Real}(times::AbstractVector{T}, signal::AbstractVector{T},
                               freqs::AbstractVector{T}=autofrequency(times),
                               errors::AbstractVector{T}=ones(signal);
                               center_data::Bool=true, fit_mean::Bool=true)
-    @assert length(times) == length(signal)
+    @assert length(times) == length(signal) == length(errors)
     if fit_mean
         return _generalised_lombscargle(times, signal, freqs, errors,
                                         center_data, fit_mean)
