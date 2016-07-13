@@ -15,7 +15,7 @@ __precompile__()
 
 module LombScargle
 
-export lombscargle, power, freq, freqpower, findmaxfreq, autofrequency
+export lombscargle, power, freq, freqpower, findmaxfreq
 
 # This is similar to Periodogram type of DSP.Periodograms module, but for
 # unevenly spaced frequencies.
@@ -140,8 +140,8 @@ end
 #   Bibcode: http://adsabs.harvard.edu/abs/2009A%26A...496..577Z)
 function _generalised_lombscargle{T<:Real}(times::AbstractVector{T},
                                            signal::AbstractVector{T},
-                                           freqs::AbstractVector{T},
                                            errors::AbstractVector{T},
+                                           freqs::AbstractVector{T},
                                            center_data::Bool, fit_mean::Bool)
     P = Vector{T}(freqs)
     nil = zero(float(T))
@@ -195,25 +195,51 @@ end
 
 """
     lombscargle(times::AbstractVector{Real}, signal::AbstractVector{Real},
-                freqs::AbstractVector{Real}=autofrequency(times),
                 errors::AbstractVector{Real}=ones(signal);
-                center_data::Bool=true, fit_mean::Bool=true)
+                center_data::Bool=true, fit_mean::Bool=true,
+                samples_per_peak::Int=5,
+                nyquist_factor::Integer=5,
+                minimum_frequency::Real=NaN,
+                maximum_frequency::Real=NaN,
+                frequencies::AbstractVector{Real}=
+                autofrequency(times,
+                              samples_per_peak=samples_per_peak,
+                              nyquist_factor=nyquist_factor,
+                              minimum_frequency=minimum_frequency,
+                              maximum_frequency=maximum_frequency))
 
 Compute the Lomb-Scargle periodogram of the `signal` vector, observed at
-`times`.  The frequecy grid `freqs` at which the periodogram will be computed is
-automatically determined with `autofrequency` function, which see, if not
-specified.  You can also specify the uncertainties for each signal point with in
+`times`.  You can also specify the uncertainties for each signal point with in
 `errors` argument.
 
 Optional keywords arguments are:
 
 * `fit_mean`: if `true`, fit for the mean of the signal using the Generalised
-  Lomb-Scargle algorithm.  If this is `false`, the original algorithm by Lomb
-  and Scargle will be employed, which does not take into account a non-null mean
-  and uncertainties for observations
+  Lomb-Scargle algorithm (see Zechmeister & Kürster paper below).  If this is
+  `false`, the original algorithm by Lomb and Scargle will be employed (see
+  Townsend paper below), which does not take into account a non-null mean and
+  uncertainties for observations
 * `center_data`: if `true`, subtract the mean of `signal` from `signal` itself
   before performing the periodogram.  This is especially important if `fit_mean`
   is `false`
+* `frequencies`: the frequecy grid at which the periodogram will be computed, as
+  a vector.  If not provided, it is automatically determined with
+  `LombScargle.autofrequency` function, which see.  See below for other
+  available keywords that can be used to affect the frequency grid without
+  directly setting `frequencies`
+
+In addition, you can use all optional keyword arguments of
+`LombScargle.autofrequency` function in order to tune the `frequencies` vector
+without calling the function:
+
+* `samples_per_peak`: the approximate number of desired samples across the
+  typical peak
+* `nyquist_factor`: the multiple of the average Nyquist frequency used to choose
+  the maximum frequency if `maximum_frequency` is not provided
+* `minimum_frequency`: if specified, then use this minimum frequency rather than
+  one chosen based on the size of the baseline
+* `maximum_frequency`: if specified, then use this maximum frequency rather than
+  one chosen based on the average Nyquist frequency
 
 The algorithm used here are reported in the following papers:
 
@@ -225,15 +251,24 @@ The algorithm used here are reported in the following papers:
   Bibcode: http://adsabs.harvard.edu/abs/2009A%26A...496..577Z)
 """
 function lombscargle{T<:Real}(times::AbstractVector{T}, signal::AbstractVector{T},
-                              freqs::AbstractVector{T}=autofrequency(times),
                               errors::AbstractVector{T}=ones(signal);
-                              center_data::Bool=true, fit_mean::Bool=true)
+                              center_data::Bool=true, fit_mean::Bool=true,
+                              samples_per_peak::Int=5,
+                              nyquist_factor::Integer=5,
+                              minimum_frequency::Real=NaN,
+                              maximum_frequency::Real=NaN,
+                              frequencies::AbstractVector{T}=
+                              autofrequency(times,
+                                            samples_per_peak=samples_per_peak,
+                                            nyquist_factor=nyquist_factor,
+                                            minimum_frequency=minimum_frequency,
+                                            maximum_frequency=maximum_frequency))
     @assert length(times) == length(signal) == length(errors)
     if fit_mean
-        return _generalised_lombscargle(times, signal, freqs, errors,
+        return _generalised_lombscargle(times, signal, errors, frequencies,
                                         center_data, fit_mean)
     else
-        return _lombscargle_orig(times, signal, freqs, center_data)
+        return _lombscargle_orig(times, signal, frequencies, center_data)
     end
 end
 
