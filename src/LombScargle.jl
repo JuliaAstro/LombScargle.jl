@@ -48,11 +48,10 @@ respectively.
 freqpower(p::Periodogram) = (freq(p), power(p))
 
 """
-    findmaxfreq(p::Periodogram)
-    findmaxfreq(p::Periodogram, threshold::Real)
+    findmaxfreq(p::Periodogram, threshold::Real=maximum(power(p)))
 
-Return the frequencies with the highest power in the periodogram `p`.  If a
-second argument `threshold` is provided, return the frequencies with power
+Return the array of frequencies with the highest power in the periodogram `p`.
+If a second argument `threshold` is provided, return the frequencies with power
 larger than or equal to `threshold`.
 """
 findmaxfreq(p::Periodogram, threshold::Real=maximum(power(p))) =

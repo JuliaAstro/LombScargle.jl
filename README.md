@@ -57,10 +57,19 @@ the power vectors of the periodogram.
 The main function provided by the package is `lombscargle`:
 
 ```julia
-lombscargle{T<:Real}(times::AbstractVector{T}, signal::AbstractVector{T},
-                     freqs::AbstractVector{T}=autofrequency(times),
-                     errors::AbstractVector{T}=ones(signal);
-                     center_data::Bool=true, fit_mean::Bool=true)
+lombscargle(times::AbstractVector{Real}, signal::AbstractVector{Real},
+            errors::AbstractVector{Real}=ones(signal);
+            center_data::Bool=true, fit_mean::Bool=true,
+            samples_per_peak::Int=5,
+            nyquist_factor::Integer=5,
+            minimum_frequency::Real=NaN,
+            maximum_frequency::Real=NaN,
+            frequencies::AbstractVector{Real}=
+            autofrequency(times,
+                          samples_per_peak=samples_per_peak,
+                          nyquist_factor=nyquist_factor,
+                          minimum_frequency=minimum_frequency,
+                          maximum_frequency=maximum_frequency))
 ```
 
 The mandatory arguments are:
@@ -68,21 +77,42 @@ The mandatory arguments are:
 * `times`: the vector of observation times
 * `signal`: the vector of observations associated with `times`
 
-Optional arguments are:
+Optional argument is:
 
-* `freqs`: the frequency grid at which the periodogram will be computed.  If not
-  provided, the grid will be computed with `autofrequency` function (see below)
 * `errors`: the uncertainties associated to each `signal` point
 
-Optional keywords arguments are:
+Optional keyword arguments are:
 
 * `fit_mean`: if `true`, fit for the mean of the signal using the Generalised
-  Lomb-Scargle algorithm.  If this is `false`, the original algorithm by Lomb
-  and Scargle will be employed, which does not take into account a non-null mean
-  and uncertainties for observations
+  Lomb–Scargle algorithm (see Zechmeister & Kürster paper below).  If this is
+  `false`, the original algorithm by Lomb and Scargle will be employed (see
+  Townsend paper below), which does not take into account a non-null mean and
+  uncertainties for observations
 * `center_data`: if `true`, subtract the mean of `signal` from `signal` itself
   before performing the periodogram.  This is especially important if `fit_mean`
   is `false`
+* `frequencies`: the frequecy grid at which the periodogram will be computed, as
+  a vector.  If not provided, it is automatically determined with
+  `LombScargle.autofrequency` function, which see.  See below for other
+  available keywords that can be used to affect the frequency grid without
+  directly setting `frequencies`
+
+In addition, you can use all optional keyword arguments of
+`LombScargle.autofrequency` function in order to tune the `frequencies` vector
+without calling the function:
+
+* `samples_per_peak`: the approximate number of desired samples across the
+  typical peak
+* `nyquist_factor`: the multiple of the average Nyquist frequency used to choose
+  the maximum frequency if `maximum_frequency` is not provided
+* `minimum_frequency`: if specified, then use this minimum frequency rather than
+  one chosen based on the size of the baseline
+* `maximum_frequency`: if specified, then use this maximum frequency rather than
+  one chosen based on the average Nyquist frequency
+
+The frequency grid is determined by following prescriptions given at
+https://jakevdp.github.io/blog/2015/06/13/lomb-scargle-in-python/ and uses the
+same keywords names adopted in Astropy.
 
 ### Access Frequency Grid and Power Spectrum of the Periodogram ###
 
@@ -101,37 +131,115 @@ function.
 ### Find Frequencies with Highest Power ###
 
 ```julia
-findmaxfreq(p::Periodogram)
-findmaxfreq(p::Periodogram, threshold::Real)
+findmaxfreq(p::Periodogram, threshold::Real=maximum(power(p)))
 ```
 
-Return the frequencies with the highest power in the periodogram `p`.  If a
-second argument `threshold` is provided, return the frequencies with power
+Once you compute the periodogram, you usually want to know which are the
+frequencies with highest power.  To do this, you can use the `findmaxfreq`.  It
+returns the array of frequencies with the highest power in the periodogram `p`.
+If a second argument `threshold` is provided, return the frequencies with power
 larger than or equal to `threshold`.
 
-### Determine Frequency Grid ###
+Examples
+--------
+
+Here is an example of a noisy periodic signal (`sin(π*t) + 1.5*cos(π*t)`)
+sampled at unevenly spaced times.
 
 ```julia
-autofrequency(times::AbstractVector{Real};
-              samples_per_peak::Int=5,
-              nyquist_factor::Integer=5,
-              minimum_frequency::Real=NaN,
-              maximum_frequency::Real=NaN)
+using LombScargle
+ntimes = 1001
+# Observation times
+t = linspace(0.01, 10pi, ntimes)
+# Randomize times
+t += (t[2] - t[1])*rand(ntimes)
+# The signal
+s = sinpi(t) + 1.5cospi(2t) + rand(ntimes)
+pgram = lombscargle(t, s)
 ```
 
-Determine a suitable frequency grid for the given vector of `times`.
+You can plot the result, for example with
+[`PyPlot`](https://github.com/stevengj/PyPlot.jl) package.  Use `freqpower`
+function to get the frequency grid and the power of the periodogram as a
+2-tuple.
 
-Optional keyword arguments are:
+```julia
+using PyPlot
+plot(freqpower(pgram)...)
+```
 
-* `samples_per_peak`: the approximate number of desired samples across the
-  typical peak
-* `nyquist_factor`: the multiple of the average Nyquist frequency used to choose
-  the maximum frequency if `maximum_frequency` is not provided
-* `minimum_frequency`: if specified, then use this minimum frequency rather than
-  one chosen based on the size of the baseline
-* `maximum_frequency`: if specified, then use this maximum frequency rather than
-  one chosen based on the average Nyquist frequency
+Beware that if you use original Lomb–Scargle algorithm (`fit_mean=false` keyword
+to `lombscargle` function) without centering the data (`center_data=false`) you
+can get inaccurate results.  For example, spurious peaks at low frequencies can
+appear.
 
-This is based on prescription given at
-https://jakevdp.github.io/blog/2015/06/13/lomb-scargle-in-python/ and uses the
-same keywords names adopted in Astropy.
+```julia
+plot(freqpower(lombscargle(t, s, fit_mean=false, center_data=false))...)
+```
+
+You can tune the frequency grid with appropriate keywords to `lombscargle`
+function.  For example, in order to increase the sampling increase
+`samples_per_peak`, and set `maximum_frequency` to lower values in order to
+narrow the frequency range:
+
+```julia
+plot(freqpower(lombscargle(t, s, samples_per_peak=20, maximum_frequency=1.5))...)
+```
+
+If you simply want to use your own frequency grid, directly set the
+`frequencies` keyword:
+
+```julia
+plot(freqpower(lombscargle(t, s, frequencies=0.01:1e-3:1.5))...)
+```
+
+### `findmaxfreq` Function ###
+
+`findmaxfreq` function tells you the frequencies with the highest power in the
+periodogram (and you can get the period by taking its inverse):
+
+```julia
+t = linspace(0, 10, 1001)
+s = sinpi(2t)
+p = lombscargle(t, s)
+1.0./findmaxfreq(p) # Period with highest power
+# => 1-element Array{Float64,1}:
+#     0.00502487
+```
+
+This peak is at high frequency, very far from the expected value of the period
+of 1.  In order to find the real peak, you can either narrow the frequency range
+in order to exclude higher armonics, or pass the `threshold` argument to
+`findmaxfreq`:
+
+```julia
+1.0./findmaxfreq(p, 0.967)
+# => 5-element Array{Float64,1}:
+#     1.0101
+#     0.0101
+#     0.00990197
+#     0.00502487
+#     0.00497537
+```
+
+The first peak is the real one, the other double peaks appear at higher
+armonics.  Usually plotting the periodogram can give you a clue of what’s going
+on.
+
+Development
+-----------
+
+The package is developed at https://github.com/giordano/LombScargle.jl.  There
+you can submit bug reports, make suggestions, and propose pull requests.
+
+### History ###
+
+The ChangeLog of the package is available in
+[NEWS.md](https://github.com/giordano/LombScargle.jl/blob/master/NEWS.md) file
+in top directory.
+
+License
+-------
+
+The `LombScargle.jl` package is licensed under the MIT "Expat" License.  The
+original author is Mosè Giordano.
