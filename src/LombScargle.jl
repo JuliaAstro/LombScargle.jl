@@ -15,6 +15,8 @@ __precompile__()
 
 module LombScargle
 
+using Measurements
+
 export lombscargle, power, freq, freqpower, findmaxfreq
 
 # This is similar to Periodogram type of DSP.Periodograms module, but for
@@ -209,7 +211,7 @@ end
 
 Compute the Lomb-Scargle periodogram of the `signal` vector, observed at
 `times`.  You can also specify the uncertainties for each signal point with in
-`errors` argument.
+`errors` argument.  All these vectors must have the same length.
 
 Optional keywords arguments are:
 
@@ -221,11 +223,11 @@ Optional keywords arguments are:
 * `center_data`: if `true`, subtract the mean of `signal` from `signal` itself
   before performing the periodogram.  This is especially important if `fit_mean`
   is `false`
-* `frequencies`: the frequecy grid at which the periodogram will be computed, as
-  a vector.  If not provided, it is automatically determined with
-  `LombScargle.autofrequency` function, which see.  See below for other
-  available keywords that can be used to affect the frequency grid without
-  directly setting `frequencies`
+* `frequencies`: the frequecy grid (not angular frequencies) at which the
+  periodogram will be computed, as a vector.  If not provided, it is
+  automatically determined with `LombScargle.autofrequency` function, which see.
+  See below for other available keywords that can be used to affect the
+  frequency grid without directly setting `frequencies`
 
 In addition, you can use all optional keyword arguments of
 `LombScargle.autofrequency` function in order to tune the `frequencies` vector
@@ -240,6 +242,14 @@ without calling the function:
 * `maximum_frequency`: if specified, then use this maximum frequency rather than
   one chosen based on the average Nyquist frequency
 
+If the signal has uncertainties, the `signal` vector can also be a vector of
+`Measurement` objects (from
+[`Measurements.jl`](https://github.com/giordano/Measurements.jl) package), in
+which case you don’t need to pass a separate `errors` vector for the
+uncertainties of the signal.  See `Measurements.jl` manual at
+http://measurementsjl.readthedocs.io/ for details on how to create a vector of
+`Measurement` objects.
+
 The algorithm used here are reported in the following papers:
 
 * Townsend, R. H. D. 2010, ApJS, 191, 247 (URL:
@@ -249,7 +259,8 @@ The algorithm used here are reported in the following papers:
   http://dx.doi.org/10.1051/0004-6361:200811296,
   Bibcode: http://adsabs.harvard.edu/abs/2009A%26A...496..577Z)
 """
-function lombscargle{T<:Real}(times::AbstractVector{T}, signal::AbstractVector{T},
+function lombscargle{T<:Real}(times::AbstractVector{T},
+                              signal::AbstractVector{T},
                               errors::AbstractVector{T}=ones(signal);
                               center_data::Bool=true, fit_mean::Bool=true,
                               samples_per_peak::Int=5,
@@ -270,5 +281,13 @@ function lombscargle{T<:Real}(times::AbstractVector{T}, signal::AbstractVector{T
         return _lombscargle_orig(times, signal, frequencies, center_data)
     end
 end
+
+lombscargle{T<:Real,F<:AbstractFloat}(times::AbstractVector{T},
+                                      signal::AbstractVector{Measurement{F}};
+                                      kwargs...) =
+                                          lombscargle(times,
+                                                      value(signal),
+                                                      uncertainty(signal);
+                                                      kwargs...)
 
 end # module

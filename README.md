@@ -81,21 +81,23 @@ Optional argument is:
 
 * `errors`: the uncertainties associated to each `signal` point
 
+All the vectors above must have the same length.
+
 Optional keyword arguments are:
 
 * `fit_mean`: if `true`, fit for the mean of the signal using the Generalised
-  Lomb–Scargle algorithm (see Zechmeister & Kürster paper below).  If this is
-  `false`, the original algorithm by Lomb and Scargle will be employed (see
-  Townsend paper below), which does not take into account a non-null mean and
-  uncertainties for observations
+  Lomb–Scargle algorithm (see Zechmeister & Kürster paper).  If this is `false`,
+  the original algorithm by Lomb and Scargle will be employed (see Townsend
+  paper), which does not take into account a non-null mean and uncertainties for
+  observations
 * `center_data`: if `true`, subtract the mean of `signal` from `signal` itself
   before performing the periodogram.  This is especially important if `fit_mean`
   is `false`
-* `frequencies`: the frequecy grid at which the periodogram will be computed, as
-  a vector.  If not provided, it is automatically determined with
-  `LombScargle.autofrequency` function, which see.  See below for other
-  available keywords that can be used to affect the frequency grid without
-  directly setting `frequencies`
+* `frequencies`: the frequecy grid (not angular frequencies) at which the
+  periodogram will be computed, as a vector.  If not provided, it is
+  automatically determined with `LombScargle.autofrequency` function, which see.
+  See below for other available keywords that can be used to affect the
+  frequency grid without directly setting `frequencies`
 
 In addition, you can use all optional keyword arguments of
 `LombScargle.autofrequency` function in order to tune the `frequencies` vector
@@ -113,6 +115,14 @@ without calling the function:
 The frequency grid is determined by following prescriptions given at
 https://jakevdp.github.io/blog/2015/06/13/lomb-scargle-in-python/ and uses the
 same keywords names adopted in Astropy.
+
+If the signal has uncertainties, the `signal` vector can also be a vector of
+`Measurement` objects (from
+[`Measurements.jl`](https://github.com/giordano/Measurements.jl) package), in
+which case you don’t need to pass a separate `errors` vector for the
+uncertainties of the signal.  See `Measurements.jl` manual at
+http://measurementsjl.readthedocs.io/ for details on how to create a vector of
+`Measurement` objects.
 
 ### Access Frequency Grid and Power Spectrum of the Periodogram ###
 
@@ -136,7 +146,7 @@ findmaxfreq(p::Periodogram, threshold::Real=maximum(power(p)))
 
 Once you compute the periodogram, you usually want to know which are the
 frequencies with highest power.  To do this, you can use the `findmaxfreq`.  It
-returns the array of frequencies with the highest power in the periodogram `p`.
+returns the vector of frequencies with the highest power in the periodogram `p`.
 If a second argument `threshold` is provided, return the frequencies with power
 larger than or equal to `threshold`.
 
@@ -190,7 +200,26 @@ If you simply want to use your own frequency grid, directly set the
 `frequencies` keyword:
 
 ```julia
-plot(freqpower(lombscargle(t, s, frequencies=0.01:1e-3:1.5))...)
+plot(freqpower(lombscargle(t, s, frequencies=0.001:1e-3:1.5))...)
+```
+
+### Signal with Uncertainties ###
+
+The generalised Lomb–Scargle periodogram (used when the `fit_mean` optional
+keyword is `true`) is able to handle a signal with uncertainties, and they will
+be used as weights in the algorithm.  The uncertainties can be passed either as
+the third optional argument `errors` to `lombscargle` or by providing this
+function with a `signal` vector of type `Measurement` (from
+[`Measurements.jl`](https://github.com/giordano/Measurements.jl) package).
+
+```julia
+using Measurements, PyPlot
+ntimes = 1001
+t = linspace(0.01, 10pi, ntimes)
+s = sinpi(2t)
+errors = rand(0.1:1e-3:4.0, ntimes)
+plot(freqpower(lombscargle(t, s, errors, maximum_frequency=1.5))...)
+plot(freqpower(lombscargle(t, measurement(s, errors), maximum_frequency=1.5))...)
 ```
 
 ### `findmaxfreq` Function ###

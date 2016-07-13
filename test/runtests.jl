@@ -31,6 +31,10 @@ pgram2 = lombscargle(t, s, fit_mean=true)
 # Test the values in order to prevent wrong results in both algorithms
 @test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, fit_mean=true))  [0.029886871262324886,0.0005456198989410226,1.912507742056023e-5, 4.54258409531214e-6, 1.0238342782430832e-5]
 @test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, fit_mean=false)) [0.02988686776042212, 0.0005456197937194695,1.9125076826683257e-5,4.542583863304549e-6,1.0238340733199874e-5]
+# Test signal with uncertainties
+err = err = linspace(0.5, 1.5, ntimes)
+@test_approx_eq power(lombscargle(t, s, err, frequencies=0.2:0.2:1, fit_mean=true))  [0.09230959166317665,0.00156640109976925,  0.0001970465924587832,6.331573873913458e-5,3.794844882537295e-5]
+@test_approx_eq power(lombscargle(t, s, err, frequencies=0.2:0.2:1, fit_mean=false)) [0.02988686776042212,0.0005456197937194695,1.9125076826683257e-5,4.542583863304549e-6,1.0238340733199874e-5]
 
 # Test autofrequency function
 @test_approx_eq LombScargle.autofrequency(t)                       0.003184112396292367:0.006368224792584734:79.6824127172165
