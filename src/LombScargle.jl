@@ -141,15 +141,13 @@ end
 #   Bibcode: http://adsabs.harvard.edu/abs/2009A%26A...496..577Z)
 function _generalised_lombscargle{T<:Real}(times::AbstractVector{T},
                                            signal::AbstractVector{T},
-                                           errors::AbstractVector{T},
+                                           w::AbstractVector{T},
                                            freqs::AbstractVector{T},
                                            center_data::Bool, fit_mean::Bool)
     P = Vector{T}(freqs)
     nil = zero(float(T))
     # If "center_data" keyword is true, subtract the mean from each point.
     signal_mean = center_data ? mean(signal) : nil
-    w = 1.0./errors.^2
-    w /= sum(w)
     @inbounds for n in eachindex(freqs)
         ω = 2pi*freqs[n]
 
@@ -193,6 +191,54 @@ function _generalised_lombscargle{T<:Real}(times::AbstractVector{T},
     end
     return Periodogram(P, freqs)
 end
+
+function _lombscargle{T<:Real}(times::AbstractVector{T},
+                               signal::AbstractVector{T},
+                               w::AbstractVector{T}=ones(signal)/length(signal);
+                               center_data::Bool=true, fit_mean::Bool=true,
+                               samples_per_peak::Int=5,
+                               nyquist_factor::Integer=5,
+                               minimum_frequency::Real=NaN,
+                               maximum_frequency::Real=NaN,
+                               frequencies::AbstractVector{T}=
+                               autofrequency(times,
+                                             samples_per_peak=samples_per_peak,
+                                             nyquist_factor=nyquist_factor,
+                                             minimum_frequency=minimum_frequency,
+                                             maximum_frequency=maximum_frequency))
+    @assert length(times) == length(signal) == length(w)
+    if fit_mean
+        return _generalised_lombscargle(times, signal, w, frequencies,
+                                        center_data, fit_mean)
+    else
+        return _lombscargle_orig(times, signal, frequencies, center_data)
+    end
+end
+
+lombscargle{T<:Real}(times::AbstractVector{T},
+                     signal::AbstractVector{T};
+                     kwargs...) =
+                         _lombscargle(times,
+                                      signal;
+                                      kwargs...)
+
+function lombscargle{T<:Real}(times::AbstractVector{T},
+                              signal::AbstractVector{T},
+                              errors::AbstractVector{T};
+                              kwargs...)
+    # Compute weights vector
+    w = 1.0./errors.^2
+    w /= sum(w)
+    return _lombscargle(times, signal, w; kwargs...)
+end
+
+lombscargle{T<:Real,F<:AbstractFloat}(times::AbstractVector{T},
+                                      signal::AbstractVector{Measurement{F}};
+                                      kwargs...) =
+                                          lombscargle(times,
+                                                      value(signal),
+                                                      uncertainty(signal);
+                                                      kwargs...)
 
 """
     lombscargle(times::AbstractVector{Real}, signal::AbstractVector{Real},
@@ -259,35 +305,6 @@ The algorithm used here are reported in the following papers:
   http://dx.doi.org/10.1051/0004-6361:200811296,
   Bibcode: http://adsabs.harvard.edu/abs/2009A%26A...496..577Z)
 """
-function lombscargle{T<:Real}(times::AbstractVector{T},
-                              signal::AbstractVector{T},
-                              errors::AbstractVector{T}=ones(signal);
-                              center_data::Bool=true, fit_mean::Bool=true,
-                              samples_per_peak::Int=5,
-                              nyquist_factor::Integer=5,
-                              minimum_frequency::Real=NaN,
-                              maximum_frequency::Real=NaN,
-                              frequencies::AbstractVector{T}=
-                              autofrequency(times,
-                                            samples_per_peak=samples_per_peak,
-                                            nyquist_factor=nyquist_factor,
-                                            minimum_frequency=minimum_frequency,
-                                            maximum_frequency=maximum_frequency))
-    @assert length(times) == length(signal) == length(errors)
-    if fit_mean
-        return _generalised_lombscargle(times, signal, errors, frequencies,
-                                        center_data, fit_mean)
-    else
-        return _lombscargle_orig(times, signal, frequencies, center_data)
-    end
-end
-
-lombscargle{T<:Real,F<:AbstractFloat}(times::AbstractVector{T},
-                                      signal::AbstractVector{Measurement{F}};
-                                      kwargs...) =
-                                          lombscargle(times,
-                                                      value(signal),
-                                                      uncertainty(signal);
-                                                      kwargs...)
+lombscargle
 
 end # module
