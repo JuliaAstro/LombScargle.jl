@@ -105,11 +105,12 @@ end
 function _lombscargle_orig{T<:Real}(times::AbstractVector{T}, signal::AbstractVector{T},
                                     freqs::AbstractVector{T}, center_data::Bool)
     P = Vector{T}(freqs)
+    N = length(signal)
     # If "center_data" keyword is true, subtract the mean from each point.
     signal_mean = center_data ? mean(signal) : zero(T)
     @inbounds for n in eachindex(freqs)
         ω = 2pi*freqs[n]
-        XX = XC = XS = CC = SS = CS = zero(float(T))
+        XX = XC = XS = CC = CS = zero(float(T))
         for j in eachindex(times)
             ωt = ω*times[j]
             C = cos(ωt)
@@ -119,9 +120,9 @@ function _lombscargle_orig{T<:Real}(times::AbstractVector{T}, signal::AbstractVe
             XC += X*C
             XS += X*S
             CC += C*C
-            SS += S*S
             CS += C*S
         end
+        SS      = N - CC
         τ       = 0.5*atan2(2CS, CC - SS)/ω
         c_τ     = cos(ω*τ)
         s_τ     = sin(ω*τ)
@@ -170,7 +171,7 @@ function _generalised_lombscargle{T<:Real}(times::AbstractVector{T},
         τ   = 0.5*atan2(2CS, CC - SS)/ω
 
         # Now we can compute the power
-        Y = YY = C_τ = S_τ = YC_τ = YS_τ = CC_τ = SS_τ = nil
+        Y = YY = C_τ = S_τ = YC_τ = YS_τ = CC_τ = nil
         for i in eachindex(times)
             y     = signal[i] - signal_mean
             ωt    = ω*(times[i] - τ)
@@ -184,10 +185,9 @@ function _generalised_lombscargle{T<:Real}(times::AbstractVector{T},
             YC_τ += W*y*c
             YS_τ += W*y*s
             CC_τ += W*c*c
-            SS_τ += W*s*s
         end
         P[n] = (abs2(YC_τ - Y*C_τ)/(CC_τ - C_τ*C_τ) +
-                abs2(YS_τ - Y*S_τ)/(SS_τ - S_τ*S_τ))/(YY - Y*Y)
+                abs2(YS_τ - Y*S_τ)/(1.0 - CC_τ - S_τ*S_τ))/(YY - Y*Y)
     end
     return Periodogram(P, freqs)
 end
