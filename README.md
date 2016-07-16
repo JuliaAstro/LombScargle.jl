@@ -13,8 +13,8 @@ periodic signal with
 Another Julia package that provides tools to perform spectral analysis of
 signals is [`DSP.jl`](https://github.com/JuliaDSP/DSP.jl), but its methods
 require that the signal has been sampled at equally spaced times.  Instead, the
-Lomb–Scargle periodogram enables you to study unevenly sampled data, which is a
-fairly common case in astronomy.
+Lomb–Scargle periodogram enables you to analyze unevenly sampled data as well,
+which is a fairly common case in astronomy.
 
 The algorithm used in this package are reported in the following papers:
 
@@ -50,7 +50,7 @@ using LombScargle
 ```
 
 The module defines a new `LombScargle.Periodogram` data type, which, however, is
-not exported because you will most probably not need to manually construct
+not exported because you will most probably not need to directly manipulate
 `LombScargle.Periodogram` objects.  This data type holds both the frequency and
 the power vectors of the periodogram.
 
@@ -60,7 +60,7 @@ The main function provided by the package is `lombscargle`:
 lombscargle(times::AbstractVector{Real}, signal::AbstractVector{Real},
             errors::AbstractVector{Real}=ones(signal);
             center_data::Bool=true, fit_mean::Bool=true,
-            samples_per_peak::Int=5,
+            samples_per_peak::Integer=5,
             nyquist_factor::Integer=5,
             minimum_frequency::Real=NaN,
             maximum_frequency::Real=NaN,
@@ -72,7 +72,7 @@ lombscargle(times::AbstractVector{Real}, signal::AbstractVector{Real},
                           maximum_frequency=maximum_frequency))
 ```
 
-The mandatory arguments are:
+which returns a `LombScargle.Periodogram`.  The mandatory arguments are:
 
 * `times`: the vector of observation times
 * `signal`: the vector of observations associated with `times`
@@ -96,7 +96,7 @@ Optional keyword arguments are:
 * `frequencies`: the frequecy grid (not angular frequencies) at which the
   periodogram will be computed, as a vector.  If not provided, it is
   automatically determined with `LombScargle.autofrequency` function, which see.
-  See below for other available keywords that can be used to affect the
+  See below for other available keywords that can be used to adjust the
   frequency grid without directly setting `frequencies`
 
 In addition, you can use all optional keyword arguments of
@@ -120,9 +120,9 @@ If the signal has uncertainties, the `signal` vector can also be a vector of
 `Measurement` objects (from
 [`Measurements.jl`](https://github.com/giordano/Measurements.jl) package), in
 which case you don’t need to pass a separate `errors` vector for the
-uncertainties of the signal.  See `Measurements.jl` manual at
-http://measurementsjl.readthedocs.io/ for details on how to create a vector of
-`Measurement` objects.
+uncertainties of the signal.  You can create arrays of `Measurement` objects
+with the `measurement` function, see `Measurements.jl` manual at
+http://measurementsjl.readthedocs.io/ for more details.
 
 ### Access Frequency Grid and Power Spectrum of the Periodogram ###
 

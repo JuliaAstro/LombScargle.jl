@@ -61,7 +61,7 @@ findmaxfreq(p::Periodogram, threshold::Real=maximum(power(p))) =
 
 """
     autofrequency(times::AbstractVector{Real};
-                  samples_per_peak::Int=5,
+                  samples_per_peak::Integer=5,
                   nyquist_factor::Integer=5,
                   minimum_frequency::Real=NaN,
                   maximum_frequency::Real=NaN)
@@ -83,7 +83,8 @@ This is based on prescription given at
 https://jakevdp.github.io/blog/2015/06/13/lomb-scargle-in-python/ and uses the
 same keywords names adopted in Astropy.
 """
-function autofrequency{R<:Real}(times::AbstractVector{R}; samples_per_peak::Int=5,
+function autofrequency{R<:Real}(times::AbstractVector{R};
+                                samples_per_peak::Integer=5,
                                 nyquist_factor::Integer=5,
                                 minimum_frequency::Real=NaN,
                                 maximum_frequency::Real=NaN)
@@ -102,15 +103,19 @@ end
 # * Townsend, R. H. D. 2010, ApJS, 191, 247 (URL:
 #   http://dx.doi.org/10.1088/0067-0049/191/2/247,
 #   Bibcode: http://adsabs.harvard.edu/abs/2010ApJS..191..247T)
-function _lombscargle_orig{T<:Real}(times::AbstractVector{T}, signal::AbstractVector{T},
-                                    freqs::AbstractVector{T}, center_data::Bool)
-    P = Vector{T}(freqs)
+function _lombscargle_orig{R1<:Real,R2<:Real,R3<:Real}(times::AbstractVector{R1},
+                                                       signal::AbstractVector{R2},
+                                                       freqs::AbstractVector{R3},
+                                                       center_data::Bool)
+    P_type = promote_type(float(R1), float(R2))
+    P = Vector{P_type}(freqs)
     N = length(signal)
+    nil = zero(P_type)
     # If "center_data" keyword is true, subtract the mean from each point.
-    signal_mean = center_data ? mean(signal) : zero(T)
+    signal_mean = center_data ? mean(signal) : zero(R2)
     @inbounds for n in eachindex(freqs)
         ω = 2pi*freqs[n]
-        XX = XC = XS = CC = CS = zero(float(T))
+        XX = XC = XS = CC = CS = nil
         for j in eachindex(times)
             ωt = ω*times[j]
             C = cos(ωt)
@@ -140,20 +145,21 @@ end
 # * Zechmeister, M., Kürster, M. 2009, A&A, 496, 577  (URL:
 #   http://dx.doi.org/10.1051/0004-6361:200811296,
 #   Bibcode: http://adsabs.harvard.edu/abs/2009A%26A...496..577Z)
-function _generalised_lombscargle{T<:Real}(times::AbstractVector{T},
-                                           signal::AbstractVector{T},
-                                           w::AbstractVector{T},
-                                           freqs::AbstractVector{T},
-                                           center_data::Bool, fit_mean::Bool)
-    P = Vector{T}(freqs)
-    nil = zero(float(T))
+function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector{R1},
+                                                                       signal::AbstractVector{R2},
+                                                                       w::AbstractVector{R3},
+                                                                       freqs::AbstractVector{R4},
+                                                                       center_data::Bool, fit_mean::Bool)
+    P_type = promote_type(float(R1), float(R2))
+    P = Vector{P_type}(freqs)
+    nil = zero(P_type)
     # If "center_data" keyword is true, subtract the mean from each point.
     signal_mean = center_data ? mean(signal) : nil
     @inbounds for n in eachindex(freqs)
         ω = 2pi*freqs[n]
 
         # Find τ for current angular frequency
-        C = S = CS = CC = SS = nil
+        C = S = CS = CC = nil
         for i in eachindex(times)
             ωt  = ω*times[i]
             W   = w[i]
@@ -163,11 +169,10 @@ function _generalised_lombscargle{T<:Real}(times::AbstractVector{T},
             S  += W*s
             CS += W*c*s
             CC += W*c*c
-            SS += W*s*s
         end
         CS -= C*S
+        SS  = 1.0 - CC - S*S
         CC -= C*C
-        SS -= S*S
         τ   = 0.5*atan2(2CS, CC - SS)/ω
 
         # Now we can compute the power
@@ -192,20 +197,21 @@ function _generalised_lombscargle{T<:Real}(times::AbstractVector{T},
     return Periodogram(P, freqs)
 end
 
-function _lombscargle{T<:Real}(times::AbstractVector{T},
-                               signal::AbstractVector{T},
-                               w::AbstractVector{T}=ones(signal)/length(signal);
-                               center_data::Bool=true, fit_mean::Bool=true,
-                               samples_per_peak::Int=5,
-                               nyquist_factor::Integer=5,
-                               minimum_frequency::Real=NaN,
-                               maximum_frequency::Real=NaN,
-                               frequencies::AbstractVector{T}=
-                               autofrequency(times,
-                                             samples_per_peak=samples_per_peak,
-                                             nyquist_factor=nyquist_factor,
-                                             minimum_frequency=minimum_frequency,
-                                             maximum_frequency=maximum_frequency))
+# This is the switch to select the appropriate function to run
+function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector{R1},
+                                                           signal::AbstractVector{R2},
+                                                           w::AbstractVector{R3}=ones(signal)/length(signal);
+                                                           center_data::Bool=true, fit_mean::Bool=true,
+                                                           samples_per_peak::Integer=5,
+                                                           nyquist_factor::Integer=5,
+                                                           minimum_frequency::Real=NaN,
+                                                           maximum_frequency::Real=NaN,
+                                                           frequencies::AbstractVector{R4}=
+                                                           autofrequency(times,
+                                                                         samples_per_peak=samples_per_peak,
+                                                                         nyquist_factor=nyquist_factor,
+                                                                         minimum_frequency=minimum_frequency,
+                                                                         maximum_frequency=maximum_frequency))
     @assert length(times) == length(signal) == length(w)
     if fit_mean
         return _generalised_lombscargle(times, signal, w, frequencies,
@@ -215,23 +221,26 @@ function _lombscargle{T<:Real}(times::AbstractVector{T},
     end
 end
 
-lombscargle{T<:Real}(times::AbstractVector{T},
-                     signal::AbstractVector{T};
-                     kwargs...) =
-                         _lombscargle(times,
-                                      signal;
-                                      kwargs...)
+# No uncertainties
+lombscargle{R1<:Real,R2<:Real}(times::AbstractVector{R1},
+                               signal::AbstractVector{R2};
+                               kwargs...) =
+                                   _lombscargle(times,
+                                                signal;
+                                                kwargs...)
 
-function lombscargle{T<:Real}(times::AbstractVector{T},
-                              signal::AbstractVector{T},
-                              errors::AbstractVector{T};
-                              kwargs...)
+# Uncertainties provided
+function lombscargle{R1<:Real,R2<:Real,R3<:Real}(times::AbstractVector{R1},
+                                                 signal::AbstractVector{R2},
+                                                 errors::AbstractVector{R3};
+                                                 kwargs...)
     # Compute weights vector
     w = 1.0./errors.^2
     w /= sum(w)
     return _lombscargle(times, signal, w; kwargs...)
 end
 
+# Uncertainties provided via Measurement type
 lombscargle{T<:Real,F<:AbstractFloat}(times::AbstractVector{T},
                                       signal::AbstractVector{Measurement{F}};
                                       kwargs...) =
@@ -244,7 +253,7 @@ lombscargle{T<:Real,F<:AbstractFloat}(times::AbstractVector{T},
     lombscargle(times::AbstractVector{Real}, signal::AbstractVector{Real},
                 errors::AbstractVector{Real}=ones(signal);
                 center_data::Bool=true, fit_mean::Bool=true,
-                samples_per_peak::Int=5,
+                samples_per_peak::Integer=5,
                 nyquist_factor::Integer=5,
                 minimum_frequency::Real=NaN,
                 maximum_frequency::Real=NaN,
