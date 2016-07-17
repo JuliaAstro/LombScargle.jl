@@ -153,7 +153,7 @@ larger than or equal to `threshold`.
 Examples
 --------
 
-Here is an example of a noisy periodic signal (`sin(π*t) + 1.5*cos(π*t)`)
+Here is an example of a noisy periodic signal (`sin(π*t) + 1.5*cos(2π*t)`)
 sampled at unevenly spaced times.
 
 ```julia
