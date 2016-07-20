@@ -43,3 +43,26 @@ err = linspace(0.5, 1.5, ntimes)
 @test_approx_eq LombScargle.autofrequency(t)                       0.003184112396292367:0.006368224792584734:79.6824127172165
 @test_approx_eq LombScargle.autofrequency(t, minimum_frequency=0)                   0.0:0.006368224792584734:79.6792286048202
 @test_approx_eq LombScargle.autofrequency(t, maximum_frequency=10) 0.003184112396292367:0.006368224792584734:9.99492881196174
+
+### Compare with Astropy
+using PyCall
+t = linspace(0.01, 10pi, ntimes)
+t += (t[2] - t[1])*rand(ntimes)
+for f in (x -> sinpi(x), x -> sin(x) + 1.5*cospi(4*x) + 3)
+    s = f(t)
+    for fitmean in (true, false)
+        f_jl, p_jl = freqpower(lombscargle(t, s, fit_mean = fitmean))
+        f_py, p_py =
+            # Astropy is necessary for this test to be meaningful.  We don't
+            # require it, but we have to guard against its absence.
+            try
+                (PyCall.@pyimport astropy.stats as ast;
+                 ast.LombScargle(t, s, fit_mean = fitmean)[:autopower](method="cython"))
+            catch
+                f_jl, p_jl
+            end
+        # In some cases f_jl and p_jl are one-element longer that f_py and p_py
+        @test_approx_eq f_jl[1:length(f_py)] f_py
+        @test_approx_eq p_jl[1:length(p_py)] p_py
+    end
+end
