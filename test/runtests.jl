@@ -45,7 +45,7 @@ err = linspace(0.5, 1.5, ntimes)
 @test_approx_eq LombScargle.autofrequency(t, maximum_frequency=10) 0.003184112396292367:0.006368224792584734:9.99492881196174
 
 ### Compare with Astropy
-using PyCall
+using PyCall, Compat
 # This test fails on AppVeyor for some strange reason (maybe problems with
 # PyCall and Julia 0.5), just skip it on Windows.
 if is_unix()
