@@ -6,14 +6,14 @@ ntimes = 1001
 # Observation times
 t = linspace(0.01, 10pi, ntimes)
 # Randomize times
-t += (t[2] - t[1])*rand(ntimes)
+t += step(t)*rand(ntimes)
 # The signal
 s = sinpi(t) + cospi(2t) + rand(ntimes)
 # Frequency grid
 nfreqs = 10000
 freqs = linspace(0.01, 3, nfreqs)
 # Randomize frequency grid
-freqs += (freqs[2] - freqs[1])*rand(nfreqs)
+freqs += step(freqs)*rand(nfreqs)
 # Use "freqpower" just to call that function and increase code coverage.
 # "autofrequency" function is tested below.
 @test_approx_eq_eps freqpower(lombscargle(t, s, frequencies=freqs, fit_mean=false))[2] freqpower(lombscargle(t, s, frequencies=freqs, fit_mean=true))[2] 5e-3
@@ -47,7 +47,7 @@ err = linspace(0.5, 1.5, ntimes)
 ### Compare with Astropy
 using PyCall
 t = linspace(0.01, 10pi, ntimes)
-t += (t[2] - t[1])*rand(ntimes)
+t += step(t)*rand(ntimes)
 for f in (x -> sinpi(x), x -> sin(x) + 1.5*cospi(4*x) + 3)
     s = f(t)
     for fitmean in (true, false)
@@ -61,7 +61,7 @@ for f in (x -> sinpi(x), x -> sin(x) + 1.5*cospi(4*x) + 3)
             catch
                 f_jl, p_jl
             end
-        # In some cases f_jl and p_jl are one-element longer that f_py and p_py
+        # In some cases f_jl and p_jl are one-element longer than f_py and p_py
         @test_approx_eq f_jl[1:length(f_py)] f_py
         @test_approx_eq p_jl[1:length(p_py)] p_py
     end

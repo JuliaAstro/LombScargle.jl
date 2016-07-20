@@ -162,7 +162,7 @@ Here is an example of a noisy periodic signal (:math:`\sin(\pi t) +
     # Observation times
     t = linspace(0.01, 10pi, ntimes)
     # Randomize times
-    t += (t[2] - t[1])*rand(ntimes)
+    t += step(t)*rand(ntimes)
     # The signal
     s = sinpi(t) + 1.5cospi(2t) + rand(ntimes)
     pgram = lombscargle(t, s)

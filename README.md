@@ -162,7 +162,7 @@ ntimes = 1001
 # Observation times
 t = linspace(0.01, 10pi, ntimes)
 # Randomize times
-t += (t[2] - t[1])*rand(ntimes)
+t += step(t)*rand(ntimes)
 # The signal
 s = sinpi(t) + 1.5cospi(2t) + rand(ntimes)
 pgram = lombscargle(t, s)
