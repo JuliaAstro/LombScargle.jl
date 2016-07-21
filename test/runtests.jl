@@ -47,39 +47,3 @@ err = linspace(0.5, 1.5, ntimes)
 @test_approx_eq LombScargle.autofrequency(t)                       0.003184112396292367:0.006368224792584734:79.6824127172165
 @test_approx_eq LombScargle.autofrequency(t, minimum_frequency=0)                   0.0:0.006368224792584734:79.6792286048202
 @test_approx_eq LombScargle.autofrequency(t, maximum_frequency=10) 0.003184112396292367:0.006368224792584734:9.99492881196174
-
-### Compare with Astropy
-using PyCall, Compat
-# This test fails on AppVeyor for some strange reason (maybe problems with
-# PyCall and Julia 0.5), just skip it on Windows.
-if is_unix()
-    ntimes = 201
-    t = linspace(0.01, 10pi, ntimes)
-    t += step(t)*rand(ntimes)
-    for f in (x -> sinpi(x), x -> sin(x) + 1.5*cospi(4*x) + 3)
-        s = f(t)
-        # "psd" normalization in LombScargle slightly differ from that of
-        # Astropy and the test would fail if we includ it.
-        for fitmean in (true, false), nrm in ("standard", "model", "log")
-            f_jl, p_jl = freqpower(lombscargle(t, s, fit_mean = fitmean,
-                                               normalization=nrm,
-                                               maximum_frequency=20))
-            f_py, p_py =
-                # Astropy is necessary for this test to be meaningful.  We don't
-                # require it, but we have to guard against its absence (it will
-                # most probably not be available in Continous Integration
-                # tools).
-                try
-                    (PyCall.@pyimport astropy.stats as ast;
-                     ast.LombScargle(t, s,
-                                     fit_mean = fitmean)[:autopower](method="cython",
-                                                                     normalization=nrm,
-                                                                     maximum_frequency=20))
-                catch
-                    f_jl, p_jl
-                end
-            @test_approx_eq f_jl f_py
-            @test_approx_eq p_jl p_py
-        end
-    end
-end
