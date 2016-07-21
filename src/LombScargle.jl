@@ -24,6 +24,7 @@ export lombscargle, power, freq, freqpower, findmaxfreq
 immutable Periodogram{T<:AbstractFloat}
     power::AbstractVector{T}
     freq::AbstractVector{T}
+    norm::AbstractString
 end
 
 """
@@ -137,7 +138,7 @@ function _lombscargle_orig{R1<:Real,R2<:Real,R3<:Real}(times::AbstractVector{R1}
         P[n] = (abs2(c_τ*XC + s_τ*XS)/(c_τ2*CC + cs_τ_CS + s_τ2*SS) +
                 abs2(c_τ*XS - s_τ*XC)/(c_τ2*SS - cs_τ_CS + s_τ2*CC))/XX
     end
-    return Periodogram(P, freqs)
+    return P, freqs
 end
 
 # Generalised Lomb-Scargle algorithm: this takes into account uncertainties and
@@ -194,13 +195,14 @@ function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Ab
         P[n] = (abs2(YC_τ - Y*C_τ)/(CC_τ - C_τ*C_τ) +
                 abs2(YS_τ - Y*S_τ)/(1.0 - CC_τ - S_τ*S_τ))/(YY - Y*Y)
     end
-    return Periodogram(P, freqs)
+    return P, freqs
 end
 
 # This is the switch to select the appropriate function to run
 function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector{R1},
                                                            signal::AbstractVector{R2},
                                                            w::AbstractVector{R3}=ones(signal)/length(signal);
+                                                           normalization::AbstractString="standard",
                                                            center_data::Bool=true, fit_mean::Bool=true,
                                                            samples_per_peak::Integer=5,
                                                            nyquist_factor::Integer=5,
@@ -214,11 +216,25 @@ function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector
                                                                          maximum_frequency=maximum_frequency))
     @assert length(times) == length(signal) == length(w)
     if fit_mean
-        return _generalised_lombscargle(times, signal, w, frequencies,
+        P, f = _generalised_lombscargle(times, signal, w, frequencies,
                                         center_data, fit_mean)
     else
-        return _lombscargle_orig(times, signal, frequencies, center_data)
+        P, f = _lombscargle_orig(times, signal, frequencies, center_data)
     end
+
+    # Normalize periodogram
+    if normalization == "standard"
+    elseif normalization == "model"
+        P = P./(1.0 - P)
+    elseif normalization == "log"
+        P = -log(1.0 - P)
+    elseif normalization == "psd"
+        P *= 0.5*length(signal)*(w⋅signal.^2)
+    else
+        error("normalization \"", normalization, "\" not supported")
+    end
+
+    return Periodogram(P, f, normalization)
 end
 
 # No uncertainties

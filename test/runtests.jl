@@ -32,6 +32,10 @@ pgram2 = lombscargle(t, s, fit_mean=true)
 # Test the values in order to prevent wrong results in both algorithms
 @test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, fit_mean=true))  [0.029886871262324886,0.0005456198989410226,1.912507742056023e-5, 4.54258409531214e-6, 1.0238342782430832e-5]
 @test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, fit_mean=false)) [0.02988686776042212, 0.0005456197937194695,1.9125076826683257e-5,4.542583863304549e-6,1.0238340733199874e-5]
+@test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, normalization="model")) [0.030807614469885718,0.0005459177625354441,1.9125443196143085e-5,4.54260473047638e-6,1.0238447607164715e-5]
+@test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, normalization="log")) [0.030342586720560734,0.0005457688036440774,1.9125260307148152e-5,4.542594412890309e-6,1.0238395194654036e-5]
+@test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, normalization="psd")) [7.474096700871138,0.1364484040771917,0.004782791641128195,0.0011360075968541799,0.002560400630125523]
+@test_throws ErrorException lombscargle(t, s, frequencies=0.2:0.2:1, normalization="foo")
 # Test signal with uncertainties
 err = linspace(0.5, 1.5, ntimes)
 @test_approx_eq power(lombscargle(t, s, err, frequencies=0.2:0.2:1, fit_mean=true))  [0.09230959166317665,0.00156640109976925,  0.0001970465924587832,6.331573873913458e-5,3.794844882537295e-5]
@@ -49,24 +53,33 @@ using PyCall, Compat
 # This test fails on AppVeyor for some strange reason (maybe problems with
 # PyCall and Julia 0.5), just skip it on Windows.
 if is_unix()
+    ntimes = 201
     t = linspace(0.01, 10pi, ntimes)
     t += step(t)*rand(ntimes)
     for f in (x -> sinpi(x), x -> sin(x) + 1.5*cospi(4*x) + 3)
         s = f(t)
-        for fitmean in (true, false)
-            f_jl, p_jl = freqpower(lombscargle(t, s, fit_mean = fitmean))
+        # "psd" normalization in LombScargle slightly differ from that of
+        # Astropy and the test would fail if we includ it.
+        for fitmean in (true, false), nrm in ("standard", "model", "log")
+            f_jl, p_jl = freqpower(lombscargle(t, s, fit_mean = fitmean,
+                                               normalization=nrm,
+                                               maximum_frequency=20))
             f_py, p_py =
                 # Astropy is necessary for this test to be meaningful.  We don't
-                # require it, but we have to guard against its absence.
+                # require it, but we have to guard against its absence (it will
+                # most probably not be available in Continous Integration
+                # tools).
                 try
                     (PyCall.@pyimport astropy.stats as ast;
-                     ast.LombScargle(t, s, fit_mean = fitmean)[:autopower](method="cython"))
+                     ast.LombScargle(t, s,
+                                     fit_mean = fitmean)[:autopower](method="cython",
+                                                                     normalization=nrm,
+                                                                     maximum_frequency=20))
                 catch
                     f_jl, p_jl
                 end
-            # In some cases f_jl and p_jl are one-element longer than f_py and p_py
-            @test_approx_eq f_jl[1:length(f_py)] f_py
-            @test_approx_eq p_jl[1:length(p_py)] p_py
+            @test_approx_eq f_jl f_py
+            @test_approx_eq p_jl p_py
         end
     end
 end
