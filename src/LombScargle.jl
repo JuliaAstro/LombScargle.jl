@@ -17,13 +17,15 @@ module LombScargle
 
 using Measurements
 
-export lombscargle, power, freq, freqpower, findmaxfreq
+export lombscargle, power, freq, freqpower, findmaxfreq, findmaxpower,
+prob, probinv, fap, fapinv
 
 # This is similar to Periodogram type of DSP.Periodograms module, but for
 # unevenly spaced frequencies.
 immutable Periodogram{T<:AbstractFloat}
     power::AbstractVector{T}
     freq::AbstractVector{T}
+    times::AbstractVector{T}
     norm::AbstractString
 end
 
@@ -59,6 +61,8 @@ larger than or equal to `threshold`.
 """
 findmaxfreq(p::Periodogram, threshold::Real=maximum(power(p))) =
     freq(p)[find(x -> x >= threshold, power(p))]
+
+findmaxpower(p::Periodogram) = maximum(power(p))
 
 """
     autofrequency(times::AbstractVector{Real};
@@ -98,6 +102,46 @@ function autofrequency{R<:Real}(times::AbstractVector{R};
         return f_min:δf:0.5*nyquist_factor*length(times)/T
     end
 end
+
+function prob(P::Periodogram, p_0::Real)
+    N = length(P.times)
+    if P.norm == "standard"
+        return (1.0 - p_0)^((N - 3.0)*0.5)
+    elseif P.norm == "Scargle"
+        return exp(-p_0)
+    elseif P.norm == "HorneBaliunas"
+        return (1.0 - 2p_0/(N - 1))^((N - 3.0)*0.5)
+    elseif P.norm == "Cumming"
+        return (1.0 + 2p_0/(N - 3.0))^((3.0 - N)*0.5)
+    else
+        return zero(first(power(P)))
+    end
+end
+
+function probinv(P::Periodogram, prob::Real)
+    N = length(P.times)
+    if P.norm == "standard"
+        return 1.0 - prob^(2.0/(N - 3.0))
+    elseif P.norm == "Scargle"
+        return -log(prob)
+    elseif P.norm == "HorneBaliunas"
+        return 0.5*(N - 1.0)*(1.0 - prob^(2.0/(N - 3.0)))
+    elseif P.norm == "Cumming"
+        return 0.5*(N - 3.0)*(prob^(2.0/(3.0 - N)) - 1.0)
+    else
+        return zero(first(power(P)))
+    end
+end
+
+function M(P::Periodogram)
+    t = P.times
+    f = P.freq
+    return (maximum(t) - minimum(t))*(maximum(f) - minimum(f))
+end
+
+fap(P::Periodogram, p_0::Real) = 1.0 - (1.0 - prob(P, p_0))^M(P)
+
+fapinv(P::Periodogram, fap::Real) = probinv(P, 1.0 - (1.0 - fap)^(inv(M(P))))
 
 # Original algorithm that doesn't take into account uncertainties and doesn't
 # fit the mean of the signal.  This is implemented following the recipe by
@@ -203,6 +247,7 @@ function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector
                                                            signal::AbstractVector{R2},
                                                            w::AbstractVector{R3}=ones(signal)/length(signal);
                                                            normalization::AbstractString="standard",
+                                                           noise_level::Real=1.0,
                                                            center_data::Bool=true, fit_mean::Bool=true,
                                                            samples_per_peak::Integer=5,
                                                            nyquist_factor::Integer=5,
@@ -222,6 +267,7 @@ function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector
         P, f = _lombscargle_orig(times, signal, frequencies, center_data)
     end
 
+    N = length(signal)
     # Normalize periodogram
     if normalization == "standard"
     elseif normalization == "model"
@@ -229,12 +275,18 @@ function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector
     elseif normalization == "log"
         P = -log(1.0 - P)
     elseif normalization == "psd"
-        P *= 0.5*length(signal)*(w⋅signal.^2)
+        P *= 0.5*N*(w⋅signal.^2)
+    elseif normalization == "Scargle"
+        P /= noise_level
+    elseif normalization == "HorneBaliunas"
+        P *= 0.5*(N - 1.0)
+    elseif normalization == "Cumming"
+        P *= 0.5*(N - 3.0)/(1.0 - maximum(P))
     else
         error("normalization \"", normalization, "\" not supported")
     end
 
-    return Periodogram(P, f, normalization)
+    return Periodogram(P, f, times, normalization)
 end
 
 # No uncertainties

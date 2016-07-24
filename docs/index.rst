@@ -1,5 +1,5 @@
-LombScargle
-===========
+LombScargle.jl
+==============
 
 Introduction
 ------------
@@ -56,6 +56,16 @@ and the power vectors of the periodogram.
 
 The main function provided by the package is ``lombscargle``:
 
+.. function:: lombscargle(times::AbstractVector{Real}, signal::AbstractVector{Real})
+
+which returns a ``LombScargle.Periodogram``.  The mandatory arguments are:
+
+-  ``times``: the vector of observation times
+-  ``signal``: the vector of observations associated with ``times``
+
+All these vectors must have the same length.  The complete syntax of
+``lombscargle`` is the following:
+
 .. code-block:: julia
 
     lombscargle(times::AbstractVector{Real}, signal::AbstractVector{Real},
@@ -72,16 +82,12 @@ The main function provided by the package is ``lombscargle``:
                               minimum_frequency=minimum_frequency,
                               maximum_frequency=maximum_frequency))
 
-which returns a ``LombScargle.Periodogram``.  The mandatory arguments are:
-
--  ``times``: the vector of observation times
--  ``signal``: the vector of observations associated with ``times``
-
-Optional argument is:
+In addition to the above mentioned mandatory argument, there is an optional
+argument:
 
 -  ``errors``: the uncertainties associated to each ``signal`` point
 
-All the vectors above must have the same length.
+Also ``errors`` must have the same length as ``times`` and ``signal``.
 
 Optional keyword arguments are:
 
