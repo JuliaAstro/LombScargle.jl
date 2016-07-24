@@ -138,17 +138,19 @@ these vectors with `freq` and `power` functions, just like in `DSP.jl` package.
 If you want to get the 2-tuple `(freq(p), power(p))` use the `freqpower`
 function.
 
-### Find Frequencies with Highest Power ###
+### Find Highest Power and Associated Frequencies ###
 
 ```julia
-findmaxfreq(p::Periodogram, threshold::Real=maximum(power(p)))
+findmaxpower(p::Periodogram)
+findmaxfreq(p::Periodogram, threshold::Real=findmaxpower(p))
 ```
 
 Once you compute the periodogram, you usually want to know which are the
 frequencies with highest power.  To do this, you can use the `findmaxfreq`.  It
 returns the vector of frequencies with the highest power in the periodogram `p`.
 If a second argument `threshold` is provided, return the frequencies with power
-larger than or equal to `threshold`.
+larger than or equal to `threshold`.  The value of the highest power of a
+periodogram can be calculated with the `findmaxpower` function.
 
 Examples
 --------
@@ -239,10 +241,13 @@ p = lombscargle(t, s)
 This peak is at high frequency, very far from the expected value of the period
 of 1.  In order to find the real peak, you can either narrow the frequency range
 in order to exclude higher armonics, or pass the `threshold` argument to
-`findmaxfreq`:
+`findmaxfreq`.  You can use `findmaxpower` to discover the highest power in the
+periodogram:
 
 ```julia
-1.0./findmaxfreq(p, 0.967)
+findmaxpower(p)
+# => 0.9712085205753647
+1.0./findmaxfreq(p, 0.97)
 # => 5-element Array{Float64,1}:
 #     1.0101
 #     0.0101

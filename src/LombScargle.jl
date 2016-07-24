@@ -17,7 +17,7 @@ module LombScargle
 
 using Measurements
 
-export lombscargle, power, freq, freqpower, findmaxfreq, findmaxpower,
+export lombscargle, power, freq, freqpower, findmaxpower, findmaxfreq,
 prob, probinv, fap, fapinv
 
 # This is similar to Periodogram type of DSP.Periodograms module, but for
@@ -53,16 +53,21 @@ respectively.
 freqpower(p::Periodogram) = (freq(p), power(p))
 
 """
-    findmaxfreq(p::Periodogram, threshold::Real=maximum(power(p)))
+    findmaxpower(p::Periodogram)
+
+Return the highest power of the periodogram `p`.
+"""
+findmaxpower(p::Periodogram) = maximum(power(p))
+
+"""
+    findmaxfreq(p::Periodogram, threshold::Real=findmaxpower(p))
 
 Return the array of frequencies with the highest power in the periodogram `p`.
 If a second argument `threshold` is provided, return the frequencies with power
 larger than or equal to `threshold`.
 """
-findmaxfreq(p::Periodogram, threshold::Real=maximum(power(p))) =
+findmaxfreq(p::Periodogram, threshold::Real=findmaxpower(p)) =
     freq(p)[find(x -> x >= threshold, power(p))]
-
-findmaxpower(p::Periodogram) = maximum(power(p))
 
 """
     autofrequency(times::AbstractVector{Real};

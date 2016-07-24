@@ -18,12 +18,12 @@ which is a fairly common case in astronomy.
 
 The algorithm used in this package are reported in the following papers:
 
--  Townsend, R. H. D. 2010, ApJS, 191, 247 (URL:
-   http://dx.doi.org/10.1088/0067-0049/191/2/247, Bibcode:
-   http://adsabs.harvard.edu/abs/2010ApJS..191..247T)
--  Zechmeister, M., Kürster, M. 2009, A&A, 496, 577 (URL:
-   http://dx.doi.org/10.1051/0004-6361:200811296, Bibcode:
-   http://adsabs.harvard.edu/abs/2009A%26A...496..577Z)
+.. [TOW10] Townsend, R. H. D. 2010, ApJS, 191, 247 (URL:
+	   http://dx.doi.org/10.1088/0067-0049/191/2/247, Bibcode:
+	   http://adsabs.harvard.edu/abs/2010ApJS..191..247T)
+.. [ZK09] Zechmeister, M., Kürster, M. 2009, A&A, 496, 577 (URL:
+	  http://dx.doi.org/10.1051/0004-6361:200811296, Bibcode:
+	  http://adsabs.harvard.edu/abs/2009A%26A...496..577Z)
 
 Installation
 ------------
@@ -91,19 +91,18 @@ Also ``errors`` must have the same length as ``times`` and ``signal``.
 
 Optional keyword arguments are:
 
--  ``fit_mean``: if ``true``, fit for the mean of the signal using the
-   Generalised Lomb–Scargle algorithm (see Zechmeister & Kürster paper).
-   If this is ``false``, the original algorithm by Lomb and Scargle will
-   be employed (see Townsend paper), which does not take into account a
-   non-null mean and uncertainties for observations
--  ``center_data``: if ``true``, subtract the mean of ``signal`` from
-   ``signal`` itself before performing the periodogram. This is
-   especially important if ``fit_mean`` is ``false``
--  ``frequencies``: the frequecy grid (not angular frequencies) at which
-   the periodogram will be computed, as a vector. If not provided, it is
-   automatically determined with ``LombScargle.autofrequency`` function,
-   which see. See below for other available keywords that can be used to
-   adjust the frequency grid without directly setting ``frequencies``
+- ``fit_mean``: if ``true``, fit for the mean of the signal using the
+  Generalised Lomb–Scargle algorithm (see [ZK09]_).  If this is ``false``, the
+  original algorithm by Lomb and Scargle will be employed (see [TOW10]_), which
+  does not take into account a non-null mean and uncertainties for observations
+- ``center_data``: if ``true``, subtract the mean of ``signal`` from ``signal``
+  itself before performing the periodogram. This is especially important if
+  ``fit_mean`` is ``false``
+- ``frequencies``: the frequecy grid (not angular frequencies) at which the
+  periodogram will be computed, as a vector. If not provided, it is
+  automatically determined with ``LombScargle.autofrequency`` function, which
+  see. See below for other available keywords that can be used to adjust the
+  frequency grid without directly setting ``frequencies``
 
 In addition, you can use all optional keyword arguments of
 ``LombScargle.autofrequency`` function in order to tune the
@@ -144,16 +143,18 @@ access these vectors with ``freq`` and ``power`` functions, just like in
 ``DSP.jl`` package. If you want to get the 2-tuple ``(freq(p), power(p))`` use
 the ``freqpower`` function.
 
-Find Frequencies with Highest Power
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Find Highest Power and Associated Frequencies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. function:: findmaxfreq(p::Periodogram, threshold::Real=maximum(power(p)))
+.. function:: findmaxpower(p::Periodogram)
+.. function:: findmaxfreq(p::Periodogram, threshold::Real=findmaxpower(p))
 
 Once you compute the periodogram, you usually want to know which are the
 frequencies with highest power.  To do this, you can use the ``findmaxfreq``.
 It returns the vector of frequencies with the highest power in the periodogram
 ``p``.  If a second argument ``threshold`` is provided, return the frequencies
-with power larger than or equal to ``threshold``.
+with power larger than or equal to ``threshold``.  The value of the highest
+power of a periodogram can be calculated with the ``findmaxpower`` function.
 
 Examples
 --------
@@ -241,8 +242,8 @@ providing this function with a ``signal`` vector of type ``Measurement`` (from
 
 .. image:: figure_5.png
 
-``findmaxfreq`` Function
-~~~~~~~~~~~~~~~~~~~~~~~~
+``findmaxfreq`` and ``findmaxpower`` Functions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``findmaxfreq`` function tells you the frequencies with the highest
 power in the periodogram (and you can get the period by taking its
@@ -257,14 +258,17 @@ inverse):
     # => 1-element Array{Float64,1}:
     #     0.00502487
 
-This peak is at high frequency, very far from the expected value of the
-period of 1. In order to find the real peak, you can either narrow the
-frequency range in order to exclude higher armonics, or pass the
-``threshold`` argument to ``findmaxfreq``:
+This peak is at high frequency, very far from the expected value of the period
+of 1.  In order to find the real peak, you can either narrow the frequency range
+in order to exclude higher armonics, or pass the ``threshold`` argument to
+``findmaxfreq``.  You can use ``findmaxpower`` to discover the highest power in
+the periodogram:
 
 .. code-block:: julia
 
-    1.0./findmaxfreq(p, 0.967)
+    findmaxpower(p)
+    # => 0.9712085205753647
+    1.0./findmaxfreq(p, 0.97)
     # => 5-element Array{Float64,1}:
     #     1.0101
     #     0.0101
