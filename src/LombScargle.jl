@@ -327,6 +327,8 @@ lombscargle{T<:Real,F<:AbstractFloat}(times::AbstractVector{T},
 """
     lombscargle(times::AbstractVector{Real}, signal::AbstractVector{Real},
                 errors::AbstractVector{Real}=ones(signal);
+                normalization::AbstractString="standard",
+                noise_level::Real=1.0,
                 center_data::Bool=true, fit_mean::Bool=true,
                 samples_per_peak::Integer=5,
                 nyquist_factor::Integer=5,
@@ -345,6 +347,11 @@ Compute the Lomb-Scargle periodogram of the `signal` vector, observed at
 
 Optional keywords arguments are:
 
+* `normalization`: how to normalize the periodogram.  Valid choices are:
+  `"standard"`, `"model"`, `"log"`, `"psd"`, `"Scargle"`, `"HorneBaliunas"`,
+  `"Cumming"`
+* `noise_level`: the noise level used to normalize the periodogram when
+  `normalization` is set to `"Scargle"`
 * `fit_mean`: if `true`, fit for the mean of the signal using the Generalised
   Lomb-Scargle algorithm (see Zechmeister & Kürster paper below).  If this is
   `false`, the original algorithm by Lomb and Scargle will be employed (see

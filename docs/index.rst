@@ -25,6 +25,19 @@ The algorithm used in this package are reported in the following papers:
 	  http://dx.doi.org/10.1051/0004-6361:200811296, Bibcode:
 	  http://adsabs.harvard.edu/abs/2009A%26A...496..577Z)
 
+Othe relevant papers are:
+
+.. [CMB99] Cumming, A., Marcy, G. W., & Butler, R. P. 1999, ApJ, 526, 890 (URL:
+	   http://dx.doi.org/10.1086/308020, Bibcode:
+	   http://adsabs.harvard.edu/abs/1999ApJ...526..890C)
+.. [HB86] Horne, J. H., & Baliunas, S. L. 1986, ApJ, 302, 757 (URL:
+	  http://dx.doi.org/10.1086/164037, Bibcode:
+	  http://adsabs.harvard.edu/abs/1986ApJ...302..757H)
+.. [SCA82] Scargle, J. D. 1982, ApJ, 263, 835 (URL:
+	   http://dx.doi.org/10.1086/160554, Bibcode:
+	   http://adsabs.harvard.edu/abs/1982ApJ...263..835S)
+
+
 Installation
 ------------
 
@@ -70,6 +83,8 @@ All these vectors must have the same length.  The complete syntax of
 
     lombscargle(times::AbstractVector{Real}, signal::AbstractVector{Real},
                 errors::AbstractVector{Real}=ones(signal);
+                normalization::AbstractString="standard",
+                noise_level::Real=1.0,
                 center_data::Bool=true, fit_mean::Bool=true,
                 samples_per_peak::Integer=5,
                 nyquist_factor::Integer=5,
@@ -91,6 +106,11 @@ Also ``errors`` must have the same length as ``times`` and ``signal``.
 
 Optional keyword arguments are:
 
+- ``normalization``: how to normalize the periodogram.  Valid choices are:
+  ``"standard"``, ``"model"``, ``"log"``, ``"psd"``, ``"Scargle"``,
+  ``"HorneBaliunas"``, ``"Cumming"``.  See Normalization_ section for details
+- ``noise_level``: the noise level used to normalize the periodogram when
+  ``normalization`` is set to ``"Scargle"``
 - ``fit_mean``: if ``true``, fit for the mean of the signal using the
   Generalised Lomb–Scargle algorithm (see [ZK09]_).  If this is ``false``, the
   original algorithm by Lomb and Scargle will be employed (see [TOW10]_), which
@@ -130,6 +150,47 @@ signal. You can create arrays of ``Measurement`` objects with the
 ``measurement`` function, see ``Measurements.jl`` manual at
 http://measurementsjl.readthedocs.io/ for more details.
 
+Normalization
+~~~~~~~~~~~~~
+
+By default, the periodogram :math:`p(\omega)` is normalized so that it has
+values in the range :math:`0 \leq p(\omega) \leq 1`, with :math:`p = 0`
+indicating no improvement of the fit and :math:`p = 1` a "perfect" fit (100%
+reduction of :math:`\chi^2` or :math:`\chi^2 = 0`).  This is the normalization
+suggested by [ZK09]_ and corresponds to the ``"standard"`` normalization in
+:func:`lombscargle` function.  In this paper the formula for the power of the
+periodogram at frequency :math:`\omega` is written as
+
+$$ p(\\omega) = \\frac{1}{YY}\\left[\\frac{YC^2_{\\tau}}{CC_{\\tau}} + \\frac{YS^2_{\\tau}}{SS_{\\tau}}\\right] $$
+
+See the paper for details on what each quantity represents.  The other
+normalizations for periodograms :math:`P(\omega)` are calculated from this one.
+In what follows, :math:`N` is the number of observations.
+
+- ``"model"``:
+  $$ P(\\omega) = \\frac{p(\\omega)}{1 - p(\\omega)} $$
+- ``"log"``:
+  $$ P(\\omega) = -\\log(1 - p(\\omega)) $$
+- ``"psd"``:
+  $$ P(\\omega) = \\frac{1}{2}\\left[\\frac{YC^2_{\\tau}}{CC_{\\tau}} +
+  \\frac{YS^2_{\\tau}}{SS_{\\tau}}\\right] = p(\\omega) \\frac{YY}{2} $$
+- ``"Scargle"``:
+  $$ P(\\omega) = \\frac{p(\\omega)}{\\text{noise level}} $$
+  This normalization can be used when you know the noise level (expected from
+  the a priori known noise variance or population variance), but this isn’t
+  usually the case.  See [SCA82]_
+- ``"HorneBaliunas"``:
+  $$ P(\\omega) = \\frac{N - 1}{2} p(\\omega) $$
+  This is like the ``"Scargle"`` normalization, where the noise has been
+  estimated for Gaussian noise to be :math:`(N - 1)/2`.  See [HB86]_
+- If the data contains a signal or if errors are under- or overestimated or if
+  intrinsic variability is present, then :math:`(N-1)/2` may not be a good
+  uncorrelated estimator for the noise level.  [CMB99]_ suggested to estimate
+  the noise level a posteriori with the residuals of the best fit and normalised
+  the periodogram as:
+  $$ P(\\omega) = \\frac{N - 3}{2} \\frac{p(\\omega)}{1 - p(\\omega_{\\text{best}})} $$
+  This is the ``"Cumming"`` normalization option
+
 Access Frequency Grid and Power Spectrum of the Periodogram
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -137,8 +198,8 @@ Access Frequency Grid and Power Spectrum of the Periodogram
 .. function:: freq(p::Periodogram)
 .. function:: freqpower(p::Periodogram)
 
-``lombscargle`` function return a ``LombScargle.Periodogram`` object, but you
-most probably want to use the frequency grid and the power spectrum. You can
+:func:`lombscargle` function return a ``LombScargle.Periodogram`` object, but
+you most probably want to use the frequency grid and the power spectrum. You can
 access these vectors with ``freq`` and ``power`` functions, just like in
 ``DSP.jl`` package. If you want to get the 2-tuple ``(freq(p), power(p))`` use
 the ``freqpower`` function.
@@ -188,9 +249,9 @@ to get the frequency grid and the power of the periodogram as a 2-tuple.
 .. Caution::
 
    If you use original Lomb–Scargle algorithm (``fit_mean=false`` keyword to
-   ``lombscargle`` function) without centering the data (``center_data=false``)
-   you can get inaccurate results.  For example, spurious peaks at low
-   frequencies can appear and the real peaks lose power:
+   :func:`lombscargle` function) without centering the data
+   (``center_data=false``) you can get inaccurate results.  For example,
+   spurious peaks at low frequencies can appear and the real peaks lose power:
 
    .. code-block:: julia
 
@@ -200,10 +261,10 @@ to get the frequency grid and the power of the periodogram as a 2-tuple.
 
 .. Tip::
 
-   You can tune the frequency grid with appropriate keywords to ``lombscargle``
-   function.  For example, in order to increase the sampling increase
-   ``samples_per_peak``, and set ``maximum_frequency`` to lower values in order
-   to narrow the frequency range:
+   You can tune the frequency grid with appropriate keywords to
+   :func:`lombscargle` function.  For example, in order to increase the sampling
+   increase ``samples_per_peak``, and set ``maximum_frequency`` to lower values
+   in order to narrow the frequency range:
 
    .. code-block:: julia
 
@@ -226,7 +287,7 @@ Signal with Uncertainties
 The generalised Lomb–Scargle periodogram (used when the ``fit_mean`` optional
 keyword is ``true``) is able to handle a signal with uncertainties, and they
 will be used as weights in the algorithm.  The uncertainties can be passed
-either as the third optional argument ``errors`` to ``lombscargle`` or by
+either as the third optional argument ``errors`` to :func:`lombscargle` or by
 providing this function with a ``signal`` vector of type ``Measurement`` (from
 `Measurements.jl <https://github.com/giordano/Measurements.jl>`__ package).
 
