@@ -63,3 +63,6 @@ for norm in ("standard", "Scargle", "HorneBaliunas", "Cumming")
         @test_approx_eq fap(P,  fapinv(P, z_0))  z_0
     end
 end
+P = lombscargle(t, s, normalization = "log")
+@test_throws ErrorException prob(P, 0.5)
+@test_throws ErrorException probinv(P, 0.5)

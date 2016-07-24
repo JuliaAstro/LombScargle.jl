@@ -110,31 +110,33 @@ end
 
 function prob(P::Periodogram, p_0::Real)
     N = length(P.times)
-    if P.norm == "standard"
+    normalization = P.norm
+    if normalization == "standard"
         return (1.0 - p_0)^((N - 3.0)*0.5)
-    elseif P.norm == "Scargle"
+    elseif normalization == "Scargle"
         return exp(-p_0)
-    elseif P.norm == "HorneBaliunas"
+    elseif normalization == "HorneBaliunas"
         return (1.0 - 2p_0/(N - 1))^((N - 3.0)*0.5)
-    elseif P.norm == "Cumming"
+    elseif normalization == "Cumming"
         return (1.0 + 2p_0/(N - 3.0))^((3.0 - N)*0.5)
     else
-        return zero(first(power(P)))
+        error("normalization \"", normalization, "\" not supported")
     end
 end
 
 function probinv(P::Periodogram, prob::Real)
     N = length(P.times)
-    if P.norm == "standard"
+    normalization = P.norm
+    if normalization == "standard"
         return 1.0 - prob^(2.0/(N - 3.0))
-    elseif P.norm == "Scargle"
+    elseif normalization == "Scargle"
         return -log(prob)
-    elseif P.norm == "HorneBaliunas"
+    elseif normalization == "HorneBaliunas"
         return 0.5*(N - 1.0)*(1.0 - prob^(2.0/(N - 3.0)))
-    elseif P.norm == "Cumming"
+    elseif normalization == "Cumming"
         return 0.5*(N - 3.0)*(prob^(2.0/(3.0 - N)) - 1.0)
     else
-        return zero(first(power(P)))
+        error("normalization \"", normalization, "\" not supported")
     end
 end
 
