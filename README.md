@@ -25,6 +25,15 @@ The algorithm used in this package are reported in the following papers:
   http://dx.doi.org/10.1051/0004-6361:200811296, Bibcode:
   http://adsabs.harvard.edu/abs/2009A%26A...496..577Z)
 
+### Documentation ###
+
+The complete manual of `LombScargle.jl` is available at
+http://lombscarglejl.readthedocs.io.  There, people interested in the details
+of the package, in order integrate the package in their workflow, can can find a
+technical appendix explaining how the package internally works.  You can also
+download the PDF version of the manual from
+https://media.readthedocs.org/pdf/lombscarglejl/latest/lombscarglejl.pdf.
+
 Installation
 ------------
 

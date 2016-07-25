@@ -30,13 +30,21 @@ Othe relevant papers are:
 .. [CMB99] Cumming, A., Marcy, G. W., & Butler, R. P. 1999, ApJ, 526, 890 (URL:
 	   http://dx.doi.org/10.1086/308020, Bibcode:
 	   http://adsabs.harvard.edu/abs/1999ApJ...526..890C)
+.. [CUM04] Cumming, A. 2004, MNRAS, 354, 1165 (URL:
+	   http://dx.doi.org/10.1111/j.1365-2966.2004.08275.x, Bibcode:
+	   http://adsabs.harvard.edu/abs/2004MNRAS.354.1165C)
 .. [HB86] Horne, J. H., & Baliunas, S. L. 1986, ApJ, 302, 757 (URL:
 	  http://dx.doi.org/10.1086/164037, Bibcode:
 	  http://adsabs.harvard.edu/abs/1986ApJ...302..757H)
+.. [LOM76] Lomb, N. R. 1976, Ap&SS, 39, 447 (URL:
+	   http://dx.doi.org/10.1007/BF00648343, Bibcode:
+	   http://adsabs.harvard.edu/abs/1976Ap%26SS..39..447L)
 .. [SCA82] Scargle, J. D. 1982, ApJ, 263, 835 (URL:
 	   http://dx.doi.org/10.1086/160554, Bibcode:
 	   http://adsabs.harvard.edu/abs/1982ApJ...263..835S)
-
+.. [SS10] Sturrock, P. A., & Scargle, J. D. 2010, ApJ, 718, 527 (URL:
+	  http://dx.doi.org/10.1088/0004-637X/718/1/527, Bibcode:
+	  http://adsabs.harvard.edu/abs/2010ApJ...718..527S)
 
 Installation
 ------------
@@ -153,34 +161,34 @@ http://measurementsjl.readthedocs.io/ for more details.
 Normalization
 ~~~~~~~~~~~~~
 
-By default, the periodogram :math:`p(\omega)` is normalized so that it has
-values in the range :math:`0 \leq p(\omega) \leq 1`, with :math:`p = 0`
-indicating no improvement of the fit and :math:`p = 1` a "perfect" fit (100%
-reduction of :math:`\chi^2` or :math:`\chi^2 = 0`).  This is the normalization
-suggested by [ZK09]_ and corresponds to the ``"standard"`` normalization in
-:func:`lombscargle` function.  In this paper the formula for the power of the
-periodogram at frequency :math:`\omega` is written as
+By default, the periodogram :math:`p(f)` is normalized so that it has values in
+the range :math:`0 \leq p(f) \leq 1`, with :math:`p = 0` indicating no
+improvement of the fit and :math:`p = 1` a "perfect" fit (100% reduction of
+:math:`\chi^2` or :math:`\chi^2 = 0`).  This is the normalization suggested by
+[LOM76]_ and [ZK09]_, and corresponds to the ``"standard"`` normalization in
+:func:`lombscargle` function.  [ZK09]_ wrote the formula for the power of the
+periodogram at frequency :math:`f` as
 
-$$ p(\\omega) = \\frac{1}{YY}\\left[\\frac{YC^2_{\\tau}}{CC_{\\tau}} + \\frac{YS^2_{\\tau}}{SS_{\\tau}}\\right] $$
+$$ p(f) = \\frac{1}{YY}\\left[\\frac{YC^2_{\\tau}}{CC_{\\tau}} + \\frac{YS^2_{\\tau}}{SS_{\\tau}}\\right] $$
 
-See the paper for details on what each quantity represents.  The other
-normalizations for periodograms :math:`P(\omega)` are calculated from this one.
-In what follows, :math:`N` is the number of observations.
+See the paper for details.  The other normalizations for periodograms
+:math:`P(f)` are calculated from this one.  In what follows, :math:`N` is the
+number of observations.
 
 - ``"model"``:
-  $$ P(\\omega) = \\frac{p(\\omega)}{1 - p(\\omega)} $$
+  $$ P(f) = \\frac{p(f)}{1 - p(f)} $$
 - ``"log"``:
-  $$ P(\\omega) = -\\log(1 - p(\\omega)) $$
+  $$ P(f) = -\\log(1 - p(f)) $$
 - ``"psd"``:
-  $$ P(\\omega) = \\frac{1}{2}\\left[\\frac{YC^2_{\\tau}}{CC_{\\tau}} +
-  \\frac{YS^2_{\\tau}}{SS_{\\tau}}\\right] = p(\\omega) \\frac{YY}{2} $$
+  $$ P(f) = \\frac{1}{2}\\left[\\frac{YC^2_{\\tau}}{CC_{\\tau}} +
+  \\frac{YS^2_{\\tau}}{SS_{\\tau}}\\right] = p(f) \\frac{YY}{2} $$
 - ``"Scargle"``:
-  $$ P(\\omega) = \\frac{p(\\omega)}{\\text{noise level}} $$
+  $$ P(f) = \\frac{p(f)}{\\text{noise level}} $$
   This normalization can be used when you know the noise level (expected from
   the a priori known noise variance or population variance), but this isn’t
   usually the case.  See [SCA82]_
 - ``"HorneBaliunas"``:
-  $$ P(\\omega) = \\frac{N - 1}{2} p(\\omega) $$
+  $$ P(f) = \\frac{N - 1}{2} p(f) $$
   This is like the ``"Scargle"`` normalization, where the noise has been
   estimated for Gaussian noise to be :math:`(N - 1)/2`.  See [HB86]_
 - If the data contains a signal or if errors are under- or overestimated or if
@@ -188,7 +196,7 @@ In what follows, :math:`N` is the number of observations.
   uncorrelated estimator for the noise level.  [CMB99]_ suggested to estimate
   the noise level a posteriori with the residuals of the best fit and normalised
   the periodogram as:
-  $$ P(\\omega) = \\frac{N - 3}{2} \\frac{p(\\omega)}{1 - p(\\omega_{\\text{best}})} $$
+  $$ P(f) = \\frac{N - 3}{2} \\frac{p(f)}{1 - p(f_{\\text{best}})} $$
   This is the ``"Cumming"`` normalization option
 
 Access Frequency Grid and Power Spectrum of the Periodogram
@@ -216,6 +224,80 @@ It returns the vector of frequencies with the highest power in the periodogram
 ``p``.  If a second argument ``threshold`` is provided, return the frequencies
 with power larger than or equal to ``threshold``.  The value of the highest
 power of a periodogram can be calculated with the ``findmaxpower`` function.
+
+False-Alarm Probability
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. function:: prob(P::Periodogram, p_0::Real)
+.. function:: probinv(P::Periodogram, prob::Real)
+.. function:: fap(P::Periodogram, p_0::Real)
+.. function:: fapinv(P::Periodogram, fap::Real)
+
+Noise in the data produce fluctuations in the periodogram that will present
+several local peaks, but not all of them related to real periodicities.  The
+significance of the peaks can be tested by calculating the probability that its
+power can arise purely from noise.  The higher the value of the power, the lower
+will be this probability.
+
+.. Note::
+
+   [CMB99]_ showed that the different normalizations result in different
+   probability functions.  ``LombScargle.jl`` can calculate the probability (and
+   the false-alarm probability) only for the normalizations reported by [ZK09]_,
+   that are ``"standard"``, ``"Scargle"``, ``"HorneBaliunas"``, and
+   ``"Cumming"``.
+
+The probability :math:`\text{Prob}(p > p_{0})` that the periodogram power
+:math:`p` can exceed the value :math:`p_{0}` can be calculated with the ``prob``
+function, whose first argument is the periodogram and the second one is the
+:math:`p_{0}` value.  The function ``probinv`` is its inverse: it takes the
+probability as second argument and returns the corresponding :math:`p_{0}`
+value.
+
+Here are the probability functions for each normalization supported by
+``LombScargle.jl``:
+
+- ``"standard"`` (:math:`p \in [0, 1]`):
+  $$ \\text{Prob}(p > p_{0}) = (1 - p_{0})^{(N - 3)/2} $$
+- ``"Scargle"`` (:math:`p \in [0, \infty)`):
+  $$ \\text{Prob}(p > p_{0}) = \\exp(-p_{0}) $$
+- ``"HorneBaliunas"`` (:math:`p \in [0, (N - 1)/2]`):
+  $$ \\text{Prob}(p > p_{0}) = \\left(1 - \\frac{2p_{0}}{N - 1}\\right)^{(N - 3)/2} $$
+- ``"Cumming"`` (:math:`p \in [0, \infty)`):
+  $$ \\text{Prob}(p > p_{0}) = \\left(1 + \\frac{2p_{0}}{N - 3}\\right)^{-(N - 3)/2} $$
+
+As explained by [SS10]_, «the term "false-alarm probability" denotes the
+probability that at least one out of :math:`M` independent power values in a
+prescribed search band of a power spectrum computed from a white-noise time
+series is expected to be as large as or larger than a given value».
+``LombScargle.jl`` provides the ``fap`` function to calculate the false-alarm
+probability (FAP) of a given power in a periodogram.  Its first argument is the
+periodogram, the second one is the value :math:`p_{0}` of the power of which you
+want to calculate the FAP.  The function ``fap`` uses the formula
+
+$$ \\text{FAP} = 1 - (1 - \\text{Prob}(p > p_{0}))^M $$
+
+where :math:`M` is the number of independent frequencies estimated with :math:`M
+= T \cdot \Delta f`, being :math:`T` the duration of the observations and
+:math:`\Delta f` the width of the frequency range in which the periodogram has
+been calculated (see [CUM04]_).  The function ``fapinv`` is the inverse of
+``fap``: it takes as second argument the value of the FAP and returns the
+corresponding value :math:`p_{0}` of the power.
+
+The detection threshold :math:`p_{0}` is the periodogram power corresponding to
+some (small) value of :math:`\text{FAP}`, i.e. the value of :math:`p` exceeded
+due to noise alone in only a small fraction :math:`\text{FAP}` of trials.  An
+observed power larger than :math:`p_{0}` indicates that a signal is likely
+present (see [CUM04]_).
+
+.. Caution::
+
+   Some authors stressed that this method to calculate the false-alarm
+   probability is not completely reliable.  A different approach to calculate
+   the false-alarm probability is to perform Monte Carlo or bootstrap
+   simulations in order to determine how often a certain power level
+   :math:`p_{0}` is exceeded just by chance (see [CMB99]_, [CUM04]_, and
+   [ZK09]_).
 
 Examples
 --------

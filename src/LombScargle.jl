@@ -108,6 +108,13 @@ function autofrequency{R<:Real}(times::AbstractVector{R};
     end
 end
 
+"""
+    prob(P::Periodogram, p_0::Real)
+
+Return the probability that the periodogram power can exceed the value `p_{0}`.
+
+Its inverse is the `probinv` function.
+"""
 function prob(P::Periodogram, p_0::Real)
     N = length(P.times)
     normalization = P.norm
@@ -124,6 +131,13 @@ function prob(P::Periodogram, p_0::Real)
     end
 end
 
+"""
+    probinv(P::Periodogram, prob::Real)
+
+Return the `p_0` value of the periodogram power whose probability is `prob`.
+
+This is the inverse of `prob` function.
+"""
 function probinv(P::Periodogram, prob::Real)
     N = length(P.times)
     normalization = P.norm
@@ -140,14 +154,34 @@ function probinv(P::Periodogram, prob::Real)
     end
 end
 
+"""
+    M(P::Periodogram)
+
+Estimates the number of independent frequencies in the periodogram `P`.
+"""
 function M(P::Periodogram)
     t = P.times
     f = P.freq
     return (maximum(t) - minimum(t))*(maximum(f) - minimum(f))
 end
 
+"""
+    fap(P::Periodogram, p_0::Real)
+
+Return the false-alarm probability for periodogram `P` and power value `p_0`.
+
+Its inverse is the `fapinv` function.
+"""
 fap(P::Periodogram, p_0::Real) = 1.0 - (1.0 - prob(P, p_0))^M(P)
 
+"""
+    fapinv(P::Periodogram, fap::Real)
+
+Return the `p_0` value of the periodogram power whose false-alarm probability is
+`fap`.
+
+This is the inverse of `fap` function.
+"""
 fapinv(P::Periodogram, fap::Real) = probinv(P, 1.0 - (1.0 - fap)^(inv(M(P))))
 
 # Original algorithm that doesn't take into account uncertainties and doesn't
