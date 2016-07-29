@@ -98,7 +98,9 @@ Optional keyword arguments are:
 
 * `normalization`: how to normalize the periodogram.  Valid choices are:
   `"standard"`, `"model"`, `"log"`, `"psd"`, `"Scargle"`, `"HorneBaliunas"`,
-  `"Cumming"`
+  `"Cumming"`.  See the
+  [manual](http://lombscarglejl.readthedocs.io/en/latest/#normalization) for
+  details
 * `noise_level`: the noise level used to normalize the periodogram when
   `normalization` is set to `"Scargle"`
 * `fit_mean`: if `true`, fit for the mean of the signal using the Generalised
@@ -167,6 +169,39 @@ returns the vector of frequencies with the highest power in the periodogram `p`.
 If a second argument `threshold` is provided, return the frequencies with power
 larger than or equal to `threshold`.  The value of the highest power of a
 periodogram can be calculated with the `findmaxpower` function.
+
+### False-Alarm Probability ###
+
+``` julia
+prob(P::Periodogram, p_0::Real)
+probinv(P::Periodogram, prob::Real)
+fap(P::Periodogram, p_0::Real)
+fapinv(P::Periodogram, fap::Real)
+```
+
+Noise in the data produce fluctuations in the periodogram that will present
+several local peaks, but not all of them related to real periodicities.  The
+significance of the peaks can be tested by calculating the probability that its
+power can arise purely from noise.  The higher the value of the power, the lower
+will be this probability.
+
+Function `prob` allows you to calculate the probability `Prob(p > p_{0})` that
+the periodogram power `p` can exceed the value `p_{0}`.  Its first argument is
+the periodogram, and the second one is the `p_{0}` value.  The function
+`probinv` is its inverse: it takes the probability as second argument and
+returns the corresponding `p_{0}` value.
+
+`LombScargle.jl` provides the `fap` function to calculate the false-alarm
+probability (FAP) of a given power in a periodogram.  Its first argument is the
+periodogram, the second one is the value `p_{0}` of the power of which you want
+to calculate the FAP.  The function `fapinv` is the inverse of `fap`: it takes
+as second argument the value of the FAP and returns the corresponding value
+`p_{0}` of the power.
+
+**Note:** see the
+[manual](http://lombscarglejl.readthedocs.io/en/latest/#false-alarm-probability)
+for more information on the false-alarm probability and when it can be
+calculated with the methods provided by `LombScargle.jl`.
 
 Examples
 --------
