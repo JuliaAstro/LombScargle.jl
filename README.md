@@ -1,6 +1,9 @@
-# LombScargle
+# LombScargle.jl
 
-[![Build Status](https://travis-ci.org/giordano/LombScargle.jl.svg?branch=master)](https://travis-ci.org/giordano/LombScargle.jl) [![Build status](https://ci.appveyor.com/api/projects/status/vv6mho713fuse6qy/branch/master?svg=true)](https://ci.appveyor.com/project/giordano/lombscargle-jl/branch/master) [![Coverage Status](https://coveralls.io/repos/github/giordano/LombScargle.jl/badge.svg?branch=master)](https://coveralls.io/github/giordano/LombScargle.jl?branch=master) [![codecov](https://codecov.io/gh/giordano/LombScargle.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/giordano/LombScargle.jl) [![LombScargle](http://pkg.julialang.org/badges/LombScargle_0.4.svg)](http://pkg.julialang.org/?pkg=LombScargle) [![LombScargle](http://pkg.julialang.org/badges/LombScargle_0.5.svg)](http://pkg.julialang.org/?pkg=LombScargle)
+| **Documentation**                       | [**Package Evaluator**][pkgeval-link] | **Build Status**                          | **Code Coverage**               |
+|:---------------------------------------:|:-------------------------------------:|:-----------------------------------------:|:-------------------------------:|
+| [![][docs-stable-img]][docs-stable-url] | [![][pkg-0.4-img]][pkg-0.4-url]       | [![Build Status][travis-img]][travis-url] | [![][coveral-img]][coveral-url] |
+| [![][docs-latest-img]][docs-latest-url] | [![][pkg-0.5-img]][pkg-0.5-url]       | [![Build Status][appvey-img]][appvey-url] | [![][codecov-img]][codecov-url] |
 
 Introduction
 ------------
@@ -327,3 +330,30 @@ License
 
 The `LombScargle.jl` package is licensed under the MIT "Expat" License.  The
 original author is Mosè Giordano.
+
+
+
+[docs-latest-img]: https://img.shields.io/badge/docs-latest-blue.svg
+[docs-latest-url]: https://cubajl.readthedocs.io/en/latest/
+
+[docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
+[docs-stable-url]: https://cubajl.readthedocs.io/en/stable/
+
+[pkgeval-link]: http://pkg.julialang.org/?pkg=LombScargle
+
+[pkg-0.4-img]: http://pkg.julialang.org/badges/LombScargle_0.4.svg
+[pkg-0.4-url]: http://pkg.julialang.org/detail/LombScargle.html
+[pkg-0.5-img]: http://pkg.julialang.org/badges/LombScargle_0.5.svg
+[pkg-0.5-url]: http://pkg.julialang.org/detail/LombScargle.html
+
+[travis-img]: https://travis-ci.org/giordano/LombScargle.jl.svg?branch=master
+[travis-url]: https://travis-ci.org/giordano/LombScargle.jl
+
+[appvey-img]: https://ci.appveyor.com/api/projects/status/vv6mho713fuse6qy/branch/master?svg=true
+[appvey-url]: https://ci.appveyor.com/project/giordano/lombscargle-jl
+
+[coveral-img]: https://coveralls.io/repos/github/giordano/LombScargle.jl/badge.svg?branch=master
+[coveral-url]: https://coveralls.io/github/giordano/LombScargle.jl?branch=master
+
+[codecov-img]: https://codecov.io/gh/giordano/LombScargle.jl/branch/master/graph/badge.svg
+[codecov-url]: https://codecov.io/gh/giordano/LombScargle.jl
