@@ -104,10 +104,9 @@ Optional keyword arguments are:
 * `noise_level`: the noise level used to normalize the periodogram when
   `normalization` is set to `"Scargle"`
 * `fit_mean`: if `true`, fit for the mean of the signal using the Generalised
-  Lomb–Scargle algorithm (see Zechmeister & Kürster paper).  If this is `false`,
-  the original algorithm by Lomb and Scargle will be employed (see Townsend
-  paper), which does not take into account a non-null mean and uncertainties for
-  observations
+  Lomb–Scargle algorithm (see Zechmeister & Kürster paper below).  If this is
+  `false` and no uncertainty on the signal is provided, the original algorithm
+  by Lomb and Scargle will be employed (see Townsend paper below)
 * `center_data`: if `true`, subtract the mean of `signal` from `signal` itself
   before performing the periodogram.  This is especially important if `fit_mean`
   is `false`

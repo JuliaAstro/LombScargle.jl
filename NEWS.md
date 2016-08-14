@@ -1,6 +1,14 @@
 History of LombScargle.jl
 ==========================
 
+v0.2.1 (2016-??-??)
+-------------------
+
+### New Features ###
+
+* The generalised Lomb–Scargle algorithm by Zechmeister & Kürster is used also
+  with `fit_mean=false`, when the user provided the uncertainties.
+
 v0.2.0 (2016-08-05)
 -------------------
 

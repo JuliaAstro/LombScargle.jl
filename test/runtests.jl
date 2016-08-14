@@ -46,7 +46,7 @@ pgram2 = lombscargle(t, s, fit_mean=true)
 # Test signal with uncertainties
 err = collect(linspace(0.5, 1.5, ntimes))
 @test_approx_eq power(lombscargle(t, s, err, frequencies=0.2:0.2:1, fit_mean=true))  [0.09230959166317665,0.00156640109976925,  0.0001970465924587832,6.331573873913458e-5,3.794844882537295e-5]
-@test_approx_eq power(lombscargle(t, s, err, frequencies=0.2:0.2:1, fit_mean=false)) [0.02988686776042212,0.0005456197937194695,1.9125076826683257e-5,4.542583863304549e-6,1.0238340733199874e-5]
+@test_approx_eq power(lombscargle(t, s, err, frequencies=0.2:0.2:1, fit_mean=false)) [0.09360343748833035,0.0015362074096358798,0.00018179859677362582,5.38000020553979e-5,2.9784088374759274e-5]
 @test power(lombscargle(t, s, err)) ==
     power(lombscargle(t, measurement(s, err)))
 

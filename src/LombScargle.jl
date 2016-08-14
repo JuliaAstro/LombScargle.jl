@@ -302,6 +302,7 @@ end
 # This is the switch to select the appropriate function to run
 function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector{R1},
                                                            signal::AbstractVector{R2},
+                                                           with_errors::Bool,
                                                            w::AbstractVector{R3}=ones(signal)/length(signal);
                                                            normalization::AbstractString="standard",
                                                            noise_level::Real=1.0,
@@ -317,7 +318,7 @@ function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector
                                                                          minimum_frequency=minimum_frequency,
                                                                          maximum_frequency=maximum_frequency))
     @assert length(times) == length(signal) == length(w)
-    if fit_mean
+    if fit_mean || with_errors
         P, f = _generalised_lombscargle(times, signal, w, frequencies,
                                         center_data, fit_mean)
     else
@@ -351,7 +352,8 @@ lombscargle{R1<:Real,R2<:Real}(times::AbstractVector{R1},
                                signal::AbstractVector{R2};
                                kwargs...) =
                                    _lombscargle(times,
-                                                signal;
+                                                signal,
+                                                false;
                                                 kwargs...)
 
 # Uncertainties provided
@@ -362,7 +364,7 @@ function lombscargle{R1<:Real,R2<:Real,R3<:Real}(times::AbstractVector{R1},
     # Compute weights vector
     w = 1.0./errors.^2
     w /= sum(w)
-    return _lombscargle(times, signal, w; kwargs...)
+    return _lombscargle(times, signal, true, w; kwargs...)
 end
 
 # Uncertainties provided via Measurement type
@@ -404,9 +406,8 @@ Optional keywords arguments are:
   `normalization` is set to `"Scargle"`
 * `fit_mean`: if `true`, fit for the mean of the signal using the Generalised
   Lomb-Scargle algorithm (see Zechmeister & Kürster paper below).  If this is
-  `false`, the original algorithm by Lomb and Scargle will be employed (see
-  Townsend paper below), which does not take into account a non-null mean and
-  uncertainties for observations
+  `false` and no uncertainty on the signal is provided, the original algorithm
+  by Lomb and Scargle will be employed (see Townsend paper below)
 * `center_data`: if `true`, subtract the mean of `signal` from `signal` itself
   before performing the periodogram.  This is especially important if `fit_mean`
   is `false`
