@@ -7,6 +7,7 @@ ntimes = 1001
 t = linspace(0.01, 10pi, ntimes)
 # Randomize times
 t += step(t)*rand(ntimes)
+t = collect(t)
 # The signal
 s = sinpi(t) + cospi(2t) + rand(ntimes)
 # Frequency grid
@@ -14,12 +15,13 @@ nfreqs = 10000
 freqs = linspace(0.01, 3, nfreqs)
 # Randomize frequency grid
 freqs += step(freqs)*rand(nfreqs)
+freqs = collect(freqs)
 # Use "freqpower" just to call that function and increase code coverage.
 # "autofrequency" function is tested below.
 @test_approx_eq_eps freqpower(lombscargle(t, s, frequencies=freqs, fit_mean=false))[2] freqpower(lombscargle(t, s, frequencies=freqs, fit_mean=true))[2] 5e-3
 
 # Simple signal, without any randomness
-t = linspace(0.01, 10pi, ntimes)
+t = collect(linspace(0.01, 10pi, ntimes))
 s = sin(t)
 pgram1 = lombscargle(t, s, fit_mean=false)
 pgram2 = lombscargle(t, s, fit_mean=true)
@@ -42,7 +44,7 @@ pgram2 = lombscargle(t, s, fit_mean=true)
 @test_throws ErrorException lombscargle(t, s, frequencies=0.2:0.2:1, normalization="foo")
 
 # Test signal with uncertainties
-err = linspace(0.5, 1.5, ntimes)
+err = collect(linspace(0.5, 1.5, ntimes))
 @test_approx_eq power(lombscargle(t, s, err, frequencies=0.2:0.2:1, fit_mean=true))  [0.09230959166317665,0.00156640109976925,  0.0001970465924587832,6.331573873913458e-5,3.794844882537295e-5]
 @test_approx_eq power(lombscargle(t, s, err, frequencies=0.2:0.2:1, fit_mean=false)) [0.02988686776042212,0.0005456197937194695,1.9125076826683257e-5,4.542583863304549e-6,1.0238340733199874e-5]
 @test power(lombscargle(t, s, err)) ==
@@ -54,7 +56,7 @@ err = linspace(0.5, 1.5, ntimes)
 @test_approx_eq LombScargle.autofrequency(t, maximum_frequency=10) 0.003184112396292367:0.006368224792584734:9.99492881196174
 
 # Test probabilities and FAP
-t = linspace(0.01, 10pi, 101)
+t = collect(linspace(0.01, 10pi, 101))
 s = sin(t)
 for norm in ("standard", "Scargle", "HorneBaliunas", "Cumming")
     P = lombscargle(t, s, normalization = norm)
