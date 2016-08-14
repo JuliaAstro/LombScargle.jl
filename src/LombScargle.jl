@@ -251,14 +251,20 @@ function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Ab
             W   = w[i]
             c   = cos(ωt)
             s   = sin(ωt)
-            C  += W*c
-            S  += W*s
             CS += W*c*s
             CC += W*c*c
+            if fit_mean
+                C  += W*c
+                S  += W*s
+            end
         end
-        CS -= C*S
-        SS  = 1.0 - CC - S*S
-        CC -= C*C
+        if fit_mean
+            CS -= C*S
+            SS  = 1.0 - CC - S*S
+            CC -= C*C
+        else
+            SS  = 1.0 - CC
+        end
         τ   = 0.5*atan2(2CS, CC - SS)/ω
 
         # Now we can compute the power
@@ -269,16 +275,26 @@ function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Ab
             W     = w[i]
             c     = cos(ωt)
             s     = sin(ωt)
-            Y    += W*y
             YY   += W*y*y
-            C_τ  += W*c
-            S_τ  += W*s
             YC_τ += W*y*c
             YS_τ += W*y*s
             CC_τ += W*c*c
+            if fit_mean
+                Y   += W*y
+                C_τ += W*c
+                S_τ += W*s
+            end
         end
-        P[n] = (abs2(YC_τ - Y*C_τ)/(CC_τ - C_τ*C_τ) +
-                abs2(YS_τ - Y*S_τ)/(1.0 - CC_τ - S_τ*S_τ))/(YY - Y*Y)
+        if fit_mean
+            YC_τ -= Y*C_τ
+            YS_τ -= Y*S_τ
+            SS_τ  = 1.0 - CC_τ - S_τ*S_τ
+            CC_τ -= C_τ*C_τ
+            YY   -= Y*Y
+        else
+            SS_τ  = 1.0 - CC_τ
+        end
+        P[n] = (abs2(YC_τ)/CC_τ + abs2(YS_τ)/SS_τ)/YY
     end
     return P, freqs
 end
