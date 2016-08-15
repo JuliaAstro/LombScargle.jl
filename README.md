@@ -334,10 +334,10 @@ original author is Mosè Giordano.
 
 
 [docs-latest-img]: https://img.shields.io/badge/docs-latest-blue.svg
-[docs-latest-url]: https://cubajl.readthedocs.io/en/latest/
+[docs-latest-url]: https://lombscarglejl.readthedocs.io/en/latest/
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
-[docs-stable-url]: https://cubajl.readthedocs.io/en/stable/
+[docs-stable-url]: https://lombscarglejl.readthedocs.io/en/stable/
 
 [pkgeval-link]: http://pkg.julialang.org/?pkg=LombScargle
 
