@@ -198,18 +198,22 @@ function _lombscargle_orig{R1<:Real,R2<:Real,R3<:Real}(times::AbstractVector{R1}
     N = length(signal)
     nil = zero(P_type)
     # If "center_data" keyword is true, subtract the mean from each point.
-    signal_mean = center_data ? mean(signal) : zero(R2)
+    if center_data
+        X = signal - mean(signal)
+    else
+        X = signal
+    end
+    XX = X⋅X
+
     @inbounds for n in eachindex(freqs)
         ω = 2pi*freqs[n]
-        XX = XC = XS = CC = CS = nil
+        XC = XS = CC = CS = nil
         for j in eachindex(times)
             ωt = ω*times[j]
             C = cos(ωt)
             S = sin(ωt)
-            X = signal[j] - signal_mean
-            XX += X*X
-            XC += X*C
-            XS += X*S
+            XC += X[j]*C
+            XS += X[j]*S
             CC += C*C
             CS += C*S
         end
@@ -240,7 +244,16 @@ function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Ab
     P = Vector{P_type}(freqs)
     nil = zero(P_type)
     # If "center_data" keyword is true, subtract the mean from each point.
-    signal_mean = center_data ? mean(signal) : nil
+    if center_data
+        y = signal - mean(signal)
+    else
+        y = signal
+    end
+    YY = w⋅(y.^2)
+    if fit_mean
+        Y  = w⋅y
+    end
+
     @inbounds for n in eachindex(freqs)
         ω = 2pi*freqs[n]
 
@@ -268,19 +281,16 @@ function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Ab
         τ   = 0.5*atan2(2CS, CC - SS)/ω
 
         # Now we can compute the power
-        Y = YY = C_τ = S_τ = YC_τ = YS_τ = CC_τ = nil
+        C_τ = S_τ = YC_τ = YS_τ = CC_τ = nil
         for i in eachindex(times)
-            y     = signal[i] - signal_mean
             ωt    = ω*(times[i] - τ)
             W     = w[i]
             c     = cos(ωt)
             s     = sin(ωt)
-            YY   += W*y*y
-            YC_τ += W*y*c
-            YS_τ += W*y*s
+            YC_τ += W*y[i]*c
+            YS_τ += W*y[i]*s
             CC_τ += W*c*c
             if fit_mean
-                Y   += W*y
                 C_τ += W*c
                 S_τ += W*s
             end
