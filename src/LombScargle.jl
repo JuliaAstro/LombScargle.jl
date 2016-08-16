@@ -235,6 +235,11 @@ end
 # * Zechmeister, M., Kürster, M. 2009, A&A, 496, 577  (URL:
 #   http://dx.doi.org/10.1051/0004-6361:200811296,
 #   Bibcode: http://adsabs.harvard.edu/abs/2009A%26A...496..577Z)
+# In addition, some tricks suggested by
+# * Press, W. H., Rybicki, G. B. 1989, ApJ, 338, 277 (URL:
+#   http://dx.doi.org/10.1086/167197,
+#   Bibcode: http://adsabs.harvard.edu/abs/1989ApJ...338..277P)
+# to make computation faster are adopted.
 function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector{R1},
                                                                        signal::AbstractVector{R2},
                                                                        w::AbstractVector{R3},
@@ -278,7 +283,12 @@ function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Ab
         else
             SS  = 1.0 - CC
         end
-        τ   = 0.5*atan2(2CS, CC - SS)/ω
+        τ       = 0.5*atan2(2CS, CC - SS)/ω
+        # These quantities will be used below.  See Press & Rybicki paper.
+        # NOTE: They can be computed in a faster way, for the time being we keep
+        # this simple and straightforward implementation.
+        cos_ωτ  = cos(ω*τ)
+        sin_ωτ  = sin(ω*τ)
 
         # Now we can compute the power
         C_τ = S_τ = YC_τ = YS_τ = CC_τ = nil
@@ -290,12 +300,13 @@ function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Ab
             YC_τ += W*y[i]*c
             YS_τ += W*y[i]*s
             CC_τ += W*c*c
-            if fit_mean
-                C_τ += W*c
-                S_τ += W*s
-            end
         end
         if fit_mean
+            # "C_τ" and "S_τ" are computed following equation (7) of Press &
+            # Rybicki, this formula simply comes from angle difference
+            # trigonometric identities.
+            C_τ   = C*cos_ωτ + S*sin_ωτ
+            S_τ   = S*cos_ωτ - C*sin_ωτ
             YC_τ -= Y*C_τ
             YS_τ -= Y*S_τ
             SS_τ  = 1.0 - CC_τ - S_τ*S_τ
