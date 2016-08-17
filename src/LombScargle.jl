@@ -356,6 +356,33 @@ function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Ab
     return P, freqs
 end
 
+# Decide whether we should use the fast FFT method.  In any case we can use it
+# only if "floatrange", so that we are sure data is evenly spaced, this cannot
+# be overridden by the user.  As a rule of thumb, it's safe to use the fast
+# method if the "frequencies" array is longer than 200 points, however the user
+# can always override the automatic choice by setting "use_fft" to a boolean
+# value.
+function choose_use_fft(n::Integer, floatrange::Bool, use_fft)
+    if n > 200
+        if is(use_fft, :maybe)
+            # n > 200 and the user didn't say anything, return "floatrange".
+            return floatrange
+        else
+            # n > 200 and the user chose a value for "use_fft", combine with
+            # "floatrange".
+            return floatrange && use_fft::Bool
+        end
+    else
+        if is(use_fft, :maybe)
+            # n <= 200 and the user didn't say anything, never "use_fft".
+            return false
+        else
+            # n <= 200 but the user said something, combine with "floatrange".
+            return floatrange && use_fft::Bool
+        end
+    end
+end
+
 # This is the switch to select the appropriate function to run
 function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector{R1},
                                                            signal::AbstractVector{R2},
@@ -364,7 +391,9 @@ function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector
                                                            w::AbstractVector{R3}=ones(signal)/length(signal);
                                                            normalization::AbstractString="standard",
                                                            noise_level::Real=1.0,
-                                                           center_data::Bool=true, fit_mean::Bool=true,
+                                                           center_data::Bool=true,
+                                                           fit_mean::Bool=true,
+                                                           use_fft=:maybe,
                                                            samples_per_peak::Integer=5,
                                                            nyquist_factor::Integer=5,
                                                            minimum_frequency::Real=NaN,
@@ -378,7 +407,10 @@ function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector
     @assert length(times) == length(signal) == length(w)
     if fit_mean || with_errors
         P, f = _generalised_lombscargle(times, signal, w, frequencies,
-                                        center_data, fit_mean, floatrange)
+                                        center_data, fit_mean,
+                                        choose_use_fft(length(frequencies),
+                                                       floatrange,
+                                                       use_fft))
     else
         P, f = _lombscargle_orig(times, signal, frequencies, center_data)
     end
