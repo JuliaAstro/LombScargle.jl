@@ -30,6 +30,7 @@ end
 function extirpolate{R1<:Real,R2<:Real}(X::AbstractVector{R1},
                                         Y::AbstractVector{R2},
                                         N::Integer=0, M::Integer=4)
+    @assert length(X) == length(Y)
     x, y = collect(X), collect(Y)
     if N <= 0
         # Get the maximum of "X", `maximum' has a faster method for ranges.
@@ -43,7 +44,7 @@ function extirpolate{R1<:Real,R2<:Real}(X::AbstractVector{R1},
     ilo = clamp(trunc(Int, x - div(M, 2)), 0, N - M)
     numerator = y .* [prod(x[j] - ilo[j] - (0:M-1)) for j in eachindex(x)]
     denominator = factorial(M - 1)
-    for j in 0:(M - 1)
+    @inbounds for j in 0:(M - 1)
         if j > 0
             denominator *= j/(j - M)
         end
@@ -51,4 +52,30 @@ function extirpolate{R1<:Real,R2<:Real}(X::AbstractVector{R1},
         add_at!(result, ind, numerator ./ (denominator * (x .- ind)))
     end
     return result
+end
+
+function trig_sum{R1<:Real,R2<:Real}(t::AbstractVector{R1},
+                                     h::AbstractVector{R2}, df::Real,
+                                     N::Integer, f0::Real=0.0,
+                                     freq_factor::Integer=1,
+                                     oversampling::Integer=5, Mfft::Integer=4)
+    @assert Mfft > 0
+    df *= freq_factor
+    f0 *= freq_factor
+    @assert df > 0
+    Nfft = nextpow2(N * oversampling)
+    t0 = minimum(t)
+    if f0 > 0
+        h = h * exp(2im * pi * f0 * (t - t0))
+    end
+    tnorm = mod(((t - t0) * Nfft * df), Nfft)
+    grid = extirpolate(tnorm, h, Nfft, Mfft)
+    fftgrid = Nfft * ifft(grid)[1:N]
+    if t0 != 0
+        f = f0 + df * 0:(N - 1)
+        fftgrid *= exp(2im * pi * t0 * f)
+    end
+    S = real(fftgrid)
+    C = imag(fftgrid)
+    return C, S
 end
