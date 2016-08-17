@@ -11,14 +11,6 @@
 #
 ### Code:
 
-function add_at!{N1<:Number,N2<:Number}(arr::AbstractVector{N1},
-                                        ind::AbstractVector{N2},
-                                        val::Real)
-    for i in ind
-        arr[mod(i, length(arr)) + 1] += val
-    end
-end
-
 function add_at!{N1<:Number,N2<:Number,N3<:Number}(arr::AbstractVector{N1},
                                                    ind::AbstractVector{N2},
                                                    vals::AbstractVector{N3})
