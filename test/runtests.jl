@@ -30,11 +30,6 @@ pgram3 = lombscargle(t, s, center_data=false, fit_mean=false)
 pgram4 = lombscargle(t, s, center_data=false, fit_mean=true)
 @test_approx_eq_eps power(pgram3) power(pgram4) 3e-7
 
-# Test findmaxfreq and findmaxpower
-@test_approx_eq findmaxfreq(pgram1)        [31.997145470342]
-@test_approx_eq findmaxfreq(pgram1, 0.965) [0.15602150741832602,31.685102455505348,31.997145470342,63.52622641842902,63.838269433265665]
-@test_approx_eq findmaxpower(pgram1) 0.9695017551608017
-
 # Test the values in order to prevent wrong results in both algorithms
 @test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, fit_mean=true))  [0.029886871262324886,0.0005456198989410226,1.912507742056023e-5, 4.54258409531214e-6, 1.0238342782430832e-5]
 @test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, fit_mean=false)) [0.02988686776042212, 0.0005456197937194695,1.9125076826683257e-5,4.542583863304549e-6,1.0238340733199874e-5]
@@ -54,6 +49,25 @@ err = collect(linspace(0.5, 1.5, ntimes))
 @test_approx_eq power(lombscargle(t, s, err, frequencies=0.1:0.1:1, fit_mean=false)) [0.0692080444168825,0.09360343748833044,0.006634919855866448,0.0015362074096358814,0.000485825178683968,0.000181798596773626,8.543735242380012e-5,5.380000205539795e-5,4.010727072660524e-5,2.97840883747593e-5]
 @test power(lombscargle(t, s, err)) ==
     power(lombscargle(t, measurement(s, err)))
+
+# Test fast method
+t = linspace(0.01, 10pi, ntimes)
+s = sin(t)
+pgram5 = lombscargle(t, s, maximum_frequency=30, use_fft=true)
+pgram6 = lombscargle(t, s, maximum_frequency=30, use_fft=false)
+@test_approx_eq_eps power(pgram5) power(pgram6) 2e-6
+@test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, use_fft=true, fit_mean=true))  [0.029886871262324963,0.0005453105325981758,1.9499330722168046e-5,2.0859593514888897e-6,1.0129019249708592e-5]
+@test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, use_fft=true, fit_mean=false)) [0.02988686776042208,0.000545619793719469,1.912507682668341e-5,4.542583863304592e-6,1.0238340733199892e-5]
+@test_approx_eq power(lombscargle(t, s, err, frequencies=0.2:0.2:1, use_fft=true, fit_mean=true))  [0.09230959166317655,0.0015654929813132702,0.00019405185108843607,6.0898671943944786e-5,6.0604505038256276e-5]
+@test_approx_eq power(lombscargle(t, s, err, frequencies=0.2:0.2:1, use_fft=true, fit_mean=false)) [0.09219168665786258,0.0015654342453078724,0.00019403694017215876,6.088944186950046e-5,6.05771360378885e-5]
+
+##################################################
+### Testing utilities
+
+# Test findmaxfreq and findmaxpower
+@test_approx_eq findmaxfreq(pgram1)        [31.997145470342]
+@test_approx_eq findmaxfreq(pgram1, 0.965) [0.15602150741832602,31.685102455505348,31.997145470342,63.52622641842902,63.838269433265665]
+@test_approx_eq findmaxpower(pgram1) 0.9695017551608017
 
 # Test autofrequency function
 @test_approx_eq LombScargle.autofrequency(t)                       0.003184112396292367:0.006368224792584734:79.6824127172165
