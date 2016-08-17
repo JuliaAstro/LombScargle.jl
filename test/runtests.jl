@@ -26,6 +26,9 @@ s = sin(t)
 pgram1 = lombscargle(t, s, fit_mean=false)
 pgram2 = lombscargle(t, s, fit_mean=true)
 @test_approx_eq_eps power(pgram1) power(pgram2) 2e-7
+pgram3 = lombscargle(t, s, center_data=false, fit_mean=false)
+pgram4 = lombscargle(t, s, center_data=false, fit_mean=true)
+@test_approx_eq_eps power(pgram3) power(pgram4) 3e-7
 
 # Test findmaxfreq and findmaxpower
 @test_approx_eq findmaxfreq(pgram1)        [31.997145470342]
@@ -35,6 +38,8 @@ pgram2 = lombscargle(t, s, fit_mean=true)
 # Test the values in order to prevent wrong results in both algorithms
 @test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, fit_mean=true))  [0.029886871262324886,0.0005456198989410226,1.912507742056023e-5, 4.54258409531214e-6, 1.0238342782430832e-5]
 @test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, fit_mean=false)) [0.02988686776042212, 0.0005456197937194695,1.9125076826683257e-5,4.542583863304549e-6,1.0238340733199874e-5]
+@test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, center_data=false, fit_mean=true))  [0.029886871262325004,0.0005456198989536703,1.9125077421448458e-5,4.5425840956285145e-6,1.023834278337881e-5]
+@test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, center_data=false, fit_mean=false)) [0.029886868328967767,0.0005456198924872134,1.9125084251687147e-5,4.542588504467314e-6,1.0238354525870936e-5]
 @test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, normalization="model")) [0.030807614469885718,0.0005459177625354441,1.9125443196143085e-5,4.54260473047638e-6,1.0238447607164715e-5]
 @test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, normalization="log")) [0.030342586720560734,0.0005457688036440774,1.9125260307148152e-5,4.542594412890309e-6,1.0238395194654036e-5]
 @test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, normalization="psd")) [7.474096700871138,0.1364484040771917,0.004782791641128195,0.0011360075968541799,0.002560400630125523]
