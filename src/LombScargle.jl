@@ -248,7 +248,9 @@ function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Ab
                                                                        freqs::AbstractVector{R4},
                                                                        center_data::Bool,
                                                                        fit_mean::Bool,
-                                                                       use_fft::Bool)
+                                                                       use_fft::Bool,
+                                                                       oversampling::Int,
+                                                                       Mfft::Int)
     P_type = promote_type(float(R1), float(R2))
     P = Vector{P_type}(freqs)
     nil = zero(P_type)
@@ -271,10 +273,10 @@ function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Ab
         df = step(freqs)
         N  = length(freqs)
         f0 = minimum(freqs)
-        Ch, Sh = trig_sum(times, w .* y, df, N, f0)
-        C2, S2 = trig_sum(times, w,      df, N, f0, 2)
+        Ch, Sh = trig_sum(times, w .* y, df, N, f0, 1, oversampling, Mfft)
+        C2, S2 = trig_sum(times, w,      df, N, f0, 2, oversampling, Mfft)
         if fit_mean
-            C, S = trig_sum(times, w, df, N, f0)
+            C, S = trig_sum(times, w, df, N, f0, 1, oversampling, Mfft)
             tan_2ωτ = (S2 .- 2.0 * S .* C) ./ (C2 .- (C .* C .- S .* S))
         else
             tan_2ωτ = S2 ./ C2
@@ -393,6 +395,8 @@ function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector
                                                            center_data::Bool=true,
                                                            fit_mean::Bool=true,
                                                            use_fft=:maybe,
+                                                           oversampling::Integer=5,
+                                                           Mfft::Integer=4,
                                                            samples_per_peak::Integer=5,
                                                            nyquist_factor::Integer=5,
                                                            minimum_frequency::Real=NaN,
@@ -409,7 +413,8 @@ function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector
                                         center_data, fit_mean,
                                         choose_use_fft(length(frequencies),
                                                        floatrange,
-                                                       use_fft))
+                                                       use_fft),
+                                        oversampling, Mfft)
     else
         P, f = _lombscargle_orig(times, signal, frequencies, center_data)
     end
