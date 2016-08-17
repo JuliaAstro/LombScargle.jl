@@ -73,3 +73,8 @@ end
 P = lombscargle(t, s, normalization = "log")
 @test_throws ErrorException prob(P, 0.5)
 @test_throws ErrorException probinv(P, 0.5)
+
+# Test extirpolation function
+x = linspace(0, 10)
+y = sin(x)
+@test_approx_eq LombScargle.extirpolate(x, y) [0.39537718210649553,3.979484140636793,4.833090108345013,0.506805556164743,-3.828112427525919,-4.748341359084166,-1.3022050566901917,3.3367666084342256,5.070478111668922,1.291245296032218,-0.8264466821981216,0.0,0.0]

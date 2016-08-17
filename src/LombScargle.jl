@@ -20,6 +20,8 @@ using Measurements
 export lombscargle, power, freq, freqpower, findmaxpower, findmaxfreq,
 prob, probinv, fap, fapinv
 
+include("extirpolation.jl")
+
 # This is similar to Periodogram type of DSP.Periodograms module, but for
 # unevenly spaced frequencies.
 immutable Periodogram{T<:AbstractFloat}
@@ -291,7 +293,7 @@ function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Ab
         sin_ωτ  = sin(ω*τ)
 
         # Now we can compute the power
-        C_τ = S_τ = YC_τ = YS_τ = CC_τ = nil
+        YC_τ = YS_τ = CC_τ = nil
         for i in eachindex(times)
             ωt    = ω*(times[i] - τ)
             W     = w[i]
