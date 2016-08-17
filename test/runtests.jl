@@ -59,6 +59,7 @@ pgram6 = lombscargle(t, s, maximum_frequency=30, use_fft=false)
 @test_approx_eq_eps power(pgram5) power(pgram6) 2e-6
 @test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, use_fft=true, fit_mean=true))  [0.029886871262324963,0.0005453105325981758,1.9499330722168046e-5,2.0859593514888897e-6,1.0129019249708592e-5]
 @test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, use_fft=true, fit_mean=false)) [0.02988686776042208,0.000545619793719469,1.912507682668341e-5,4.542583863304592e-6,1.0238340733199892e-5]
+@test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, use_fft=true, center_data=false, fit_mean=false)) [0.029886868328967767,0.0005456198924872134,1.9125084251687147e-5,4.542588504467314e-6,1.0238354525870936e-5]
 @test_approx_eq power(lombscargle(t, s, err, frequencies=0.2:0.2:1, use_fft=true, fit_mean=true))  [0.09230959166317655,0.0015654929813132702,0.00019405185108843607,6.0898671943944786e-5,6.0604505038256276e-5]
 @test_approx_eq power(lombscargle(t, s, err, frequencies=0.2:0.2:1, use_fft=true, fit_mean=false)) [0.09219168665786258,0.0015654342453078724,0.00019403694017215876,6.088944186950046e-5,6.05771360378885e-5]
 

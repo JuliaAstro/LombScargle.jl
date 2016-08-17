@@ -252,7 +252,7 @@ function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Ab
     P = Vector{P_type}(freqs)
     nil = zero(P_type)
     # If "center_data" keyword is true, subtract the mean from each point.
-    if center_data
+    if center_data || fit_mean
         y = signal - mean(signal)
     else
         y = signal
@@ -287,11 +287,6 @@ function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Ab
             SS  = 1.0 - CC
         end
         τ   = 0.5*atan2(2CS, CC - SS)/ω
-        # These quantities will be used below.  See Press & Rybicki paper.
-        # NOTE: They can be computed in a faster way, for the time being we keep
-        # this simple and straightforward implementation.
-        cos_ωτ  = cos(ω*τ)
-        sin_ωτ  = sin(ω*τ)
 
         # Now we can compute the power
         YC_τ = YS_τ = CC_τ = nil
@@ -308,13 +303,15 @@ function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Ab
             # "C_τ" and "S_τ" are computed following equation (7) of Press &
             # Rybicki, this formula simply comes from angle difference
             # trigonometric identities.
-            C_τ   = C*cos_ωτ + S*sin_ωτ
-            S_τ   = S*cos_ωτ - C*sin_ωτ
-            YC_τ -= Y*C_τ
-            YS_τ -= Y*S_τ
-            SS_τ  = 1.0 - CC_τ - S_τ*S_τ
-            CC_τ -= C_τ*C_τ
-            YY   -= Y*Y
+            cos_ωτ = cos(ω*τ)
+            sin_ωτ = sin(ω*τ)
+            C_τ    = C*cos_ωτ + S*sin_ωτ
+            S_τ    = S*cos_ωτ - C*sin_ωτ
+            YC_τ  -= Y*C_τ
+            YS_τ  -= Y*S_τ
+            SS_τ   = 1.0 - CC_τ - S_τ*S_τ
+            CC_τ  -= C_τ*C_τ
+            YY    -= Y*Y
         else
             SS_τ  = 1.0 - CC_τ
         end
