@@ -34,7 +34,7 @@ function extirpolate{RE<:Real,NU<:Number}(X::AbstractVector{RE},
     deleteat!(x, integers)
     deleteat!(y, integers)
     ilo = clamp(trunc(Int, x - div(M, 2)), 0, N - M)
-    numerator = y .* [prod(x[j] - ilo[j] - (0:M-1)) for j in eachindex(x)]
+    numerator = y .* [prod(x[j] - ilo[j] - (0:(M - 1))) for j in eachindex(x)]
     denominator = factorial(M - 1)
     @inbounds for j in 0:(M - 1)
         if j > 0
@@ -67,7 +67,7 @@ function trig_sum{R1<:Real,R2<:Real}(t::AbstractVector{R1},
         f = f0 + df * (0:N - 1)
         fftgrid .*= exp(2im * pi * t0 * f)
     end
-    S = real(fftgrid)
-    C = imag(fftgrid)
+    C = real(fftgrid)
+    S = imag(fftgrid)
     return C, S
 end

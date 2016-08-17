@@ -279,11 +279,10 @@ function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Ab
         else
             tan_2ωτ = S2 ./ C2
         end
-        ωτ = 0.5*atan(tan_2ωτ)
         C2w = 1./(sqrt(1.0 + tan_2ωτ .* tan_2ωτ))
         S2w = tan_2ωτ .* C2w
-        Cw = cos(ωτ)
-        Sw = sin(ωτ)
+        Cw = sqrt(0.5 * (1.0 + C2w))
+        Sw = sqrt(0.5) .* sign(S2w) .* sqrt(1.0 - C2w)
         YC = Ch .* Cw .+ Sh .* Sw
         YS = Sh .* Cw .- Ch .* Sw
         CC = 0.5 * (1.0 + C2 .* C2w .+ S2 .* S2w)
