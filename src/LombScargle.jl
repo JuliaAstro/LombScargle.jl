@@ -435,16 +435,16 @@ function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector
                                                                          minimum_frequency=minimum_frequency,
                                                                          maximum_frequency=maximum_frequency))
     @assert length(times) == length(signal) == length(w)
-    if fit_mean || with_errors
-        if choose_use_fft(length(frequencies), floatrange, use_fft)
-            P, f = _press_rybicki(times, signal, w, frequencies, center_data,
-                                  fit_mean, oversampling, Mfft)
-        else
+    if choose_use_fft(length(frequencies), floatrange, use_fft)
+        P, f = _press_rybicki(times, signal, w, frequencies, center_data,
+                              fit_mean, oversampling, Mfft)
+    else
+        if fit_mean || with_errors
             P, f = _generalised_lombscargle(times, signal, w, frequencies,
                                             center_data, fit_mean)
+        else
+            P, f = _lombscargle_orig(times, signal, frequencies, center_data)
         end
-    else
-        P, f = _lombscargle_orig(times, signal, frequencies, center_data)
     end
 
     N = length(signal)
