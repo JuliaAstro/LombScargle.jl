@@ -527,7 +527,11 @@ lombscargle{T<:Real,F<:AbstractFloat}(times::AbstractVector{T},
                 errors::AbstractVector{Real}=ones(signal);
                 normalization::AbstractString="standard",
                 noise_level::Real=1.0,
-                center_data::Bool=true, fit_mean::Bool=true,
+                center_data::Bool=true,
+                fit_mean::Bool=true,
+                fast::Bool=true,
+                oversampling::Integer=5,
+                Mfft::Integer=4,
                 samples_per_peak::Integer=5,
                 nyquist_factor::Integer=5,
                 minimum_frequency::Real=NaN,
@@ -557,11 +561,20 @@ Optional keywords arguments are:
 * `center_data`: if `true`, subtract the mean of `signal` from `signal` itself
   before performing the periodogram.  This is especially important if `fit_mean`
   is `false`
+* `fast`: whether to use the fast method by Press & Rybicki, overriding the
+  default choice.  In any case, `times` must be a `Range` object in order to use
+  this method
 * `frequencies`: the frequecy grid (not angular frequencies) at which the
   periodogram will be computed, as a vector.  If not provided, it is
   automatically determined with `LombScargle.autofrequency` function, which see.
   See below for other available keywords that can be used to affect the
   frequency grid without directly setting `frequencies`
+* `oversampling`: oversampling the frequency factor for the approximation;
+  roughly the number of time samples across the highest-frequency sinusoid.
+  This parameter contains the tradeoff between accuracy and speed.  Used only
+  when the fast method is employed
+* `Mfft`: The number of adjacent points to use in the FFT approximation.  Used
+  only when the fast method is employed
 
 In addition, you can use all optional keyword arguments of
 `LombScargle.autofrequency` function in order to tune the `frequencies` vector
@@ -586,6 +599,9 @@ http://measurementsjl.readthedocs.io/ for details on how to create a vector of
 
 The algorithm used here are reported in the following papers:
 
+* Press, W. H., Rybicki, G. B. 1989, ApJ, 338, 277 (URL:
+  http://dx.doi.org/10.1086/167197, Bibcode:
+  http://adsabs.harvard.edu/abs/1989ApJ...338..277P)
 * Townsend, R. H. D. 2010, ApJS, 191, 247 (URL:
   http://dx.doi.org/10.1088/0067-0049/191/2/247,
   Bibcode: http://adsabs.harvard.edu/abs/2010ApJS..191..247T)

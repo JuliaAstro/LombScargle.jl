@@ -21,6 +21,9 @@ which is a fairly common case in astronomy.
 
 The algorithm used in this package are reported in the following papers:
 
+* Press, W. H., Rybicki, G. B. 1989, ApJ, 338, 277 (URL:
+  http://dx.doi.org/10.1086/167197, Bibcode:
+  http://adsabs.harvard.edu/abs/1989ApJ...338..277P)
 * Townsend, R. H. D. 2010, ApJS, 191, 247 (URL:
   http://dx.doi.org/10.1088/0067-0049/191/2/247, Bibcode:
   http://adsabs.harvard.edu/abs/2010ApJS..191..247T)
@@ -73,7 +76,11 @@ lombscargle(times::AbstractVector{Real}, signal::AbstractVector{Real},
             errors::AbstractVector{Real}=ones(signal);
             normalization::AbstractString="standard",
             noise_level::Real=1.0,
-            center_data::Bool=true, fit_mean::Bool=true,
+            center_data::Bool=true,
+            fit_mean::Bool=true,
+            fast::Bool=true,
+            oversampling::Integer=5,
+            Mfft::Integer=4,
             samples_per_peak::Integer=5,
             nyquist_factor::Integer=5,
             minimum_frequency::Real=NaN,
@@ -136,6 +143,9 @@ The frequency grid is determined by following prescriptions given at
 https://jakevdp.github.io/blog/2015/06/13/lomb-scargle-in-python/ and uses the
 same keywords names adopted in Astropy.
 
+The keywords `fast`, `oversampling`, and `Mfft` are described in the "Fast
+Algorithm" section below.
+
 If the signal has uncertainties, the `signal` vector can also be a vector of
 `Measurement` objects (from
 [`Measurements.jl`](https://github.com/giordano/Measurements.jl) package), in
@@ -143,6 +153,46 @@ which case you don’t need to pass a separate `errors` vector for the
 uncertainties of the signal.  You can create arrays of `Measurement` objects
 with the `measurement` function, see `Measurements.jl` manual at
 http://measurementsjl.readthedocs.io/ for more details.
+
+### Fast Algorithm ###
+
+When the observation times are evenly spaced, you can use a fast O[N log(N)]
+algorithm proposed by Press & Rybicki (1989) that greatly speed-up computations
+by giving an approximation of the true Lomb-Scargle periodogram, which has
+complexity O[N^2].  The larger the number of datapoints, the more accurate the
+approximation.  Note that this method internally performs a
+[Fast Fourier Transform](https://en.wikipedia.org/wiki/Fast_Fourier_transform)
+to compute some quantities, but it is in now way equivalento to conventional
+Fourier periodogram analysis.
+
+The prerequisite in order to be able to employ this fast method is to provide a
+`times` array as a `Range` object, which ensures that the times are perfectly
+evenly spaced.  In Julia, `Range`s can be constructed for example with
+[`linspace`](http://docs.julialang.org/en/stable/stdlib/arrays/#Base.linspace)
+function (you specify the start, the end of the range, and optionally the length
+of the array) or with the
+[colon](http://docs.julialang.org/en/stable/stdlib/math/#Base.:) syntax (you
+specify the start, the end of the range, and optionally the linear step; a
+related function is
+[`colon`](http://docs.julialang.org/en/stable/stdlib/math/#Base.colon)).
+Somewhere in the middle is the
+[`range`](http://docs.julialang.org/en/stable/stdlib/math/#Base.range) function:
+you specify the start and the length of the array, and optionally the linear
+step.
+
+Since this fast method is accurate only for large datasets, it is enabled by
+default only if the number of output frequencies is larger than 200.  You can
+override the default choice of using this method by setting the `fast` keyword
+to `true` or `false`.  We recall that in any case, the `times` array must be a
+`Range` in order to use this method.
+
+The two integer keywords `ovesampling` and `Mfft` can be passed to `lombscargle`
+in order to affect the computation in the fast method:
+
+* `oversampling`: oversampling the frequency factor for the approximation;
+  roughly the number of time samples across the highest-frequency sinusoid.
+  This parameter contains the tradeoff between accuracy and speed.
+* `Mfft`: The number of adjacent points to use in the FFT approximation.
 
 ### Access Frequency Grid and Power Spectrum of the Periodogram ###
 
