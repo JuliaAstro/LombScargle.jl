@@ -15,7 +15,7 @@ function add_at!{R1<:Real,R2<:Real}(arr::AbstractVector{R1},
                                     ind::AbstractVector{R2},
                                     val::Real)
     for i in ind
-        arr[mod(i, length(arr) - 1) + 1] += val
+        arr[mod(i, length(arr)) + 1] += val
     end
 end
 
@@ -23,7 +23,7 @@ function add_at!{R1<:Real,R2<:Real,R3<:Real}(arr::AbstractVector{R1},
                                              ind::AbstractVector{R2},
                                              vals::AbstractVector{R3})
     for i in eachindex(ind)
-        arr[mod(ind[i], length(arr) - 1) + 1] += vals[i]
+        arr[mod(ind[i], length(arr)) + 1] += vals[i]
     end
 end
 
@@ -32,7 +32,8 @@ function extirpolate{R1<:Real,R2<:Real}(X::AbstractVector{R1},
                                         N::Integer=0, M::Integer=4)
     x, y = collect(X), collect(Y)
     if N <= 0
-        N = trunc(Int, maximum(x) + 0.5*M + 1)
+        # Get the maximum of "X", `maximum' has a faster method for ranges.
+        N = trunc(Int, maximum(X) + 0.5*M + 1)
     end
     result = zeros(R2, N)
     integers = find(isinteger, x)
