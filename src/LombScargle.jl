@@ -488,24 +488,29 @@ lombscargle{R1<:Real,R2<:Real}(times::AbstractVector{R1},
                                                 kwargs...)
 
 # Uncertainties provided
+function _lombscargle_with_errors{R1<:Real,R2<:Real,R3<:Real}(times::AbstractVector{R1},
+                                                              signal::AbstractVector{R2},
+                                                              errors::AbstractVector{R3},
+                                                              floatrange::Bool;
+                                                              kwargs...)
+    # Compute weights vector
+    w = 1.0./errors.^2
+    w /= sum(w)
+    return _lombscargle(times, signal, floatrange, true, w; kwargs...)
+end
+
 function lombscargle{R1<:Real,R2<:Real,R3<:Real}(times::Range{R1},
                                                  signal::AbstractVector{R2},
                                                  errors::AbstractVector{R3};
                                                  kwargs...)
-    # Compute weights vector
-    w = 1.0./errors.^2
-    w /= sum(w)
-    return _lombscargle(times, signal, true, true, w; kwargs...)
+    return _lombscargle_with_errors(times, signal, errors, true; kwargs...)
 end
 
 function lombscargle{R1<:Real,R2<:Real,R3<:Real}(times::AbstractVector{R1},
                                                  signal::AbstractVector{R2},
                                                  errors::AbstractVector{R3};
                                                  kwargs...)
-    # Compute weights vector
-    w = 1.0./errors.^2
-    w /= sum(w)
-    return _lombscargle(times, signal, false, true, w; kwargs...)
+    return _lombscargle_with_errors(times, signal, errors, false; kwargs...)
 end
 
 # Uncertainties provided via Measurement type
