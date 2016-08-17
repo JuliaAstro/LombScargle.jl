@@ -247,113 +247,143 @@ function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Ab
                                                                        w::AbstractVector{R3},
                                                                        freqs::AbstractVector{R4},
                                                                        center_data::Bool,
-                                                                       fit_mean::Bool,
-                                                                       use_fft::Bool,
-                                                                       oversampling::Int,
-                                                                       Mfft::Int)
+                                                                       fit_mean::Bool)
+    P_type = promote_type(float(R1), float(R2), float(R3), float(R4))
+    P = Vector{P_type}(freqs)
+    nil = zero(P_type)
+    # If "center_data" keyword is true, subtract the mean from each point.
+    if center_data
+        y = signal - mean(signal)
+    else
+        y = signal
+    end
+    YY = w⋅(y.^2)
+    if fit_mean
+        Y  = w⋅y
+    end
+
+    @inbounds for n in eachindex(freqs)
+        ω = 2pi*freqs[n]
+
+        # Find τ for current angular frequency
+        C = S = CS = CC = nil
+        for i in eachindex(times)
+            ωt  = ω*times[i]
+            W   = w[i]
+            c   = cos(ωt)
+            s   = sin(ωt)
+            CS += W*c*s
+            CC += W*c*c
+            if fit_mean
+                C  += W*c
+                S  += W*s
+            end
+        end
+        if fit_mean
+            CS -= C*S
+            SS  = 1.0 - CC - S*S
+            CC -= C*C
+        else
+            SS  = 1.0 - CC
+        end
+        τ   = 0.5*atan2(2CS, CC - SS)/ω
+        # These quantities will be used below.  See Press & Rybicki paper.
+        # NOTE: They can be computed in a faster way, for the time being we keep
+        # this simple and straightforward implementation.
+        cos_ωτ  = cos(ω*τ)
+        sin_ωτ  = sin(ω*τ)
+
+        # Now we can compute the power
+        YC_τ = YS_τ = CC_τ = nil
+        for i in eachindex(times)
+            ωt    = ω*(times[i] - τ)
+            W     = w[i]
+            c     = cos(ωt)
+            s     = sin(ωt)
+            YC_τ += W*y[i]*c
+            YS_τ += W*y[i]*s
+            CC_τ += W*c*c
+        end
+        if fit_mean
+            # "C_τ" and "S_τ" are computed following equation (7) of Press &
+            # Rybicki, this formula simply comes from angle difference
+            # trigonometric identities.
+            C_τ   = C*cos_ωτ + S*sin_ωτ
+            S_τ   = S*cos_ωτ - C*sin_ωτ
+            YC_τ -= Y*C_τ
+            YS_τ -= Y*S_τ
+            SS_τ  = 1.0 - CC_τ - S_τ*S_τ
+            CC_τ -= C_τ*C_τ
+            YY   -= Y*Y
+        else
+            SS_τ  = 1.0 - CC_τ
+        end
+        P[n] = (abs2(YC_τ)/CC_τ + abs2(YS_τ)/SS_τ)/YY
+    end
+    return P, freqs
+end
+
+# Fast, but approximate, method to compute the Lomb-Scargle periodogram for
+# evenly spaced data.  See
+# * Press, W. H., Rybicki, G. B. 1989, ApJ, 338, 277 (URL:
+#   http://dx.doi.org/10.1086/167197,
+#   Bibcode: http://adsabs.harvard.edu/abs/1989ApJ...338..277P)
+# This is adapted from Astropy implementation of the method.  See
+# `lombscargle_fast' function.
+function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector{R1},
+                                                             signal::AbstractVector{R2},
+                                                             w::AbstractVector{R3},
+                                                             freqs::AbstractVector{R4},
+                                                             center_data::Bool,
+                                                             fit_mean::Bool,
+                                                             oversampling::Int,
+                                                             Mfft::Int)
     P_type = promote_type(float(R1), float(R2))
     P = Vector{P_type}(freqs)
     nil = zero(P_type)
     # If "center_data" keyword is true, subtract the mean from each point.
     if center_data || fit_mean
-        if use_fft
-            y = signal - w⋅signal
-        else
-            y = signal - mean(signal)
-        end
+        y = signal - w⋅signal
     else
         y = signal
     end
-    YY = w⋅(y.^2)
-    if !use_fft && fit_mean
-        Y  = w⋅y
-    end
 
-    if use_fft
-        df = step(freqs)
-        N  = length(freqs)
-        f0 = minimum(freqs)
-        Ch, Sh = trig_sum(times, w .* y, df, N, f0, 1, oversampling, Mfft)
-        C2, S2 = trig_sum(times, w,      df, N, f0, 2, oversampling, Mfft)
-        if fit_mean
-            C, S = trig_sum(times, w, df, N, f0, 1, oversampling, Mfft)
-            tan_2ωτ = (S2 .- 2.0 * S .* C) ./ (C2 .- (C .* C .- S .* S))
-        else
-            tan_2ωτ = S2 ./ C2
-        end
-        C2w = 1./(sqrt(1.0 + tan_2ωτ .* tan_2ωτ))
-        S2w = tan_2ωτ .* C2w
-        Cw = sqrt(0.5 * (1.0 + C2w))
-        Sw = sqrt(0.5) .* sign(S2w) .* sqrt(1.0 - C2w)
-        YC = Ch .* Cw .+ Sh .* Sw
-        YS = Sh .* Cw .- Ch .* Sw
-        CC = 0.5 * (1.0 + C2 .* C2w .+ S2 .* S2w)
-        SS = 0.5 * (1.0 - C2 .* C2w .- S2 .* S2w)
-        if fit_mean
-            CC -= (C .* Cw .+ S .* Sw) .^ 2
-            SS -= (S .* Cw .- C .* Sw) .^ 2
-        end
-        P = (YC .* YC ./ CC .+ YS .* YS ./ SS)/YY
+    df = step(freqs)
+    N  = length(freqs)
+    f0 = minimum(freqs)
+    #---------------------------------------------------------------------------
+    # 1. compute functions of the time-shift tau at each frequency
+    Ch, Sh = trig_sum(times, w .* y, df, N, f0, 1, oversampling, Mfft)
+    C2, S2 = trig_sum(times, w,      df, N, f0, 2, oversampling, Mfft)
+    if fit_mean
+        C, S = trig_sum(times, w, df, N, f0, 1, oversampling, Mfft)
+        tan_2ωτ = (S2 .- 2.0 * S .* C) ./ (C2 .- (C .* C .- S .* S))
     else
-        @inbounds for n in eachindex(freqs)
-            ω = 2pi*freqs[n]
-
-            # Find τ for current angular frequency
-            C = S = CS = CC = nil
-            for i in eachindex(times)
-                ωt  = ω*times[i]
-                W   = w[i]
-                c   = cos(ωt)
-                s   = sin(ωt)
-                CS += W*c*s
-                CC += W*c*c
-                if fit_mean
-                    C  += W*c
-                    S  += W*s
-                end
-            end
-            if fit_mean
-                CS -= C*S
-                SS  = 1.0 - CC - S*S
-                CC -= C*C
-            else
-                SS  = 1.0 - CC
-            end
-            τ       = 0.5*atan2(2CS, CC - SS)/ω
-            # These quantities will be used below.  See Press & Rybicki paper.
-            # NOTE: They can be computed in a faster way, for the time being we keep
-            # this simple and straightforward implementation.
-            cos_ωτ  = cos(ω*τ)
-            sin_ωτ  = sin(ω*τ)
-
-            # Now we can compute the power
-            YC_τ = YS_τ = CC_τ = nil
-            for i in eachindex(times)
-                ωt    = ω*(times[i] - τ)
-                W     = w[i]
-                c     = cos(ωt)
-                s     = sin(ωt)
-                YC_τ += W*y[i]*c
-                YS_τ += W*y[i]*s
-                CC_τ += W*c*c
-            end
-            if fit_mean
-                # "C_τ" and "S_τ" are computed following equation (7) of Press &
-                # Rybicki, this formula simply comes from angle difference
-                # trigonometric identities.
-                C_τ   = C*cos_ωτ + S*sin_ωτ
-                S_τ   = S*cos_ωτ - C*sin_ωτ
-                YC_τ -= Y*C_τ
-                YS_τ -= Y*S_τ
-                SS_τ  = 1.0 - CC_τ - S_τ*S_τ
-                CC_τ -= C_τ*C_τ
-                YY   -= Y*Y
-            else
-                SS_τ  = 1.0 - CC_τ
-            end
-            P[n] = (abs2(YC_τ)/CC_τ + abs2(YS_τ)/SS_τ)/YY
-        end
+        tan_2ωτ = S2 ./ C2
     end
+    # This is what we're computing below; the straightforward way is slower and
+    # less stable, so we use trig identities instead
+    #
+    # ωτ = 0.5 * atan(tan_2ωτ)
+    # S2w, C2w = sin(2 * ωτ), cos(2 * ωτ)
+    # Sw, Cw = sin(ωτ), cos(ωτ)
+    C2w = 1./(sqrt(1.0 + tan_2ωτ .* tan_2ωτ))
+    S2w = tan_2ωτ .* C2w
+    Cw = sqrt(0.5 * (1.0 + C2w))
+    Sw = sqrt(0.5) .* sign(S2w) .* sqrt(1.0 - C2w)
+    #---------------------------------------------------------------------------
+    # 2. Compute the periodogram, following Zechmeister & Kurster
+    #    and using tricks from Press & Rybicki.
+    YY = w⋅(y.^2)
+    YC = Ch .* Cw .+ Sh .* Sw
+    YS = Sh .* Cw .- Ch .* Sw
+    CC = 0.5 * (1.0 + C2 .* C2w .+ S2 .* S2w)
+    SS = 0.5 * (1.0 - C2 .* C2w .- S2 .* S2w)
+    if fit_mean
+        CC -= (C .* Cw .+ S .* Sw) .^ 2
+        SS -= (S .* Cw .- C .* Sw) .^ 2
+    end
+    P = (YC .* YC ./ CC .+ YS .* YS ./ SS)/YY
     return P, freqs
 end
 
@@ -409,12 +439,13 @@ function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector
                                                                          maximum_frequency=maximum_frequency))
     @assert length(times) == length(signal) == length(w)
     if fit_mean || with_errors
-        P, f = _generalised_lombscargle(times, signal, w, frequencies,
-                                        center_data, fit_mean,
-                                        choose_use_fft(length(frequencies),
-                                                       floatrange,
-                                                       use_fft),
-                                        oversampling, Mfft)
+        if choose_use_fft(length(frequencies), floatrange, use_fft)
+            P, f = _press_rybicki(times, signal, w, frequencies, center_data,
+                                  fit_mean, oversampling, Mfft)
+        else
+            P, f = _generalised_lombscargle(times, signal, w, frequencies,
+                                            center_data, fit_mean)
+        end
     else
         P, f = _lombscargle_orig(times, signal, frequencies, center_data)
     end

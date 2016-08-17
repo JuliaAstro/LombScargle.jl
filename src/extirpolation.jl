@@ -9,6 +9,15 @@
 #
 # License is MIT "Expat".
 #
+### Commentary:
+#
+# Utility functions used for implementing the fast algorithm proposed here:
+# * Press, W. H., Rybicki, G. B. 1989, ApJ, 338, 277 (URL:
+#   http://dx.doi.org/10.1086/167197,
+#   Bibcode: http://adsabs.harvard.edu/abs/1989ApJ...338..277P)
+# The actual implementation is adapted from Astropy project.  See
+# stats/lombscargle/implementations/utils.py in Astropy source code.
+#
 ### Code:
 
 function add_at!{N1<:Number,N2<:Number,N3<:Number}(arr::AbstractVector{N1},
@@ -28,11 +37,17 @@ function extirpolate{RE<:Real,NU<:Number}(X::AbstractVector{RE},
         # Get the maximum of "X", `maximum' has a faster method for ranges.
         N = trunc(Int, maximum(X) + 0.5*M + 1)
     end
+    # Now use legendre polynomial weights to populate the results array; This is
+    # an efficient recursive implementation (See Press et al. 1989)
     result = zeros(NU, N)
+    # first take care of the easy cases where x is an integer
     integers = find(isinteger, x)
     add_at!(result, trunc(Int, x[integers]), y[integers])
     deleteat!(x, integers)
     deleteat!(y, integers)
+    # For each remaining x, find the index describing the extirpolation range.
+    # i.e. ilo[i] < x[i] < ilo[i] + M with x[i] in the center, adjusted so that
+    # the limits are within the range 0...N
     ilo = clamp(trunc(Int, x - div(M, 2)), 0, N - M)
     numerator = y .* [prod(x[j] - ilo[j] - (0:(M - 1))) for j in eachindex(x)]
     denominator = factorial(M - 1)
@@ -55,6 +70,8 @@ function trig_sum{R1<:Real,R2<:Real}(t::AbstractVector{R1},
     df *= freq_factor
     f0 *= freq_factor
     @assert df > 0
+    # `ifft' can take arrays of any length in input, but it's faster when the
+    # length is exactly a power of 2.
     Nfft = nextpow2(N * oversampling)
     t0 = minimum(t)
     if f0 > 0
