@@ -54,15 +54,15 @@ err = collect(linspace(0.5, 1.5, ntimes))
 # Test fast method
 t = linspace(0.01, 10pi, ntimes)
 s = sin(t)
-pgram5 = lombscargle(t, s, maximum_frequency=30, use_fft=true)
-pgram6 = lombscargle(t, s, maximum_frequency=30, use_fft=false)
+pgram5 = lombscargle(t, s, maximum_frequency=30, fast=true)
+pgram6 = lombscargle(t, s, maximum_frequency=30, fast=false)
 @test_approx_eq_eps power(pgram5) power(pgram6) 2e-6
-@test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, use_fft=true, fit_mean=true))  [0.029886871262324963,0.0005453105325981758,1.9499330722168046e-5,2.0859593514888897e-6,1.0129019249708592e-5]
-@test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, use_fft=true, fit_mean=false)) [0.029886867760422008,0.0005453104197620392,1.9499329579010375e-5,2.085948496002562e-6,1.0128073536975395e-5]
-@test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, use_fft=true, center_data=false, fit_mean=false)) [0.029886868328967718,0.0005453105220405559,1.949931928224576e-5,2.0859802347505357e-6,1.0127777365273726e-5]
-@test_approx_eq power(lombscargle(t, s, err, frequencies=0.2:0.2:1, use_fft=true, fit_mean=true))  [0.09230959166317655,0.0015654929813132702,0.00019405185108843607,6.0898671943944786e-5,6.0604505038256276e-5]
-@test_approx_eq power(lombscargle(t, s, err, frequencies=0.2:0.2:1, use_fft=true, fit_mean=false)) [0.09219168665786258,0.0015654342453078724,0.00019403694017215876,6.088944186950046e-5,6.05771360378885e-5]
-@test_approx_eq power(lombscargle(t, s, err, frequencies=0.2:0.2:1, use_fft=true, center_data=false, fit_mean=false)) [0.09360344864985332,0.0015354489715019735,0.0001784388515190763,4.744247354697125e-5,3.240223498703448e-5]
+@test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, fast=true, fit_mean=true))  [0.029886871262324963,0.0005453105325981758,1.9499330722168046e-5,2.0859593514888897e-6,1.0129019249708592e-5]
+@test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, fast=true, fit_mean=false)) [0.029886867760422008,0.0005453104197620392,1.9499329579010375e-5,2.085948496002562e-6,1.0128073536975395e-5]
+@test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, fast=true, center_data=false, fit_mean=false)) [0.029886868328967718,0.0005453105220405559,1.949931928224576e-5,2.0859802347505357e-6,1.0127777365273726e-5]
+@test_approx_eq power(lombscargle(t, s, err, frequencies=0.2:0.2:1, fast=true, fit_mean=true))  [0.09230959166317655,0.0015654929813132702,0.00019405185108843607,6.0898671943944786e-5,6.0604505038256276e-5]
+@test_approx_eq power(lombscargle(t, s, err, frequencies=0.2:0.2:1, fast=true, fit_mean=false)) [0.09219168665786258,0.0015654342453078724,0.00019403694017215876,6.088944186950046e-5,6.05771360378885e-5]
+@test_approx_eq power(lombscargle(t, s, err, frequencies=0.2:0.2:1, fast=true, center_data=false, fit_mean=false)) [0.09360344864985332,0.0015354489715019735,0.0001784388515190763,4.744247354697125e-5,3.240223498703448e-5]
 
 ##################################################
 ### Testing utilities
@@ -102,17 +102,17 @@ C, S = LombScargle.trig_sum(x, y, 1, 10)
 @test_approx_eq S [0.0,0.3753570125888358,0.08163980192703546,-0.10139634351774979,-0.4334223744905633,-2.7843373311769777,0.32405810159838055,0.05729663600471602,-0.13191736591325876,-0.5295781583202946]
 @test_approx_eq C [8.708141477890015,-0.5402668064176129,-0.37460815054027985,-0.3793457539084364,-0.5972351546196192,14.612204307982497,-0.5020253140297526,-0.37724493022381034,-0.394096831764578,-0.6828241623474718]
 
-# Test choose_use_fft
-@test LombScargle.choose_use_fft(300, true,  :maybe) == true
-@test LombScargle.choose_use_fft(300, true,  true)   == true
-@test LombScargle.choose_use_fft(300, true,  false)  == false
-@test LombScargle.choose_use_fft(300, false, :maybe) == false
-@test LombScargle.choose_use_fft(300, false, true)   == false
-@test LombScargle.choose_use_fft(300, false, false)  == false
+# Test choose_fast
+@test LombScargle.choose_fast(300, true,  :maybe) == true
+@test LombScargle.choose_fast(300, true,  true)   == true
+@test LombScargle.choose_fast(300, true,  false)  == false
+@test LombScargle.choose_fast(300, false, :maybe) == false
+@test LombScargle.choose_fast(300, false, true)   == false
+@test LombScargle.choose_fast(300, false, false)  == false
 
-@test LombScargle.choose_use_fft(100, true,  :maybe) == false
-@test LombScargle.choose_use_fft(100, true,  true)   == true
-@test LombScargle.choose_use_fft(100, true,  false)  == false
-@test LombScargle.choose_use_fft(100, false, :maybe) == false
-@test LombScargle.choose_use_fft(100, false, true)   == false
-@test LombScargle.choose_use_fft(100, false, false)  == false
+@test LombScargle.choose_fast(100, true,  :maybe) == false
+@test LombScargle.choose_fast(100, true,  true)   == true
+@test LombScargle.choose_fast(100, true,  false)  == false
+@test LombScargle.choose_fast(100, false, :maybe) == false
+@test LombScargle.choose_fast(100, false, true)   == false
+@test LombScargle.choose_fast(100, false, false)  == false

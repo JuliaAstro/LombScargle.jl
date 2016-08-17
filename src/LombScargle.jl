@@ -384,29 +384,28 @@ function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVect
     return P, freqs
 end
 
-# Decide whether we should use the fast FFT method.  In any case we can use it
-# only if "floatrange", so that we are sure data is evenly spaced, this cannot
-# be overridden by the user.  As a rule of thumb, it's safe to use the fast
-# method if the "frequencies" array is longer than 200 points, however the user
-# can always override the automatic choice by setting "use_fft" to a boolean
-# value.
-function choose_use_fft(n::Integer, floatrange::Bool, use_fft)
+# Decide whether we should use the fast method.  In any case we can use it only
+# if "floatrange", so that we are sure data is evenly spaced, this cannot be
+# overridden by the user.  As a rule of thumb, it's safe to use the fast method
+# if the "frequencies" array is longer than 200 points, however the user can
+# always override the automatic choice by setting "fast" to a boolean value.
+function choose_fast(n::Integer, floatrange::Bool, fast)
     if n > 200
-        if is(use_fft, :maybe)
+        if is(fast, :maybe)
             # n > 200 and the user didn't say anything, return "floatrange".
             return floatrange
         else
-            # n > 200 and the user chose a value for "use_fft", combine with
+            # n > 200 and the user chose a value for "fast", combine with
             # "floatrange".
-            return floatrange && use_fft::Bool
+            return floatrange && fast::Bool
         end
     else
-        if is(use_fft, :maybe)
-            # n <= 200 and the user didn't say anything, never "use_fft".
+        if is(fast, :maybe)
+            # n <= 200 and the user didn't say anything, never "fast".
             return false
         else
             # n <= 200 but the user said something, combine with "floatrange".
-            return floatrange && use_fft::Bool
+            return floatrange && fast::Bool
         end
     end
 end
@@ -421,7 +420,7 @@ function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector
                                                            noise_level::Real=1.0,
                                                            center_data::Bool=true,
                                                            fit_mean::Bool=true,
-                                                           use_fft=:maybe,
+                                                           fast=:maybe,
                                                            oversampling::Integer=5,
                                                            Mfft::Integer=4,
                                                            samples_per_peak::Integer=5,
@@ -435,7 +434,7 @@ function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector
                                                                          minimum_frequency=minimum_frequency,
                                                                          maximum_frequency=maximum_frequency))
     @assert length(times) == length(signal) == length(w)
-    if choose_use_fft(length(frequencies), floatrange, use_fft)
+    if choose_fast(length(frequencies), floatrange, fast)
         P, f = _press_rybicki(times, signal, w, frequencies, center_data,
                               fit_mean, oversampling, Mfft)
     else
