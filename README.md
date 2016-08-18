@@ -157,7 +157,7 @@ http://measurementsjl.readthedocs.io/ for more details.
 ### Fast Algorithm ###
 
 When the observation times are evenly spaced, you can use a fast O[N log(N)]
-algorithm proposed by Press & Rybicki (1989) that greatly speed-up computations
+algorithm proposed by Press & Rybicki (1989) that greatly speeds up computations
 by giving an approximation of the true Lomb-Scargle periodogram, which has
 complexity O[N^2].  The larger the number of datapoints, the more accurate the
 approximation.  Note that this method internally performs a
@@ -166,24 +166,25 @@ to compute some quantities, but it is in now way equivalento to conventional
 Fourier periodogram analysis.
 
 The prerequisite in order to be able to employ this fast method is to provide a
-`times` array as a `Range` object, which ensures that the times are perfectly
-evenly spaced.  In Julia, `Range`s can be constructed for example with
+`times` vector as a `Range` object, which ensures that the times are perfectly
+evenly spaced.  In Julia, a `Range` object can be constructed for example with
+the
 [`linspace`](http://docs.julialang.org/en/stable/stdlib/arrays/#Base.linspace)
-function (you specify the start, the end of the range, and optionally the length
-of the array) or with the
+function (you specify the start and the end of the range, and optionally the
+length of the vector) or with the
 [colon](http://docs.julialang.org/en/stable/stdlib/math/#Base.:) syntax (you
-specify the start, the end of the range, and optionally the linear step; a
+specify the start and the end of the range, and optionally the linear step; a
 related function is
 [`colon`](http://docs.julialang.org/en/stable/stdlib/math/#Base.colon)).
 Somewhere in the middle is the
 [`range`](http://docs.julialang.org/en/stable/stdlib/math/#Base.range) function:
-you specify the start and the length of the array, and optionally the linear
-step.
+you specify the start of the range and the length of the vector, and optionally
+the linear step.
 
 Since this fast method is accurate only for large datasets, it is enabled by
 default only if the number of output frequencies is larger than 200.  You can
 override the default choice of using this method by setting the `fast` keyword
-to `true` or `false`.  We recall that in any case, the `times` array must be a
+to `true` or `false`.  We recall that in any case, the `times` vector must be a
 `Range` in order to use this method.
 
 The two integer keywords `ovesampling` and `Mfft` can be passed to `lombscargle`
@@ -192,7 +193,7 @@ in order to affect the computation in the fast method:
 * `oversampling`: oversampling the frequency factor for the approximation;
   roughly the number of time samples across the highest-frequency sinusoid.
   This parameter contains the tradeoff between accuracy and speed.
-* `Mfft`: The number of adjacent points to use in the FFT approximation.
+* `Mfft`: the number of adjacent points to use in the FFT approximation.
 
 ### Access Frequency Grid and Power Spectrum of the Periodogram ###
 
@@ -380,6 +381,12 @@ License
 
 The `LombScargle.jl` package is licensed under the MIT "Expat" License.  The
 original author is Mosè Giordano.
+
+### Acknowledgemets ###
+
+This package greatly benefited from the implementation of the Lomb–Scargle
+periodogram in Astropy, in particular for the fast method by Press & Rybicki
+(1989).
 
 
 

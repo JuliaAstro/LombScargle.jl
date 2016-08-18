@@ -561,19 +561,19 @@ Optional keywords arguments are:
 * `center_data`: if `true`, subtract the mean of `signal` from `signal` itself
   before performing the periodogram.  This is especially important if `fit_mean`
   is `false`
-* `fast`: whether to use the fast method by Press & Rybicki, overriding the
-  default choice.  In any case, `times` must be a `Range` object in order to use
-  this method
 * `frequencies`: the frequecy grid (not angular frequencies) at which the
   periodogram will be computed, as a vector.  If not provided, it is
   automatically determined with `LombScargle.autofrequency` function, which see.
   See below for other available keywords that can be used to affect the
   frequency grid without directly setting `frequencies`
+* `fast`: whether to use the fast method by Press & Rybicki, overriding the
+  default choice.  In any case, `times` must be a `Range` object in order to use
+  this method
 * `oversampling`: oversampling the frequency factor for the approximation;
   roughly the number of time samples across the highest-frequency sinusoid.
   This parameter contains the tradeoff between accuracy and speed.  Used only
   when the fast method is employed
-* `Mfft`: The number of adjacent points to use in the FFT approximation.  Used
+* `Mfft`: the number of adjacent points to use in the FFT approximation.  Used
   only when the fast method is employed
 
 In addition, you can use all optional keyword arguments of
