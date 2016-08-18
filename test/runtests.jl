@@ -63,6 +63,8 @@ pgram6 = lombscargle(t, s, maximum_frequency=30, fast=false)
 @test_approx_eq power(lombscargle(t, s, err, frequencies=0.2:0.2:1, fast=true, fit_mean=true))  [0.09230959166317655,0.0015654929813132702,0.00019405185108843607,6.0898671943944786e-5,6.0604505038256276e-5]
 @test_approx_eq power(lombscargle(t, s, err, frequencies=0.2:0.2:1, fast=true, fit_mean=false)) [0.09219168665786258,0.0015654342453078724,0.00019403694017215876,6.088944186950046e-5,6.05771360378885e-5]
 @test_approx_eq power(lombscargle(t, s, err, frequencies=0.2:0.2:1, fast=true, center_data=false, fit_mean=false)) [0.09360344864985332,0.0015354489715019735,0.0001784388515190763,4.744247354697125e-5,3.240223498703448e-5]
+@test power(lombscargle(t, s, err)) ==
+    power(lombscargle(t, measurement(s, err)))
 
 ##################################################
 ### Testing utilities

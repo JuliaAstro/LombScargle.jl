@@ -514,13 +514,25 @@ function lombscargle{R1<:Real,R2<:Real,R3<:Real}(times::AbstractVector{R1},
 end
 
 # Uncertainties provided via Measurement type
-lombscargle{T<:Real,F<:AbstractFloat}(times::AbstractVector{T},
-                                      signal::AbstractVector{Measurement{F}};
-                                      kwargs...) =
-                                          lombscargle(times,
-                                                      value(signal),
-                                                      uncertainty(signal);
-                                                      kwargs...)
+function lombscargle{T<:Real,F<:AbstractFloat}(times::Range{T},
+                                               signal::AbstractVector{Measurement{F}};
+                                               kwargs...)
+    return _lombscargle_with_errors(times,
+                                    value(signal),
+                                    uncertainty(signal),
+                                    true;
+                                    kwargs...)
+end
+
+function lombscargle{T<:Real,F<:AbstractFloat}(times::AbstractVector{T},
+                                               signal::AbstractVector{Measurement{F}};
+                                               kwargs...)
+    return _lombscargle_with_errors(times,
+                                    value(signal),
+                                    uncertainty(signal),
+                                    false;
+                                    kwargs...)
+end
 
 """
     lombscargle(times::AbstractVector{Real}, signal::AbstractVector{Real},
