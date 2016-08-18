@@ -34,10 +34,8 @@ The algorithms used in this package are reported in the following papers:
 ### Documentation ###
 
 The complete manual of `LombScargle.jl` is available at
-http://lombscarglejl.readthedocs.io.  There, people interested in the details
-of the package, in order integrate the package in their workflow, can can find a
-technical appendix explaining how the package internally works.  You can also
-download the PDF version of the manual from
+http://lombscarglejl.readthedocs.io.  You can also download the PDF version of
+the manual from
 https://media.readthedocs.org/pdf/lombscarglejl/latest/lombscarglejl.pdf.
 
 Installation
@@ -156,30 +154,16 @@ http://measurementsjl.readthedocs.io/ for more details.
 
 ### Fast Algorithm ###
 
-When the observation times are evenly spaced, you can use a fast O[N log(N)]
-algorithm proposed by Press & Rybicki (1989) that greatly speeds up computations
-by giving an approximation of the true Lomb-Scargle periodogram, which has
-complexity O[N^2].  The larger the number of datapoints, the more accurate the
-approximation.  Note that this method internally performs a
-[Fast Fourier Transform](https://en.wikipedia.org/wiki/Fast_Fourier_transform)
-to compute some quantities, but it is in now way equivalento to conventional
-Fourier periodogram analysis.
+When the observation times are evenly spaced, you can you can compute an
+approximate generalised Lomb–Scargle periodogram using a fast O[N log(N)]
+algorithm proposed by Press & Rybicki (1989) that greatly speeds up
+calculations.  For comparison, the true Lomb–Scargle periodogram has complexity
+O[N^2].  The larger the number of datapoints, the more accurate the
+approximation.
 
-The prerequisite in order to be able to employ this fast method is to provide a
-`times` vector as a `Range` object, which ensures that the times are perfectly
-evenly spaced.  In Julia, a `Range` object can be constructed for example with
-the
-[`linspace`](http://docs.julialang.org/en/stable/stdlib/arrays/#Base.linspace)
-function (you specify the start and the end of the range, and optionally the
-length of the vector) or with the
-[colon](http://docs.julialang.org/en/stable/stdlib/math/#Base.:) syntax (you
-specify the start and the end of the range, and optionally the linear step; a
-related function is
-[`colon`](http://docs.julialang.org/en/stable/stdlib/math/#Base.colon)).
-Somewhere in the middle is the
-[`range`](http://docs.julialang.org/en/stable/stdlib/math/#Base.range) function:
-you specify the start of the range and the length of the vector, and optionally
-the linear step.
+The only prerequisite in order to be able to employ this fast method is to
+provide a `times` vector as a `Range` object, which ensures that the times are
+perfectly evenly spaced.
 
 Since this fast method is accurate only for large datasets, it is enabled by
 default only if the number of output frequencies is larger than 200.  You can

@@ -171,22 +171,22 @@ http://measurementsjl.readthedocs.io/ for more details.
 Fast Algorithm
 ~~~~~~~~~~~~~~
 
-When the observation times are evenly spaced, you can use a fast :math:`O[N
-\log(N)]` algorithm proposed by [PR89]_ that greatly speeds up computations by
-giving an approximation of the true Lomb–Scargle periodogram, which has
-complexity :math:`O[N^2]`.  The larger the number of datapoints, the more
-accurate the approximation.
+When the observation times are evenly spaced, you can compute an approximate
+generalised Lomb–Scargle periodogram using a fast :math:`O[N \log(N)]` algorithm
+proposed by [PR89]_ that greatly speeds up calculations.  For comparison, the
+true Lomb–Scargle periodogram has complexity :math:`O[N^2]`.  The larger the
+number of datapoints, the more accurate the approximation.
 
 .. Warning::
-   
+
    This method internally performs a `Fast Fourier Transform
    <https://en.wikipedia.org/wiki/Fast_Fourier_transform>`_ to compute some
    quantities, but it is in now way equivalento to conventional Fourier
    periodogram analysis.
 
-The prerequisite in order to be able to employ this fast method is to provide a
-``times`` vector as a ``Range`` object, which ensures that the times are
-perfectly evenly spaced.
+The only prerequisite in order to be able to employ this fast method is to
+provide a ``times`` vector as a ``Range`` object, which ensures that the times
+are perfectly evenly spaced.
 
 .. Tip::
 
@@ -228,6 +228,26 @@ The two integer keywords ``ovesampling`` and ``Mfft`` can be passed to
   roughly the number of time samples across the highest-frequency sinusoid.
   This parameter contains the tradeoff between accuracy and speed.
 * ``Mfft``: the number of adjacent points to use in the FFT approximation.
+
+.. Tip::
+
+   If you do not want to use the fast method (so you will be using either the
+   plain generalised Lomb–Scargle algorithm or the original one) but you do care
+   about performance, do not pass the ``times`` vector as a ``Range``, but
+   rather as a ``Vector``: in Julia a ``Vector`` is more efficient than a
+   ``Range`` (but things much improved in this regard with Julia 0.5).  You can
+   easily convert a ``Range`` to a ``Vector`` with `collect
+   <docs.julialang.org/en/stable/stdlib/collections/?highlight=collect#Base.collect>`_
+   function:
+
+   .. code-block:: julia
+
+       t = collect(linspace(0, 10))
+       s = sin(t)
+       lombscargle(t, s)
+
+   Here ``t`` is a ``Vector``, not a ``Range``, thus the fast method will not be
+   used.
 
 Normalization
 ~~~~~~~~~~~~~
