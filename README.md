@@ -19,7 +19,7 @@ require that the signal has been sampled at equally spaced times.  Instead, the
 Lomb–Scargle periodogram enables you to analyze unevenly sampled data as well,
 which is a fairly common case in astronomy.
 
-The algorithm used in this package are reported in the following papers:
+The algorithms used in this package are reported in the following papers:
 
 * Press, W. H., Rybicki, G. B. 1989, ApJ, 338, 277 (URL:
   http://dx.doi.org/10.1086/167197, Bibcode:
