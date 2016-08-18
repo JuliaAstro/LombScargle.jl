@@ -30,11 +30,6 @@ pgram3 = lombscargle(t, s, center_data=false, fit_mean=false)
 pgram4 = lombscargle(t, s, center_data=false, fit_mean=true)
 @test_approx_eq_eps power(pgram3) power(pgram4) 3e-7
 
-# Test findmaxfreq and findmaxpower
-@test_approx_eq findmaxfreq(pgram1)        [31.997145470342]
-@test_approx_eq findmaxfreq(pgram1, 0.965) [0.15602150741832602,31.685102455505348,31.997145470342,63.52622641842902,63.838269433265665]
-@test_approx_eq findmaxpower(pgram1) 0.9695017551608017
-
 # Test the values in order to prevent wrong results in both algorithms
 @test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, fit_mean=true))  [0.029886871262324886,0.0005456198989410226,1.912507742056023e-5, 4.54258409531214e-6, 1.0238342782430832e-5]
 @test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, fit_mean=false)) [0.02988686776042212, 0.0005456197937194695,1.9125076826683257e-5,4.542583863304549e-6,1.0238340733199874e-5]
@@ -52,8 +47,32 @@ pgram4 = lombscargle(t, s, center_data=false, fit_mean=true)
 err = collect(linspace(0.5, 1.5, ntimes))
 @test_approx_eq power(lombscargle(t, s, err, frequencies=0.1:0.1:1, fit_mean=true))  [0.06659683848818687,0.09361438921056377,0.006815919926284516,0.0016347568319229223,0.0005385706045724484,0.00021180745624003642,0.00010539881897690343,7.01610752020905e-5,5.519295593372065e-5,4.339157565349008e-5]
 @test_approx_eq power(lombscargle(t, s, err, frequencies=0.1:0.1:1, fit_mean=false)) [0.0692080444168825,0.09360343748833044,0.006634919855866448,0.0015362074096358814,0.000485825178683968,0.000181798596773626,8.543735242380012e-5,5.380000205539795e-5,4.010727072660524e-5,2.97840883747593e-5]
+@test_approx_eq power(lombscargle(t, s, err, frequencies=0.1:0.1:1, fit_mean=false, center_data=false)) [0.06920814049261209,0.09360344864985352,0.006634919960009565,0.0015362072871144769,0.0004858250831632676,0.00018179850370583626,8.543727416919218e-5,5.379994730581837e-5,4.0107232867763e-5,2.9784059487535237e-5]
 @test power(lombscargle(t, s, err)) ==
     power(lombscargle(t, measurement(s, err)))
+
+# Test fast method
+t = linspace(0.01, 10pi, ntimes)
+s = sin(t)
+pgram5 = lombscargle(t, s, maximum_frequency=30, fast=true)
+pgram6 = lombscargle(t, s, maximum_frequency=30, fast=false)
+@test_approx_eq_eps power(pgram5) power(pgram6) 2e-6
+@test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, fast=true, fit_mean=true))  [0.029886871262324963,0.0005453105325981758,1.9499330722168046e-5,2.0859593514888897e-6,1.0129019249708592e-5]
+@test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, fast=true, fit_mean=false)) [0.029886867760422008,0.0005453104197620392,1.9499329579010375e-5,2.085948496002562e-6,1.0128073536975395e-5]
+@test_approx_eq power(lombscargle(t, s, frequencies=0.2:0.2:1, fast=true, center_data=false, fit_mean=false)) [0.029886868328967718,0.0005453105220405559,1.949931928224576e-5,2.0859802347505357e-6,1.0127777365273726e-5]
+@test_approx_eq power(lombscargle(t, s, err, frequencies=0.2:0.2:1, fast=true, fit_mean=true))  [0.09230959166317655,0.0015654929813132702,0.00019405185108843607,6.0898671943944786e-5,6.0604505038256276e-5]
+@test_approx_eq power(lombscargle(t, s, err, frequencies=0.2:0.2:1, fast=true, fit_mean=false)) [0.09219168665786258,0.0015654342453078724,0.00019403694017215876,6.088944186950046e-5,6.05771360378885e-5]
+@test_approx_eq power(lombscargle(t, s, err, frequencies=0.2:0.2:1, fast=true, center_data=false, fit_mean=false)) [0.09360344864985332,0.0015354489715019735,0.0001784388515190763,4.744247354697125e-5,3.240223498703448e-5]
+@test power(lombscargle(t, s, err)) ==
+    power(lombscargle(t, measurement(s, err)))
+
+##################################################
+### Testing utilities
+
+# Test findmaxfreq and findmaxpower
+@test_approx_eq findmaxfreq(pgram1)        [31.997145470342]
+@test_approx_eq findmaxfreq(pgram1, 0.965) [0.15602150741832602,31.685102455505348,31.997145470342,63.52622641842902,63.838269433265665]
+@test_approx_eq findmaxpower(pgram1) 0.9695017551608017
 
 # Test autofrequency function
 @test_approx_eq LombScargle.autofrequency(t)                       0.003184112396292367:0.006368224792584734:79.6824127172165
@@ -73,3 +92,29 @@ end
 P = lombscargle(t, s, normalization = "log")
 @test_throws ErrorException prob(P, 0.5)
 @test_throws ErrorException probinv(P, 0.5)
+
+# Test extirpolation function
+x = linspace(0, 10)
+y = sin(x)
+@test_approx_eq LombScargle.extirpolate(x, y) [0.39537718210649553,3.979484140636793,4.833090108345013,0.506805556164743,-3.828112427525919,-4.748341359084166,-1.3022050566901917,3.3367666084342256,5.070478111668922,1.291245296032218,-0.8264466821981216,0.0,0.0]
+@test_approx_eq LombScargle.extirpolate(x, y, 11) LombScargle.extirpolate(x, y)[1:11]
+
+# Test trig_sum
+C, S = LombScargle.trig_sum(x, y, 1, 10)
+@test_approx_eq S [0.0,0.3753570125888358,0.08163980192703546,-0.10139634351774979,-0.4334223744905633,-2.7843373311769777,0.32405810159838055,0.05729663600471602,-0.13191736591325876,-0.5295781583202946]
+@test_approx_eq C [8.708141477890015,-0.5402668064176129,-0.37460815054027985,-0.3793457539084364,-0.5972351546196192,14.612204307982497,-0.5020253140297526,-0.37724493022381034,-0.394096831764578,-0.6828241623474718]
+
+# Test choose_fast
+@test LombScargle.choose_fast(300, true,  :maybe) == true
+@test LombScargle.choose_fast(300, true,  true)   == true
+@test LombScargle.choose_fast(300, true,  false)  == false
+@test LombScargle.choose_fast(300, false, :maybe) == false
+@test LombScargle.choose_fast(300, false, true)   == false
+@test LombScargle.choose_fast(300, false, false)  == false
+
+@test LombScargle.choose_fast(100, true,  :maybe) == false
+@test LombScargle.choose_fast(100, true,  true)   == true
+@test LombScargle.choose_fast(100, true,  false)  == false
+@test LombScargle.choose_fast(100, false, :maybe) == false
+@test LombScargle.choose_fast(100, false, true)   == false
+@test LombScargle.choose_fast(100, false, false)  == false
