@@ -17,7 +17,8 @@ Another Julia package that provides tools to perform spectral analysis of
 signals is [`DSP.jl`](https://github.com/JuliaDSP/DSP.jl), but its methods
 require that the signal has been sampled at equally spaced times.  Instead, the
 Lomb–Scargle periodogram enables you to analyze unevenly sampled data as well,
-which is a fairly common case in astronomy.
+which is a fairly common case in astronomy, a field where this periodogram is
+widely used.
 
 The algorithms used in this package are reported in the following papers:
 
@@ -91,16 +92,23 @@ lombscargle(times::AbstractVector{Real}, signal::AbstractVector{Real},
                           maximum_frequency=maximum_frequency))
 ```
 
-which returns a `LombScargle.Periodogram`.  The mandatory arguments are:
+which returns a `LombScargle.Periodogram`.  The only mandatory arguments are:
 
 * `times`: the vector of observation times
 * `signal`: the vector of observations associated with `times`
 
-Optional argument is:
+All these vectors must have the same length.
+
+Besides the two arguments introduced above, `lombscargle` has a number of other
+optional arguments and keywords in order to choose the right algoithm to use and
+tweak the appearance of the periodogram (do not be scared, you will most
+probably need to use only a few of them, see the "Examples" section).
+
+The only optional argument is:
 
 * `errors`: the uncertainties associated to each `signal` point
 
-All the vectors above must have the same length.
+Also `errors` must have the same length as `times` and `signal`.
 
 Optional keyword arguments are:
 

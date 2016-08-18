@@ -14,7 +14,8 @@ Another Julia package that provides tools to perform spectral analysis of
 signals is `DSP.jl <https://github.com/JuliaDSP/DSP.jl>`__, but its methods
 require that the signal has been sampled at equally spaced times.  Instead, the
 Lomb–Scargle periodogram enables you to analyze unevenly sampled data as well,
-which is a fairly common case in astronomy.
+which is a fairly common case in astronomy, a field where this periodogram is
+widely used.
 
 The algorithms used in this package are reported in the following papers:
 
@@ -82,17 +83,24 @@ The main function provided by the package is ``lombscargle``:
 
 .. function:: lombscargle(times::AbstractVector{Real}, signal::AbstractVector{Real})
 
-which returns a ``LombScargle.Periodogram``.  The mandatory arguments are:
+which returns a ``LombScargle.Periodogram``.  The only two mandatory arguments
+are:
 
 -  ``times``: the vector of observation times
 -  ``signal``: the vector of observations associated with ``times``
 
-All these vectors must have the same length.  The complete syntax of
-``lombscargle`` is the following:
+All these vectors must have the same length.
+
+Besides the two arguments introduced above, :func:`lombscargle` has a number of
+other optional arguments and keywords in order to choose the right algoithm to
+use and tweak the appearance of the periodogram (do not be scared, you will most
+probably need to use only a few of them, see the Examples_ section).  Here is
+the complete syntax:
 
 .. code-block:: julia
 
-    lombscargle(times::AbstractVector{Real}, signal::AbstractVector{Real},
+    lombscargle(times::AbstractVector{Real},
+                signal::AbstractVector{Real},
                 errors::AbstractVector{Real}=ones(signal);
                 normalization::AbstractString="standard",
                 noise_level::Real=1.0,
@@ -112,8 +120,7 @@ All these vectors must have the same length.  The complete syntax of
                               minimum_frequency=minimum_frequency,
                               maximum_frequency=maximum_frequency))
 
-In addition to the above mentioned mandatory argument, there is an optional
-argument:
+The only optional argument is:
 
 -  ``errors``: the uncertainties associated to each ``signal`` point
 
@@ -166,7 +173,9 @@ If the signal has uncertainties, the ``signal`` vector can also be a vector of
 don’t need to pass a separate ``errors`` vector for the uncertainties of the
 signal. You can create arrays of ``Measurement`` objects with the
 ``measurement`` function, see ``Measurements.jl`` manual at
-http://measurementsjl.readthedocs.io/ for more details.
+http://measurementsjl.readthedocs.io/ for more details.  The generalised
+Lomb–Scargle periodogram by [ZK09]_ is always used when the signal has
+uncertainties, because the original Lomb–Scargle algorithm cannot handle them.
 
 Fast Algorithm
 ~~~~~~~~~~~~~~
@@ -177,11 +186,11 @@ proposed by [PR89]_ that greatly speeds up calculations.  For comparison, the
 true Lomb–Scargle periodogram has complexity :math:`O[N^2]`.  The larger the
 number of datapoints, the more accurate the approximation.
 
-.. Warning::
+.. Note::
 
    This method internally performs a `Fast Fourier Transform
    <https://en.wikipedia.org/wiki/Fast_Fourier_transform>`_ to compute some
-   quantities, but it is in now way equivalento to conventional Fourier
+   quantities, but it is in no way equivalento to conventional Fourier
    periodogram analysis.
 
 The only prerequisite in order to be able to employ this fast method is to
@@ -194,7 +203,7 @@ are perfectly evenly spaced.
    `linspace
    <http://docs.julialang.org/en/stable/stdlib/arrays/#Base.linspace>`_ function
    (you specify the start and the end of the range, and optionally the length of
-   the vector) or with the `colon
+   the vector) or with the `:
    <http://docs.julialang.org/en/stable/stdlib/math/#Base.:>`_ syntax (you
    specify the start and the end of the range, and optionally the linear step; a
    related function is `colon
@@ -219,7 +228,7 @@ the fast method:
   method with the ``fast=true`` keyword
 
 Setting ``fast=false`` always ensures you that this method will not be used,
-instead ``fast=true`` enables it (but only if ``times`` is a ``Range``).
+instead ``fast=true`` enables it only if ``times`` is a ``Range``.
 
 The two integer keywords ``ovesampling`` and ``Mfft`` can be passed to
 :func:`lombscargle` in order to affect the computation in the fast method:
@@ -231,12 +240,13 @@ The two integer keywords ``ovesampling`` and ``Mfft`` can be passed to
 
 .. Tip::
 
-   If you do not want to use the fast method (so you will be using either the
-   plain generalised Lomb–Scargle algorithm or the original one) but you do care
-   about performance, do not pass the ``times`` vector as a ``Range``, but
-   rather as a ``Vector``: in Julia a ``Vector`` is more efficient than a
-   ``Range`` (but things much improved in this regard with Julia 0.5).  You can
-   easily convert a ``Range`` to a ``Vector`` with `collect
+   If you do not want to use the fast version of the generalised Lomb–Scargle
+   periodogram (so you will be using either the plain generalised Lomb–Scargle
+   algorithm or the original one) but you do care about performance, do not pass
+   the ``times`` vector as a ``Range``, but rather as a ``Vector``: in Julia a
+   ``Vector`` is more efficient than a ``Range`` (but things much improved in
+   this regard with Julia 0.5).  You can easily convert a ``Range`` to a
+   ``Vector`` with `collect
    <docs.julialang.org/en/stable/stdlib/collections/?highlight=collect#Base.collect>`_
    function:
 
@@ -310,11 +320,12 @@ Find Highest Power and Associated Frequencies
 .. function:: findmaxfreq(p::Periodogram, threshold::Real=findmaxpower(p))
 
 Once you compute the periodogram, you usually want to know which are the
-frequencies with highest power.  To do this, you can use the ``findmaxfreq``.
-It returns the vector of frequencies with the highest power in the periodogram
-``p``.  If a second argument ``threshold`` is provided, return the frequencies
-with power larger than or equal to ``threshold``.  The value of the highest
-power of a periodogram can be calculated with the ``findmaxpower`` function.
+frequencies with highest power.  To do this, you can use the
+:func:`findmaxfreq`.  It returns the vector of frequencies with the highest
+power in the periodogram ``p``.  If a second argument ``threshold`` is provided,
+return the frequencies with power larger than or equal to ``threshold``.  The
+value of the highest power of a periodogram can be calculated with the
+:func:`findmaxpower` function.
 
 False-Alarm Probability
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -339,11 +350,11 @@ will be this probability.
    ``"Cumming"``.
 
 The probability :math:`\text{Prob}(p > p_{0})` that the periodogram power
-:math:`p` can exceed the value :math:`p_{0}` can be calculated with the ``prob``
-function, whose first argument is the periodogram and the second one is the
-:math:`p_{0}` value.  The function ``probinv`` is its inverse: it takes the
-probability as second argument and returns the corresponding :math:`p_{0}`
-value.
+:math:`p` can exceed the value :math:`p_{0}` can be calculated with the
+:func:`prob` function, whose first argument is the periodogram and the second
+one is the :math:`p_{0}` value.  The function :func:`probinv` is its inverse: it
+takes the probability as second argument and returns the corresponding
+:math:`p_{0}` value.
 
 Here are the probability functions for each normalization supported by
 ``LombScargle.jl``:
@@ -361,18 +372,19 @@ As explained by [SS10]_, «the term "false-alarm probability" denotes the
 probability that at least one out of :math:`M` independent power values in a
 prescribed search band of a power spectrum computed from a white-noise time
 series is expected to be as large as or larger than a given value».
-``LombScargle.jl`` provides the ``fap`` function to calculate the false-alarm
-probability (FAP) of a given power in a periodogram.  Its first argument is the
-periodogram, the second one is the value :math:`p_{0}` of the power of which you
-want to calculate the FAP.  The function ``fap`` uses the formula
+``LombScargle.jl`` provides the :func:`fap` function to calculate the
+false-alarm probability (FAP) of a given power in a periodogram.  Its first
+argument is the periodogram, the second one is the value :math:`p_{0}` of the
+power of which you want to calculate the FAP.  The function :func:`fap` uses the
+formula
 
 $$ \\text{FAP} = 1 - (1 - \\text{Prob}(p > p_{0}))^M $$
 
 where :math:`M` is the number of independent frequencies estimated with :math:`M
 = T \cdot \Delta f`, being :math:`T` the duration of the observations and
 :math:`\Delta f` the width of the frequency range in which the periodogram has
-been calculated (see [CUM04]_).  The function ``fapinv`` is the inverse of
-``fap``: it takes as second argument the value of the FAP and returns the
+been calculated (see [CUM04]_).  The function :func:`fapinv` is the inverse of
+:func:`fap`: it takes as second argument the value of the FAP and returns the
 corresponding value :math:`p_{0}` of the power.
 
 The detection threshold :math:`p_{0}` is the periodogram power corresponding to
@@ -409,8 +421,9 @@ Here is an example of a noisy periodic signal (:math:`\sin(\pi t) +
     pgram = lombscargle(t, s)
 
 You can plot the result, for example with `PyPlot
-<https://github.com/stevengj/PyPlot.jl>`__ package.  Use ``freqpower`` function
-to get the frequency grid and the power of the periodogram as a 2-tuple.
+<https://github.com/stevengj/PyPlot.jl>`__ package.  Use :func:`freqpower`
+function to get the frequency grid and the power of the periodogram as a
+2-tuple.
 
 .. code-block:: julia
 
@@ -421,7 +434,7 @@ to get the frequency grid and the power of the periodogram as a 2-tuple.
 
 .. Caution::
 
-   If you use original Lomb–Scargle algorithm (``fit_mean=false`` keyword to
+   If you do not fit for the mean of the signal (``fit_mean=false`` keyword to
    :func:`lombscargle` function) without centering the data
    (``center_data=false``) you can get inaccurate results.  For example,
    spurious peaks at low frequencies can appear and the real peaks lose power:
@@ -457,12 +470,12 @@ to get the frequency grid and the power of the periodogram as a 2-tuple.
 Signal with Uncertainties
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The generalised Lomb–Scargle periodogram (used when the ``fit_mean`` optional
-keyword is ``true``) is able to handle a signal with uncertainties, and they
-will be used as weights in the algorithm.  The uncertainties can be passed
-either as the third optional argument ``errors`` to :func:`lombscargle` or by
-providing this function with a ``signal`` vector of type ``Measurement`` (from
-`Measurements.jl <https://github.com/giordano/Measurements.jl>`__ package).
+The generalised Lomb–Scargle periodogram is able to handle a signal with
+uncertainties, and they will be used as weights in the algorithm.  The
+uncertainties can be passed either as the third optional argument ``errors`` to
+:func:`lombscargle` or by providing this function with a ``signal`` vector of
+type ``Measurement`` (from `Measurements.jl
+<https://github.com/giordano/Measurements.jl>`__ package).
 
 .. code-block:: julia
 
@@ -476,12 +489,15 @@ providing this function with a ``signal`` vector of type ``Measurement`` (from
 
 .. image:: figure_5.png
 
+We recall that the generalised Lomb–Scargle algorithm is used when the
+``fit_mean`` optional keyword to :func:`lombscargle` is ``true`` if no error is
+provided, instead it is always used if the signal has uncertainties.
+
 ``findmaxfreq`` and ``findmaxpower`` Functions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``findmaxfreq`` function tells you the frequencies with the highest
-power in the periodogram (and you can get the period by taking its
-inverse):
+:func:`findmaxfreq` function tells you the frequencies with the highest power in
+the periodogram (and you can get the period by taking its inverse):
 
 .. code-block:: julia
 
@@ -495,8 +511,8 @@ inverse):
 This peak is at high frequency, very far from the expected value of the period
 of 1.  In order to find the real peak, you can either narrow the frequency range
 in order to exclude higher armonics, or pass the ``threshold`` argument to
-``findmaxfreq``.  You can use ``findmaxpower`` to discover the highest power in
-the periodogram:
+:func:`findmaxfreq`.  You can use :func:`findmaxpower` to discover the highest
+power in the periodogram:
 
 .. code-block:: julia
 
