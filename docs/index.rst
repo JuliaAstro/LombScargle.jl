@@ -76,8 +76,8 @@ After installing the package, you can start using it with
 
 The module defines a new ``LombScargle.Periodogram`` data type, which, however,
 is not exported because you will most probably not need to directly manipulate
-``LombScargle.Periodogram`` objects.  This data type holds both the frequency
-and the power vectors of the periodogram.
+such objects.  This data type holds both the frequency and the power vectors of
+the periodogram.
 
 The main function provided by the package is ``lombscargle``:
 
@@ -92,7 +92,7 @@ are:
 All these vectors must have the same length.
 
 Besides the two arguments introduced above, :func:`lombscargle` has a number of
-other optional arguments and keywords in order to choose the right algoithm to
+other optional arguments and keywords in order to choose the right algorithm to
 use and tweak the appearance of the periodogram (do not be scared, you will most
 probably need to use only a few of them, see the Examples_ section).  Here is
 the complete syntax:
@@ -203,10 +203,10 @@ are perfectly evenly spaced.
    `linspace
    <http://docs.julialang.org/en/stable/stdlib/arrays/#Base.linspace>`_ function
    (you specify the start and the end of the range, and optionally the length of
-   the vector) or with the `:
-   <http://docs.julialang.org/en/stable/stdlib/math/#Base.:>`_ syntax (you
-   specify the start and the end of the range, and optionally the linear step; a
-   related function is `colon
+   the vector) or with the `: syntax
+   <http://docs.julialang.org/en/stable/stdlib/math/#Base.:>`_ (you specify the
+   start and the end of the range, and optionally the linear step; a related
+   function is `colon
    <http://docs.julialang.org/en/stable/stdlib/math/#Base.colon>`_).  Somewhere
    in the middle is the `range
    <http://docs.julialang.org/en/stable/stdlib/math/#Base.range>`_ function: you
@@ -270,26 +270,41 @@ improvement of the fit and :math:`p = 1` a "perfect" fit (100% reduction of
 :func:`lombscargle` function.  [ZK09]_ wrote the formula for the power of the
 periodogram at frequency :math:`f` as
 
-$$ p(f) = \\frac{1}{YY}\\left[\\frac{YC^2_{\\tau}}{CC_{\\tau}} + \\frac{YS^2_{\\tau}}{SS_{\\tau}}\\right] $$
+.. math:: p(f) = \frac{1}{YY}\left[\frac{YC^2_{\tau}}{CC_{\tau}} + \frac{YS^2_{\tau}}{SS_{\tau}}\right]
 
 See the paper for details.  The other normalizations for periodograms
 :math:`P(f)` are calculated from this one.  In what follows, :math:`N` is the
 number of observations.
 
 - ``"model"``:
-  $$ P(f) = \\frac{p(f)}{1 - p(f)} $$
+
+  .. math::
+     P(f) = \frac{p(f)}{1 - p(f)}
+
 - ``"log"``:
-  $$ P(f) = -\\log(1 - p(f)) $$
+
+  .. math::
+     P(f) = -\log(1 - p(f))
+
 - ``"psd"``:
-  $$ P(f) = \\frac{1}{2}\\left[\\frac{YC^2_{\\tau}}{CC_{\\tau}} +
-  \\frac{YS^2_{\\tau}}{SS_{\\tau}}\\right] = p(f) \\frac{YY}{2} $$
+
+  .. math::
+     P(f) = \frac{1}{2}\left[\frac{YC^2_{\tau}}{CC_{\tau}} +
+            \frac{YS^2_{\tau}}{SS_{\tau}}\right] = p(f) \frac{YY}{2}
+
 - ``"Scargle"``:
-  $$ P(f) = \\frac{p(f)}{\\text{noise level}} $$
+
+  .. math::
+     P(f) = \frac{p(f)}{\text{noise level}}
+
   This normalization can be used when you know the noise level (expected from
   the a priori known noise variance or population variance), but this isn’t
   usually the case.  See [SCA82]_
 - ``"HorneBaliunas"``:
-  $$ P(f) = \\frac{N - 1}{2} p(f) $$
+
+  .. math::
+     P(f) = \frac{N - 1}{2} p(f)
+
   This is like the ``"Scargle"`` normalization, where the noise has been
   estimated for Gaussian noise to be :math:`(N - 1)/2`.  See [HB86]_
 - If the data contains a signal or if errors are under- or overestimated or if
@@ -297,7 +312,10 @@ number of observations.
   uncorrelated estimator for the noise level.  [CMB99]_ suggested to estimate
   the noise level a posteriori with the residuals of the best fit and normalised
   the periodogram as:
-  $$ P(f) = \\frac{N - 3}{2} \\frac{p(f)}{1 - p(f_{\\text{best}})} $$
+
+  .. math::
+     P(f) = \frac{N - 3}{2} \frac{p(f)}{1 - p(f_{\text{best}})}
+
   This is the ``"Cumming"`` normalization option
 
 Access Frequency Grid and Power Spectrum of the Periodogram
@@ -360,13 +378,24 @@ Here are the probability functions for each normalization supported by
 ``LombScargle.jl``:
 
 - ``"standard"`` (:math:`p \in [0, 1]`):
-  $$ \\text{Prob}(p > p_{0}) = (1 - p_{0})^{(N - 3)/2} $$
+
+  .. math::
+     \text{Prob}(p > p_{0}) = (1 - p_{0})^{(N - 3)/2}
+
 - ``"Scargle"`` (:math:`p \in [0, \infty)`):
-  $$ \\text{Prob}(p > p_{0}) = \\exp(-p_{0}) $$
+
+  .. math::
+     \text{Prob}(p > p_{0}) = \exp(-p_{0})
+
 - ``"HorneBaliunas"`` (:math:`p \in [0, (N - 1)/2]`):
-  $$ \\text{Prob}(p > p_{0}) = \\left(1 - \\frac{2p_{0}}{N - 1}\\right)^{(N - 3)/2} $$
+
+  .. math::
+     \text{Prob}(p > p_{0}) = \left(1 - \frac{2p_{0}}{N - 1}\right)^{(N - 3)/2}
+
 - ``"Cumming"`` (:math:`p \in [0, \infty)`):
-  $$ \\text{Prob}(p > p_{0}) = \\left(1 + \\frac{2p_{0}}{N - 3}\\right)^{-(N - 3)/2} $$
+
+  .. math::
+     \text{Prob}(p > p_{0}) = \left(1 + \frac{2p_{0}}{N - 3}\right)^{-(N - 3)/2}
 
 As explained by [SS10]_, «the term "false-alarm probability" denotes the
 probability that at least one out of :math:`M` independent power values in a
@@ -378,7 +407,8 @@ argument is the periodogram, the second one is the value :math:`p_{0}` of the
 power of which you want to calculate the FAP.  The function :func:`fap` uses the
 formula
 
-$$ \\text{FAP} = 1 - (1 - \\text{Prob}(p > p_{0}))^M $$
+.. math::
+   \text{FAP} = 1 - (1 - \text{Prob}(p > p_{0}))^M
 
 where :math:`M` is the number of independent frequencies estimated with :math:`M
 = T \cdot \Delta f`, being :math:`T` the duration of the observations and

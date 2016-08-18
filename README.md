@@ -64,14 +64,15 @@ using LombScargle
 ```
 
 The module defines a new `LombScargle.Periodogram` data type, which, however, is
-not exported because you will most probably not need to directly manipulate
-`LombScargle.Periodogram` objects.  This data type holds both the frequency and
-the power vectors of the periodogram.
+not exported because you will most probably not need to directly manipulate such
+objects.  This data type holds both the frequency and the power vectors of the
+periodogram.
 
 The main function provided by the package is `lombscargle`:
 
 ```julia
-lombscargle(times::AbstractVector{Real}, signal::AbstractVector{Real},
+lombscargle(times::AbstractVector{Real},
+            signal::AbstractVector{Real},
             errors::AbstractVector{Real}=ones(signal);
             normalization::AbstractString="standard",
             noise_level::Real=1.0,
@@ -100,8 +101,8 @@ which returns a `LombScargle.Periodogram`.  The only mandatory arguments are:
 All these vectors must have the same length.
 
 Besides the two arguments introduced above, `lombscargle` has a number of other
-optional arguments and keywords in order to choose the right algoithm to use and
-tweak the appearance of the periodogram (do not be scared, you will most
+optional arguments and keywords in order to choose the right algorithm to use
+and tweak the appearance of the periodogram (do not be scared, you will most
 probably need to use only a few of them, see the "Examples" section).
 
 The only optional argument is:
