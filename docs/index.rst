@@ -177,14 +177,27 @@ http://measurementsjl.readthedocs.io/ for more details.  The generalised
 Lomb–Scargle periodogram by [ZK09]_ is always used when the signal has
 uncertainties, because the original Lomb–Scargle algorithm cannot handle them.
 
+.. Tip::
+
+   The uncertainties are only used in the generalised Lomb–Scargle algorithm to
+   build an `inverse-variance
+   <https://en.wikipedia.org/wiki/Inverse-variance_weighting>`_ weights vector
+   (see [ZK09]_), that gives more importance to datapoints with lower
+   uncertainties.  The case where all measurements have the same uncertainty (a
+   condition known as `homoscedasticity
+   <https://en.wikipedia.org/wiki/Homoscedasticity>`_) results in a costant
+   weights vector, like if there are no uncertainties at all.  If you have
+   homoscedastic errors, you do not need to provide them to :func:`lombscargle`.
+
 Fast Algorithm
 ~~~~~~~~~~~~~~
 
 When the observation times are evenly spaced, you can compute an approximate
-generalised Lomb–Scargle periodogram using a fast :math:`O[N \log(N)]` algorithm
-proposed by [PR89]_ that greatly speeds up calculations.  For comparison, the
-true Lomb–Scargle periodogram has complexity :math:`O[N^2]`.  The larger the
-number of datapoints, the more accurate the approximation.
+generalised Lomb–Scargle periodogram using a fast algorithm proposed by [PR89]_
+that greatly speeds up calculations, as it scales as :math:`O[N \log(M)]` for
+:math:`N` data points and :math:`M` frequencies.  For comparison, the true
+Lomb–Scargle periodogram has complexity :math:`O[NM]`.  The larger the number
+of datapoints, the more accurate the approximation.
 
 .. Note::
 

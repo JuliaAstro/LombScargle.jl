@@ -163,12 +163,12 @@ http://measurementsjl.readthedocs.io/ for more details.
 
 ### Fast Algorithm ###
 
-When the observation times are evenly spaced, you can you can compute an
-approximate generalised Lomb–Scargle periodogram using a fast O[N log(N)]
-algorithm proposed by Press & Rybicki (1989) that greatly speeds up
-calculations.  For comparison, the true Lomb–Scargle periodogram has complexity
-O[N^2].  The larger the number of datapoints, the more accurate the
-approximation.
+When the observation times are evenly spaced, you can compute an approximate
+generalised Lomb–Scargle periodogram using a fast algorithm proposed by Press &
+Rybicki (1989) that greatly speeds up calculations, as it scales as O[N log(M)]
+for N data points and M frequencies.  For comparison, the true Lomb–Scargle
+periodogram has complexity O[NM].  The larger the number of datapoints, the more
+accurate the approximation.
 
 The only prerequisite in order to be able to employ this fast method is to
 provide a `times` vector as a `Range` object, which ensures that the times are
