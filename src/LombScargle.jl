@@ -230,32 +230,6 @@ function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Range{R1},
     return P
 end
 
-# Decide whether we should use the fast method.  In any case we can use it only
-# if "floatrange", so that we are sure data is evenly spaced, this cannot be
-# overridden by the user.  As a rule of thumb, it's safe to use the fast method
-# if the "frequencies" array is longer than 200 points, however the user can
-# always override the automatic choice by setting "fast" to a boolean value.
-function choose_fast(n::Integer, floatrange::Bool, fast)
-    if n > 200
-        if is(fast, :maybe)
-            # n > 200 and the user didn't say anything, return "floatrange".
-            return floatrange
-        else
-            # n > 200 and the user chose a value for "fast", combine with
-            # "floatrange".
-            return floatrange && fast::Bool
-        end
-    else
-        if is(fast, :maybe)
-            # n <= 200 and the user didn't say anything, never "fast".
-            return false
-        else
-            # n <= 200 but the user said something, combine with "floatrange".
-            return floatrange && fast::Bool
-        end
-    end
-end
-
 # This is the switch to select the appropriate function to run
 function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector{R1},
                                                            signal::AbstractVector{R2},
@@ -266,7 +240,6 @@ function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector
                                                            noise_level::Real=1.0,
                                                            center_data::Bool=true,
                                                            fit_mean::Bool=true,
-                                                           fast=:maybe,
                                                            oversampling::Integer=5,
                                                            Mfft::Integer=4,
                                                            samples_per_peak::Integer=5,
@@ -278,9 +251,12 @@ function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector
                                                                          samples_per_peak=samples_per_peak,
                                                                          nyquist_factor=nyquist_factor,
                                                                          minimum_frequency=minimum_frequency,
-                                                                         maximum_frequency=maximum_frequency))
+                                                                         maximum_frequency=maximum_frequency),
+                                                           fast::Bool=(length(frequencies) > 200))
     @assert length(times) == length(signal) == length(w)
-    if choose_fast(length(frequencies), floatrange, fast)
+    # By default, we will use the fast algorithm only if there are more than 200
+    # frequencies.  In any case, times must have been passed as a Range.
+    if floatrange && fast
         P = _press_rybicki(times, signal, w, frequencies, center_data,
                               fit_mean, oversampling, Mfft)
     else
