@@ -75,7 +75,7 @@ function _lombscargle_orig{R1<:Real,R2<:Real,R3<:Real}(times::AbstractVector{R1}
         P[n] = (abs2(c_τ*XC + s_τ*XS)/(c_τ2*CC + cs_τ_CS + s_τ2*SS) +
                 abs2(c_τ*XS - s_τ*XC)/(c_τ2*SS - cs_τ_CS + s_τ2*CC))/XX
     end
-    return P, freqs
+    return P
 end
 
 # Generalised Lomb-Scargle algorithm: this takes into account uncertainties and
@@ -163,7 +163,7 @@ function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Ab
         end
         P[n] = (abs2(YC_τ)/CC_τ + abs2(YS_τ)/SS_τ)/YY
     end
-    return P, freqs
+    return P
 end
 
 # Fast, but approximate, method to compute the Lomb-Scargle periodogram for
@@ -227,7 +227,7 @@ function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Range{R1},
         SS -= (S .* Cw .- C .* Sw) .^ 2
     end
     P = (YC .* YC ./ CC .+ YS .* YS ./ SS)/YY
-    return P, freqs
+    return P
 end
 
 # Decide whether we should use the fast method.  In any case we can use it only
@@ -281,14 +281,14 @@ function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector
                                                                          maximum_frequency=maximum_frequency))
     @assert length(times) == length(signal) == length(w)
     if choose_fast(length(frequencies), floatrange, fast)
-        P, f = _press_rybicki(times, signal, w, frequencies, center_data,
+        P = _press_rybicki(times, signal, w, frequencies, center_data,
                               fit_mean, oversampling, Mfft)
     else
         if fit_mean || with_errors
-            P, f = _generalised_lombscargle(times, signal, w, frequencies,
+            P = _generalised_lombscargle(times, signal, w, frequencies,
                                             center_data, fit_mean)
         else
-            P, f = _lombscargle_orig(times, signal, frequencies, center_data)
+            P = _lombscargle_orig(times, signal, frequencies, center_data)
         end
     end
 
@@ -311,7 +311,7 @@ function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector
         error("normalization \"", normalization, "\" not supported")
     end
 
-    return Periodogram(P, f, times, normalization)
+    return Periodogram(P, frequencies, times, normalization)
 end
 
 # No uncertainties
