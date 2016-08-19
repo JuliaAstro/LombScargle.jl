@@ -169,3 +169,90 @@ Return the `p_0` value of the periodogram power whose false-alarm probability is
 This is the inverse of `fap` function.
 """
 fapinv(P::Periodogram, fap::Real) = probinv(P, 1.0 - (1.0 - fap)^(inv(M(P))))
+
+"""
+    LombScargle.model(times::AbstractVector{Real},
+                      signal::AbstractVector{R2},
+                      [errors::AbstractVector{R3},]
+                      frequency::Real,
+                      [times_fit::AbstractVector{R4}];
+                      center_data::Bool=true,
+                      fit_mean::Bool=true)
+
+Return the best fitting Lomb-Scargle model for the given signal at the given
+frequency.
+
+Mandatory arguments are:
+
+* `times`: the observation times
+* `signal`: the signal, sampled at `times` (must have the same length as
+  `times`)
+* `frequency`: the frequency at which to calculate the model
+
+Optional arguments are:
+
+* `errors`: the vector of uncertainties of the signal.  If provided, it must
+  have the same length as `signal` and `times`, and be the third argument
+* `times_fit`: the vector of times at which the model will be calculated.  It
+  defaults to `times`.  If provided, it must come after `frequency`
+
+Optional keyword arguments `center_data` and `fit_mean` have the same meaning as
+in `lombscargle` function, which see.
+"""
+function model{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(t::AbstractVector{R1},
+                                                    s::AbstractVector{R2},
+                                                    errors::AbstractVector{R3},
+                                                    f::Real,
+                                                    t_fit::AbstractVector{R4}=t;
+                                                    center_data::Bool=true,
+                                                    fit_mean::Bool=true)
+    @assert length(t) == length(s) == length(errors)
+    if center_data
+        # Compute weights vector
+        w = 1.0./errors.^2
+        m = (w⋅s)/sum(w)
+        y = (s - m)./errors
+    else
+        # We don't want to center the data: the mean is 0 and the signal is left
+        # unchanged
+        m = zero(R2)
+        y = s./errors
+    end
+    # The Lomb-Scargle periodogram looks for the best fitting sinusoidal
+    # function
+    #     a·cos(ωt) + b·sin(ωt) + c
+    # In order to find the coefficients a, b, c for the given frequency we can
+    # solve the linear system A·x = y, where A is the matrix with rows:
+    # [cos(ωt), sin(ωt), 1]; x is the column vector [a, b, c], and y is the
+    # column vector of the signal
+    ω = 2pi*f
+    if fit_mean
+        a, b, c = hcat(cos(ω*t), sin(ω*t), ones(t))./errors \ y
+        return a*cos(ω*t_fit) + b*sin(ω*t_fit) + (c + m)
+    else
+        # If fit_mean==false, the model to be fitted is a·cos(ωt) + b·sin(ωt)
+        a, b = hcat(cos(ω*t), sin(ω*t))./errors \ y
+        return a*cos(ω*t_fit) + b*sin(ω*t_fit) + m
+    end
+end
+
+# No uncertainties: errors=ones(s)
+model{R1<:Real,R2<:Real,R3<:Real}(t::AbstractVector{R1},
+                                  s::AbstractVector{R2},
+                                  f::Real,
+                                  t_fit::AbstractVector{R3}=t;
+                                  kwargs...) =
+                                      model(t, s, ones(s), f, t_fit; kwargs...)
+
+# Uncertainties provided via Measurement type
+model{R1<:Real,R2<:AbstractFloat,R3<:Real}(t::AbstractVector{R1},
+                                           s::AbstractVector{Measurement{R2}},
+                                           f::Real,
+                                           t_fit::AbstractVector{R3}=t;
+                                           kwargs...) =
+                                               model(t,
+                                                     value(s),
+                                                     uncertainty(s),
+                                                     f,
+                                                     t_fit;
+                                                     kwargs...)

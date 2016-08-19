@@ -1,6 +1,14 @@
 History of LombScargle.jl
 =========================
 
+v0.1.1 (2016-??-??)
+-------------------
+
+### New Features ###
+
+* New function: `LombScargl.model`.  It gives the best fitting–Scargle model at
+  a given frequency.
+
 v0.1.0 (2016-08-18)
 -------------------
 
@@ -8,7 +16,7 @@ v0.1.0 (2016-08-18)
 
 * The fast, but approximate, method by Press & Rybicki (1989) has been
   implemented.  This has complexity O[N log(N)], to be compared with the O[N^2]
-  of the true Lomb-Scargle periodogram.  The implementation in this package is
+  of the true Lomb–Scargle periodogram.  The implementation in this package is
   based on the one in Astropy.  Related to this method, three new keywords for
   `lombscargle` function has been added: `fast`, `oversampling`, `Mfft`.
 * The generalised Lomb–Scargle algorithm by Zechmeister & Kürster is used also

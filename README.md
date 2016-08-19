@@ -202,7 +202,7 @@ these vectors with `freq` and `power` functions, just like in `DSP.jl` package.
 If you want to get the 2-tuple `(freq(p), power(p))` use the `freqpower`
 function.
 
-### Find Highest Power and Associated Frequencies ###
+### `findmaxfreq` and `findmaxpower` Functions ###
 
 ```julia
 findmaxpower(p::Periodogram)
@@ -249,6 +249,38 @@ as second argument the value of the FAP and returns the corresponding value
 for more information on the false-alarm probability and when it can be
 calculated with the methods provided by `LombScargle.jl`.
 
+### `LombScargle.model` Function ###
+
+```julia
+LombScargle.model(times::AbstractVector{Real},
+                  signal::AbstractVector{Real},
+                  [errors::AbstractVector{Real},]
+                  frequency::Real,
+                  [times_fit::AbstractVector{Real}];
+                  center_data::Bool=true,
+                  fit_mean::Bool=true)
+```
+
+The `LombScargle.model` function returns the best fitting Lomb–Scargle model for
+the given signal at the given frequency.
+
+Mandatory arguments are:
+
+* `times`: the observation times
+* `signal`: the signal, sampled at `times` (must have the same length as
+  `times`)
+* `frequency`: the frequency at which to calculate the model
+
+Optional arguments are:
+
+* `errors`: the vector of uncertainties of the signal.  If provided, it must
+  have the same length as `signal` and `times`, and be the third argument
+* `times_fit`: the vector of times at which the model will be calculated.  It
+  defaults to `times`.  If provided, it must come after `frequency`
+
+Optional keyword arguments `center_data` and `fit_mean` have the same meaning as
+in `lombscargle` function, which see.
+
 Examples
 --------
 
@@ -268,12 +300,12 @@ pgram = lombscargle(t, s)
 ```
 
 You can plot the result, for example with
-[`PyPlot`](https://github.com/stevengj/PyPlot.jl) package.  Use `freqpower`
+[`Plots`](https://github.com/tbreloff/Plots.jl) package.  Use `freqpower`
 function to get the frequency grid and the power of the periodogram as a
 2-tuple.
 
 ```julia
-using PyPlot
+using Plots
 plot(freqpower(pgram)...)
 ```
 
@@ -312,7 +344,7 @@ function with a `signal` vector of type `Measurement` (from
 [`Measurements.jl`](https://github.com/giordano/Measurements.jl) package).
 
 ```julia
-using Measurements, PyPlot
+using Measurements, Plots
 ntimes = 1001
 t = linspace(0.01, 10pi, ntimes)
 s = sinpi(2t)
@@ -321,7 +353,7 @@ plot(freqpower(lombscargle(t, s, errors, maximum_frequency=1.5))...)
 plot(freqpower(lombscargle(t, measurement(s, errors), maximum_frequency=1.5))...)
 ```
 
-### `findmaxfreq` Function ###
+### Find Highest Power and Associated Frequencies ###
 
 `findmaxfreq` function tells you the frequencies with the highest power in the
 periodogram (and you can get the period by taking its inverse):
@@ -356,6 +388,23 @@ findmaxpower(p)
 The first peak is the real one, the other double peaks appear at higher
 armonics.  Usually plotting the periodogram can give you a clue of what’s going
 on.
+
+### Find the Best-Fitting Model ###
+
+The `LombScargle.model` function can help you to test whether a certain
+frequency fits well your data.
+
+```julia
+using Plots
+t = linspace(0.01, 10pi, 1000)
+s = sin(t) + 0.3rand(length(t))
+# Find the best frequency
+f = findmaxfreq(lombscargle(t, s, maximum_frequency=10, samples_per_peak=20))[1]
+t_fit = linspace(0, 1)
+s_fit = LombScargle.model(t, s, f, t_fit/f) # Determine the model
+scatter(mod(t*f, 1), s, lab="Phased data", title="Best Lomb-Scargle frequency: $f")
+plot!(t_fit, s_fit, lab="Best-fitting model", linewidth=4)
+```
 
 Development
 -----------

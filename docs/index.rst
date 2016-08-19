@@ -344,8 +344,8 @@ access these vectors with ``freq`` and ``power`` functions, just like in
 ``DSP.jl`` package. If you want to get the 2-tuple ``(freq(p), power(p))`` use
 the ``freqpower`` function.
 
-Find Highest Power and Associated Frequencies
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``findmaxfreq`` and ``findmaxpower`` Functions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. function:: findmaxpower(p::Periodogram)
 .. function:: findmaxfreq(p::Periodogram, threshold::Real=findmaxpower(p))
@@ -445,6 +445,81 @@ present (see [CUM04]_).
    :math:`p_{0}` is exceeded just by chance (see [CMB99]_, [CUM04]_, and
    [ZK09]_).
 
+``LombScargle.model`` Function
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. function:: LombScargle.model(times, signal, frequency)
+
+For each frequency :math:`f` (and hence for the corresponding angular frequency
+:math:`\omega = 2\pi f`) the Lomb–Scargle algorithm looks for the sinusoidal
+function of the type
+
+.. math::
+
+   a_f\cos(\omega t) + b_f\sin(\omega t) + c_f
+
+that best fits the data (in the original algorithm the offset :math:`c` is
+null).  In order to find the best-fitting coefficients :math:`a_f`, :math:`b_f`,
+and :math:`c_f` for the given frequency :math:`f` we can solve the linear system
+:math:`\mathbf{A}x = \mathbf{y}`, where :math:`\mathbf{A}` is the matrix
+
+.. math::
+
+   \begin{bmatrix}
+     \cos(\omega t) & \sin(\omega t) & 1
+   \end{bmatrix} =
+   \begin{bmatrix}
+     \cos(\omega t_{1}) & \sin(\omega t_{1}) & 1      \\
+     \vdots             & \vdots             & \vdots \\
+     \cos(\omega t_{n}) & \sin(\omega t_{n}) & 1
+   \end{bmatrix}
+
+:math:`t = [t_1, \dots, t_n]^\text{T}` is the column vector of observation
+times, :math:`x` is the column vector with the unknown coefficients
+
+.. math::
+
+   \begin{bmatrix}
+     a_f \\
+     b_f \\
+     c_f
+   \end{bmatrix}
+
+and :math:`\textbf{y}` is the column vector of the signal.  The solution of the
+matrix gives the wanted coefficients.
+
+This is what the :func:`LombScargle.model` function does in order to return the
+best fitting Lomb–Scargle model for the given signal at the given frequency.
+
+Mandatory arguments are:
+
+* ``times``: the observation times
+* ``signal``: the signal, sampled at ``times`` (must have the same length as
+  ``times``)
+* ``frequency``: the frequency at which to calculate the model
+
+The complete syntax of :func:`LombScargle.model` has additional arguments:
+
+.. code-block:: julia
+
+    LombScargle.model(times::AbstractVector{Real},
+                      signal::AbstractVector{Real},
+                      [errors::AbstractVector{Real},]
+                      frequency::Real,
+                      [times_fit::AbstractVector{Real}];
+                      center_data::Bool=true,
+                      fit_mean::Bool=true)
+
+The Optional arguments are:
+
+* ``errors``: the vector of uncertainties of the signal.  If provided, it must
+  have the same length as ``signal`` and ``times``, and be the third argument
+* ``times_fit``: the vector of times at which the model will be calculated.  It
+  defaults to ``times``.  If provided, it must come after ``frequency``
+
+Optional keyword arguments ``center_data`` and ``fit_mean`` have the same meaning as
+in ``lombscargle`` function, which see.
+
 Examples
 --------
 
@@ -463,14 +538,14 @@ Here is an example of a noisy periodic signal (:math:`\sin(\pi t) +
     s = sinpi(t) + 1.5cospi(2t) + rand(ntimes)
     pgram = lombscargle(t, s)
 
-You can plot the result, for example with `PyPlot
-<https://github.com/stevengj/PyPlot.jl>`__ package.  Use :func:`freqpower`
+You can plot the result, for example with `Plots
+<https://github.com/tbreloff/Plots.jl>`__ package.  Use :func:`freqpower`
 function to get the frequency grid and the power of the periodogram as a
 2-tuple.
 
 .. code-block:: julia
 
-    using PyPlot
+    using Plots
     plot(freqpower(pgram)...)
 
 .. image:: figure_1.png
@@ -522,7 +597,7 @@ type ``Measurement`` (from `Measurements.jl
 
 .. code-block:: julia
 
-    using Measurements, PyPlot
+    using Measurements, Plots
     ntimes = 1001
     t = linspace(0.01, 10pi, ntimes)
     s = sinpi(2t)
@@ -536,8 +611,8 @@ We recall that the generalised Lomb–Scargle algorithm is used when the
 ``fit_mean`` optional keyword to :func:`lombscargle` is ``true`` if no error is
 provided, instead it is always used if the signal has uncertainties.
 
-``findmaxfreq`` and ``findmaxpower`` Functions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Find Highest Power and Associated Frequencies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 :func:`findmaxfreq` function tells you the frequencies with the highest power in
 the periodogram (and you can get the period by taking its inverse):
@@ -575,6 +650,48 @@ armonics.
 .. Tip::
 
    Usually plotting the periodogram can give you a clue of what’s going on.
+
+Find the Best-Fitting Model
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The :func:`LombScargle.model` function can help you to test whether a certain
+frequency fits well your data.
+
+.. code-block:: julia
+
+    using Plots
+    t = linspace(0.01, 10pi, 1000) # Observation times
+    s = sinpi(t) + 1.2cospi(t) + 0.3rand(length(t)) # The noisy signal
+    # Pick-up the best frequency
+    f = findmaxfreq(lombscargle(t, s, maximum_frequency=10, samples_per_peak=20))[1]
+    t_fit = linspace(0, 1)
+    s_fit = LombScargle.model(t, s, f, t_fit/f) # Determine the model
+    scatter(mod(t*f, 1), s, lab="Phased data", title="Best Lomb-Scargle frequency: $f")
+    plot!(t_fit, s_fit, lab="Best-fitting model", linewidth=4)
+
+.. image:: figure_6.png
+
+.. Tip::
+
+   If there are more than one dominant frequency you may need to consider more
+   models.  This task may require some work and patience.  Plot the periodogram
+   in order to find the best frequencies.
+
+   .. code-block:: julia
+
+      using Plots
+      t = linspace(0.01, 5, 1000) # Observation times
+      s = sinpi(2t) + 1.2cospi(4t) + 0.3rand(length(t)) # Noisy signal
+      # Look for the best frequencies
+      f = findmaxfreq(lombscargle(t, s, maximum_frequency=5, samples_per_peak=50), 0.4)
+      # By inspecting the f vector you find that two frequencies 
+      # with highest powers are the elements 5 and 26
+      fit1 = LombScargle.model(t, s, f[5]) # Determine the first model
+      fit2 = LombScargle.model(t, s, f[26]) # Determine the second model
+      scatter(t, s, lab="Data", title="Best-fitting Lomb-Scargle model")
+      plot!(t, fit1 + fit2, lab="Best-fitting model", linewidth=4)
+
+   .. image:: figure_7.png
 
 Development
 -----------

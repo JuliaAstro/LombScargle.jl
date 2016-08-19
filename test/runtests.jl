@@ -93,6 +93,11 @@ P = lombscargle(t, s, normalization = "log")
 @test_throws ErrorException prob(P, 0.5)
 @test_throws ErrorException probinv(P, 0.5)
 
+# Test model function
+@test_approx_eq s LombScargle.model(t, s, 1/2pi, center_data=false, fit_mean=false)
+s = sinpi(t) + pi*cospi(t) + e
+@test_approx_eq s LombScargle.model(t, measurement(s, ones(s)), 0.5)
+
 # Test extirpolation function
 x = linspace(0, 10)
 y = sin(x)

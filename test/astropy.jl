@@ -30,7 +30,7 @@ for f in (x -> sinpi(x), x -> sin(x) + 1.5*cospi(4*x) + 3)
     s = f(t)
     # "psd" normalization in LombScargle slightly differ from that of
     # Astropy and the test would fail if we includ it.
-    for fitmean in (true, ), nrm in ("standard", )
+    for fitmean in (true, false), nrm in ("standard", "model")
         f_jl, p_jl = freqpower(lombscargle(t, s, fit_mean = fitmean,
                                            normalization=nrm,
                                            maximum_frequency=20))
@@ -41,6 +41,16 @@ for f in (x -> sinpi(x), x -> sin(x) + 1.5*cospi(4*x) + 3)
                                                             maximum_frequency=20)
         @test_approx_eq f_jl f_py
         @test_approx_eq p_jl p_py
+    end
+end
+
+# Test the model functions
+for f in (x -> sinpi(x), x -> sin(x) + 1.5*cospi(4*x) + 3)
+    s = f(t)
+    for fm in (true, false), cd in (true, false)
+        m_jl = LombScargle.model(t, s, 1/2pi, fit_mean=fm, center_data=cd)
+        m_py = ast.LombScargle(t, s, center_data=cd, fit_mean=fm)[:model](t, 1/2pi)
+        @test_approx_eq m_jl m_py
     end
 end
 
