@@ -157,9 +157,9 @@ Algorithm" section below.
 If the signal has uncertainties, the `signal` vector can also be a vector of
 `Measurement` objects (from
 [`Measurements.jl`](https://github.com/giordano/Measurements.jl) package), in
-which case you don’t need to pass a separate `errors` vector for the
-uncertainties of the signal.  You can create arrays of `Measurement` objects
-with the `measurement` function, see `Measurements.jl` manual at
+which case you need not to pass a separate `errors` vector for the uncertainties
+of the signal.  You can create arrays of `Measurement` objects with the
+`measurement` function, see `Measurements.jl` manual at
 http://measurementsjl.readthedocs.io/ for more details.
 
 ### Fast Algorithm ###
@@ -276,10 +276,12 @@ Mandatory arguments are:
   `times`)
 * `frequency`: the frequency at which to calculate the model
 
-Optional arguments are:
+The optional arguments are:
 
 * `errors`: the vector of uncertainties of the signal.  If provided, it must
-  have the same length as `signal` and `times`, and be the third argument
+  have the same length as `signal` and `times`, and be the third argument.  Like
+  for `lombscargle`, if the signal has uncertainties, the `signal` vector can
+  also be a vector of `Measurement` objects, and this argument should be omitted
 * `times_fit`: the vector of times at which the model will be calculated.  It
   defaults to `times`.  If provided, it must come after `frequency`
 

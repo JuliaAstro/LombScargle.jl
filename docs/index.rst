@@ -170,7 +170,7 @@ Algorithm`_ section below.
 If the signal has uncertainties, the ``signal`` vector can also be a vector of
 ``Measurement`` objects (from `Measurements.jl
 <https://github.com/giordano/Measurements.jl>`__ package), in which case you
-don’t need to pass a separate ``errors`` vector for the uncertainties of the
+need not to pass a separate ``errors`` vector for the uncertainties of the
 signal. You can create arrays of ``Measurement`` objects with the
 ``measurement`` function, see ``Measurements.jl`` manual at
 http://measurementsjl.readthedocs.io/ for more details.  The generalised
@@ -461,11 +461,11 @@ function of the type
 
    a_f\cos(\omega t) + b_f\sin(\omega t) + c_f
 
-that best fits the data (in the original algorithm the offset :math:`c` is
-null).  In order to find the best-fitting coefficients :math:`a_f`, :math:`b_f`,
-and :math:`c_f` for the given frequency :math:`f`, without actually performing
-the periodogram, you can solve the linear system :math:`\mathbf{A}x =
-\mathbf{y}`, where :math:`\mathbf{A}` is the matrix
+that best fits the data.  In the original Lomb–Scargle algorithm the offset
+:math:`c` is null (see [LOM76]_).  In order to find the best-fitting
+coefficients :math:`a_f`, :math:`b_f`, and :math:`c_f` for the given frequency
+:math:`f`, without actually performing the periodogram, you can solve the linear
+system :math:`\mathbf{A}x = \mathbf{y}`, where :math:`\mathbf{A}` is the matrix
 
 .. math::
 
@@ -514,15 +514,25 @@ The complete syntax of :func:`LombScargle.model` has additional arguments:
                       center_data::Bool=true,
                       fit_mean::Bool=true)
 
-The Optional arguments are:
+The optional arguments are:
 
 * ``errors``: the vector of uncertainties of the signal.  If provided, it must
-  have the same length as ``signal`` and ``times``, and be the third argument
+  have the same length as ``signal`` and ``times``, and be the third argument.
+  Like for :func:`lombscargle`, if the signal has uncertainties, the ``signal``
+  vector can also be a vector of ``Measurement`` objects, and this argument
+  should be omitted
 * ``times_fit``: the vector of times at which the model will be calculated.  It
   defaults to ``times``.  If provided, it must come after ``frequency``
 
-Optional keyword arguments ``center_data`` and ``fit_mean`` have the same meaning as
-in ``lombscargle`` function, which see.
+Optional boolean keywords ``center_data`` and ``fit_mean`` have the same meaning
+as in :func:`lombscargle` function:
+
+* ``fit_mean``: whether to fit for the mean.  If this is ``false``, like in the
+  original Lomb–Scargle periodogram, :math:`\mathbf{A}` does not have the third
+  column of ones, :math:`c_f` is set to :math:`0` and the unknown vector to be
+  determined becomes :math:`x = [a_f, b_f]^\text{T}`
+* ``center_data``: whether the data should be pre-centered before solving the
+  linear system.  This is particularly important if ``fit_mean=false``
 
 Examples
 --------
