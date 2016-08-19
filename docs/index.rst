@@ -348,14 +348,17 @@ the ``freqpower`` function.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. function:: findmaxpower(p::Periodogram)
-.. function:: findmaxfreq(p::Periodogram, threshold::Real=findmaxpower(p))
+.. function:: findmaxfreq(p::Periodogram, [interval::AbstractVector{Real}], threshold::Real=findmaxpower(p))
 
 Once you compute the periodogram, you usually want to know which are the
 frequencies with highest power.  To do this, you can use the
 :func:`findmaxfreq`.  It returns the vector of frequencies with the highest
-power in the periodogram ``p``.  If a second argument ``threshold`` is provided,
-return the frequencies with power larger than or equal to ``threshold``.  The
-value of the highest power of a periodogram can be calculated with the
+power in the periodogram ``p``.  If a scalar real argument ``threshold`` is
+provided, return the frequencies with power larger than or equal to
+``threshold``.  If you want to limit the search to a narrower frequency range,
+pass as second argument a vector with the extrema of the interval.
+
+The value of the highest power of a periodogram can be calculated with the
 :func:`findmaxpower` function.
 
 False-Alarm Probability
@@ -460,8 +463,9 @@ function of the type
 
 that best fits the data (in the original algorithm the offset :math:`c` is
 null).  In order to find the best-fitting coefficients :math:`a_f`, :math:`b_f`,
-and :math:`c_f` for the given frequency :math:`f` we can solve the linear system
-:math:`\mathbf{A}x = \mathbf{y}`, where :math:`\mathbf{A}` is the matrix
+and :math:`c_f` for the given frequency :math:`f`, without actually performing
+the periodogram, you can solve the linear system :math:`\mathbf{A}x =
+\mathbf{y}`, where :math:`\mathbf{A}` is the matrix
 
 .. math::
 
@@ -628,9 +632,16 @@ the periodogram (and you can get the period by taking its inverse):
 
 This peak is at high frequency, very far from the expected value of the period
 of 1.  In order to find the real peak, you can either narrow the frequency range
-in order to exclude higher armonics, or pass the ``threshold`` argument to
-:func:`findmaxfreq`.  You can use :func:`findmaxpower` to discover the highest
-power in the periodogram:
+in order to exclude higher armonics
+
+.. code-block:: julia
+
+   1.0./findmaxfreq(p, [0.5, 1.5]) # Limit the search to the interval [0.5, 1.5]
+   # => 1-element Array{Float64,1}:
+   #     1.0101
+
+or pass the ``threshold`` argument to :func:`findmaxfreq`.  You can use
+:func:`findmaxpower` to discover the highest power in the periodogram:
 
 .. code-block:: julia
 
@@ -649,7 +660,7 @@ armonics.
 
 .. Tip::
 
-   Usually plotting the periodogram can give you a clue of what’s going on.
+   Usually, plotting the periodogram can give you a clue of what’s going on.
 
 Find the Best-Fitting Model
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -682,12 +693,13 @@ frequency fits well your data.
       using Plots
       t = linspace(0.01, 5, 1000) # Observation times
       s = sinpi(2t) + 1.2cospi(4t) + 0.3rand(length(t)) # Noisy signal
-      # Look for the best frequencies
-      f = findmaxfreq(lombscargle(t, s, maximum_frequency=5, samples_per_peak=50), 0.4)
-      # By inspecting the f vector you find that two frequencies 
-      # with highest powers are the elements 5 and 26
-      fit1 = LombScargle.model(t, s, f[5]) # Determine the first model
-      fit2 = LombScargle.model(t, s, f[26]) # Determine the second model
+      p = lombscargle(t, s, samples_per_peak=50)
+      # After plotting the periodogram, you discover
+      # that it has prominent two peaks around 1 and 2.
+      f1 = findmaxfreq(p, [0.8, 1.2])[1] # Get peak frequency around 1
+      f2 = findmaxfreq(p, [1.8, 2.2])[1] # Get peak frequency around 2
+      fit1 = LombScargle.model(t, s, f1) # Determine the first model
+      fit2 = LombScargle.model(t, s, f2) # Determine the second model
       scatter(t, s, lab="Data", title="Best-fitting Lomb-Scargle model")
       plot!(t, fit1 + fit2, lab="Best-fitting model", linewidth=4)
 

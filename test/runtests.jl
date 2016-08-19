@@ -72,6 +72,11 @@ pgram6 = lombscargle(t, s, maximum_frequency=30, fast=false)
 # Test findmaxfreq and findmaxpower
 @test_approx_eq findmaxfreq(pgram1)        [31.997145470342]
 @test_approx_eq findmaxfreq(pgram1, 0.965) [0.15602150741832602,31.685102455505348,31.997145470342,63.52622641842902,63.838269433265665]
+t = linspace(0.01, 10pi, 1001)
+s = sinpi(2t) + cospi(4t)
+p = lombscargle(t, s, maximum_frequency=4)
+@test_approx_eq findmaxfreq(p, [0.9, 1.1]) 1.0029954048320957
+@test_approx_eq findmaxfreq(p, [1.9, 2.1]) 2.002806697267899
 @test_approx_eq findmaxpower(pgram1) 0.9695017551608017
 
 # Test autofrequency function

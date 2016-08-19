@@ -45,15 +45,35 @@ Return the highest power of the periodogram `p`.
 """
 findmaxpower(p::Periodogram) = maximum(power(p))
 
+
+_findmaxfreq{R1<:Real,R2<:Real}(freq::AbstractVector{R1},
+                                power::AbstractVector{R2},
+                                threshold::Real) =
+                                    freq[find(x -> x >= threshold, power)]
+
 """
-    findmaxfreq(p::Periodogram, threshold::Real=findmaxpower(p))
+    findmaxfreq(p::Periodogram, [interval::AbstractVector{Real}], threshold::Real=findmaxpower(p))
 
 Return the array of frequencies with the highest power in the periodogram `p`.
-If a second argument `threshold` is provided, return the frequencies with power
-larger than or equal to `threshold`.
+If a scalar real argument `threshold` is provided, return the frequencies with
+power larger than or equal to `threshold`.  If you want to limit the search to a
+narrower frequency range, pass as second argument a vector with the extrema of
+the interval.
 """
 findmaxfreq(p::Periodogram, threshold::Real=findmaxpower(p)) =
-    freq(p)[find(x -> x >= threshold, power(p))]
+    _findmaxfreq(freqpower(p)..., threshold)
+
+function findmaxfreq{R<:Real}(p::Periodogram, interval::AbstractVector{R},
+                              threshold::Real=NaN)
+    f = freq(p)
+    lo, hi = extrema(interval)
+    indices = find(x -> lo <= x <= hi, f)
+    pow = power(p)[indices]
+    if isnan(threshold)
+        threshold = maximum(pow)
+    end
+    return _findmaxfreq(f[indices], pow, threshold)
+end
 
 """
     autofrequency(times::AbstractVector{Real};

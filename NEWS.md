@@ -8,6 +8,8 @@ v0.1.1 (2016-??-??)
 
 * New function: `LombScargl.model`.  It gives the best fitting–Scargle model at
   a given frequency.
+* `findmaxfreq` function now can take an optional argument (`interval`) to limit
+  the search for the maximum frequency to a certain frequency range.
 
 v0.1.0 (2016-08-18)
 -------------------

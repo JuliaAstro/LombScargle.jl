@@ -206,15 +206,19 @@ function.
 
 ```julia
 findmaxpower(p::Periodogram)
-findmaxfreq(p::Periodogram, threshold::Real=findmaxpower(p))
+findmaxfreq(p::Periodogram, [interval::AbstractVector{Real}], threshold::Real=findmaxpower(p))
 ```
 
 Once you compute the periodogram, you usually want to know which are the
 frequencies with highest power.  To do this, you can use the `findmaxfreq`.  It
 returns the vector of frequencies with the highest power in the periodogram `p`.
-If a second argument `threshold` is provided, return the frequencies with power
-larger than or equal to `threshold`.  The value of the highest power of a
-periodogram can be calculated with the `findmaxpower` function.
+If a scalar real argument `threshold` is provided, return the frequencies with
+power larger than or equal to `threshold`.  If you want to limit the search to a
+narrower frequency range, pass as second argument a vector with the extrema of
+the interval.
+
+The value of the highest power of a periodogram can be calculated with the
+`findmaxpower` function.
 
 ### False-Alarm Probability ###
 
@@ -369,14 +373,21 @@ p = lombscargle(t, s)
 
 This peak is at high frequency, very far from the expected value of the period
 of 1.  In order to find the real peak, you can either narrow the frequency range
-in order to exclude higher armonics, or pass the `threshold` argument to
-`findmaxfreq`.  You can use `findmaxpower` to discover the highest power in the
-periodogram:
+in order to exclude higher armonics
+
+```julia
+1.0./findmaxfreq(p, [0.5, 1.5]) # Limit the search to the interval [0.5, 1.5]
+# => 1-element Array{Float64,1}:
+#     1.0101
+```
+
+or pass the `threshold` argument to `findmaxfreq`.  You can use `findmaxpower`
+to discover the highest power in the periodogram:
 
 ```julia
 findmaxpower(p)
 # => 0.9712085205753647
-1.0./findmaxfreq(p, 0.97)
+1.0./findmaxfreq(p, 0.97) # Use a threshold
 # => 5-element Array{Float64,1}:
 #     1.0101
 #     0.0101
@@ -386,7 +397,7 @@ findmaxpower(p)
 ```
 
 The first peak is the real one, the other double peaks appear at higher
-armonics.  Usually plotting the periodogram can give you a clue of what’s going
+armonics.  Usually, plotting the periodogram can give you a clue of what’s going
 on.
 
 ### Find the Best-Fitting Model ###
