@@ -216,7 +216,7 @@ are perfectly evenly spaced.
    `linspace
    <http://docs.julialang.org/en/stable/stdlib/arrays/#Base.linspace>`_ function
    (you specify the start and the end of the range, and optionally the length of
-   the vector) or with the `: syntax
+   the vector) or with the syntax `start:stop
    <http://docs.julialang.org/en/stable/stdlib/math/#Base.:>`_ (you specify the
    start and the end of the range, and optionally the linear step; a related
    function is `colon
@@ -630,7 +630,7 @@ the periodogram (and you can get the period by taking its inverse):
     # => 1-element Array{Float64,1}:
     #     0.00502487
 
-This peak is at high frequency, very far from the expected value of the period
+This peak is at high frequencies, very far from the expected value of the period
 of 1.  In order to find the real peak, you can either narrow the frequency range
 in order to exclude higher armonics
 
@@ -695,7 +695,7 @@ frequency fits well your data.
       s = sinpi(2t) + 1.2cospi(4t) + 0.3rand(length(t)) # Noisy signal
       p = lombscargle(t, s, samples_per_peak=50)
       # After plotting the periodogram, you discover
-      # that it has prominent two peaks around 1 and 2.
+      # that it has two prominent peaks around 1 and 2.
       f1 = findmaxfreq(p, [0.8, 1.2])[1] # Get peak frequency around 1
       f2 = findmaxfreq(p, [1.8, 2.2])[1] # Get peak frequency around 2
       fit1 = LombScargle.model(t, s, f1) # Determine the first model

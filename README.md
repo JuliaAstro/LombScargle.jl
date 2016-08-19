@@ -35,8 +35,9 @@ The algorithms used in this package are reported in the following papers:
 ### Documentation ###
 
 The complete manual of `LombScargle.jl` is available at
-http://lombscarglejl.readthedocs.io.  You can also download the PDF version of
-the manual from
+http://lombscarglejl.readthedocs.io.  It has more detailed explanation of
+functions and more examples than what you will find here, also with some plots.
+You can also download the PDF version of the manual from
 https://media.readthedocs.org/pdf/lombscarglejl/latest/lombscarglejl.pdf.
 
 Installation
@@ -371,7 +372,7 @@ p = lombscargle(t, s)
 #     0.00502487
 ```
 
-This peak is at high frequency, very far from the expected value of the period
+This peak is at high frequencies, very far from the expected value of the period
 of 1.  In order to find the real peak, you can either narrow the frequency range
 in order to exclude higher armonics
 

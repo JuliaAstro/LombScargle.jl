@@ -173,10 +173,10 @@ end
 #   Bibcode: http://adsabs.harvard.edu/abs/1989ApJ...338..277P)
 # This is adapted from Astropy implementation of the method.  See
 # `lombscargle_fast' function.
-function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector{R1},
+function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Range{R1},
                                                              signal::AbstractVector{R2},
                                                              w::AbstractVector{R3},
-                                                             freqs::AbstractVector{R4},
+                                                             freqs::Range{R4},
                                                              center_data::Bool,
                                                              fit_mean::Bool,
                                                              oversampling::Int,
