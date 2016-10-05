@@ -42,9 +42,9 @@ t = linspace(0.01, 10pi, ntimes)
 s = sinpi(2t)
 errors = rand(0.1:1e-3:4.0, ntimes)
 p = lombscargle(t, s, errors, maximum_frequency=1.5)
-plot(freqpower(p)..., size = sz, xlabel = "Frequency",
+plot(freqpower(p)..., size = sz, xlim = (0.25, 1.5), xlabel = "Frequency",
      ylabel = "Lomb–Scargle power")
 savefig("freq-uncertainties.png")
-plot(periodpower(p)..., size = sz, xlim = (2//3, 3//2), xlabel = "Period",
+plot(periodpower(p)..., size = sz, xlim = (0.75, 2.0), xlabel = "Period",
      ylabel = "Lomb–Scargle power")
 savefig("period-uncertainties.png")
