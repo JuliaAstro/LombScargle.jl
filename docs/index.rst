@@ -344,19 +344,32 @@ access these vectors with ``freq`` and ``power`` functions, just like in
 ``DSP.jl`` package. If you want to get the 2-tuple ``(freq(p), power(p))`` use
 the ``freqpower`` function.
 
-``findmaxfreq`` and ``findmaxpower`` Functions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Access Periods and their and Power in the Periodogram
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. function:: period(p::Periodogram)
+.. function:: periodpower(p::Periodogram)
+
+These utilities are the analogs of :func:`freq` and :func:`freqpower`, but
+relative to the periods instead of the frequencies.  Thus ``period(p)`` returns
+the vector of periods in the periodogram, that is ``1./freq(p)``, and
+``periodpower(p)`` gives you the 2-tuple ``(period(p), power(p))``.
+
+``findmaxpower``, ``findmaxfreq``, and ``findmaxperiod`` Functions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. function:: findmaxpower(p::Periodogram)
 .. function:: findmaxfreq(p::Periodogram, [interval::AbstractVector{Real}], threshold::Real=findmaxpower(p))
+.. function:: findmaxperiod(p::Periodogram, [interval::AbstractVector{Real}], threshold::Real=findmaxpower(p))
 
 Once you compute the periodogram, you usually want to know which are the
-frequencies with highest power.  To do this, you can use the
-:func:`findmaxfreq`.  It returns the vector of frequencies with the highest
-power in the periodogram ``p``.  If a scalar real argument ``threshold`` is
-provided, return the frequencies with power larger than or equal to
-``threshold``.  If you want to limit the search to a narrower frequency range,
-pass as second argument a vector with the extrema of the interval.
+frequencies or periods with highest power.  To do this, you can use the
+:func:`findmaxfreq` and :func:`findmaxperiod` functions.  They return the vector
+of frequencies and periods, respectively, with the highest power in the
+periodogram ``p``.  If a scalar real argument ``threshold`` is provided, return
+the frequencies with power larger than or equal to ``threshold``.  If you want
+to limit the search to a narrower frequency or period range, pass as second
+argument a vector with the extrema of the interval.
 
 The value of the highest power of a periodogram can be calculated with the
 :func:`findmaxpower` function.
@@ -562,7 +575,18 @@ function to get the frequency grid and the power of the periodogram as a
     using Plots
     plot(freqpower(pgram)...)
 
-.. image:: figure_1.png
+.. image:: freq-periodogram.png
+
+You can also plot the power vs the period, instead of the frequency, with
+:func:`periodpower`:
+
+.. code-block:: julia
+
+    using Plots
+    plot(periodpower(pgram)...)
+
+.. image:: period-periodogram.png
+
 
 .. Caution::
 
@@ -616,17 +640,29 @@ type ``Measurement`` (from `Measurements.jl
     t = linspace(0.01, 10pi, ntimes)
     s = sinpi(2t)
     errors = rand(0.1:1e-3:4.0, ntimes)
+    # Run one of the two following equivalent commands
     plot(freqpower(lombscargle(t, s, errors, maximum_frequency=1.5))...)
     plot(freqpower(lombscargle(t, measurement(s, errors), maximum_frequency=1.5))...)
 
-.. image:: figure_5.png
+.. image:: freq-uncertainties.png
+
+This is the plot of the power versus the period:
+
+.. code-block:: julia
+
+    # Run one of the two following equivalent commands
+    plot(periodpower(lombscargle(t, s, errors, maximum_frequency=1.5))...)
+    plot(periodpower(lombscargle(t, measurement(s, errors), maximum_frequency=1.5))...)
+
+.. image:: period-uncertainties.png
+
 
 We recall that the generalised Lomb–Scargle algorithm is used when the
 ``fit_mean`` optional keyword to :func:`lombscargle` is ``true`` if no error is
 provided, instead it is always used if the signal has uncertainties.
 
-Find Highest Power and Associated Frequencies
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Find Highest Power and Associated Frequencies and Periods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 :func:`findmaxfreq` function tells you the frequencies with the highest power in
 the periodogram (and you can get the period by taking its inverse):
@@ -634,36 +670,60 @@ the periodogram (and you can get the period by taking its inverse):
 .. code-block:: julia
 
     t = linspace(0, 10, 1001)
-    s = sinpi(2t)
+    s = sinpi(t)
     p = lombscargle(t, s)
-    1.0./findmaxfreq(p) # Period with highest power
+    findmaxperiod(p) # Period with highest power
     # => 1-element Array{Float64,1}:
-    #     0.00502487
+    #     0.00498778
+    findmaxfreq(p) # Frequency with the highest power
+    # => 1-element Array{Float64,1}:
+    #     200.49
 
 This peak is at high frequencies, very far from the expected value of the period
-of 1.  In order to find the real peak, you can either narrow the frequency range
-in order to exclude higher armonics
+of 2.  In order to find the real peak, you can either narrow the ranges in order
+to exclude higher armonics
 
 .. code-block:: julia
 
-   1.0./findmaxfreq(p, [0.5, 1.5]) # Limit the search to the interval [0.5, 1.5]
+   findmaxperiod(p, [1, 10]) # Limit the search to periods in [1, 10]
    # => 1-element Array{Float64,1}:
-   #     1.0101
+   #     2.04082
+   findmaxfreq(p, [0.1, 1]) # Limit the search to frequencies in [0.1, 1]
+   # => 1-element Array{Float64,1}:
+   #     0.49
 
-or pass the ``threshold`` argument to :func:`findmaxfreq`.  You can use
-:func:`findmaxpower` to discover the highest power in the periodogram:
+or pass the ``threshold`` argument to :func:`findmaxfreq` or
+:func:`findmaxperiod`.  You can use :func:`findmaxpower` to discover the highest
+power in the periodogram:
 
 .. code-block:: julia
 
     findmaxpower(p)
-    # => 0.9712085205753647
-    1.0./findmaxfreq(p, 0.97)
-    # => 5-element Array{Float64,1}:
-    #     1.0101
-    #     0.0101
-    #     0.00990197
-    #     0.00502487
-    #     0.00497537
+    # => 0.9958310178312316
+    findmaxperiod(p, 0.95)
+    # => 10-element Array{Float64,1}:
+    #     2.04082
+    #     1.96078
+    #     0.0100513
+    #     0.0100492
+    #     0.00995124
+    #     0.00994926
+    #     0.00501278
+    #     0.00501228
+    #     0.00498778
+    #     0.00498728
+    findmaxfreq(p, 0.95)
+    # => 10-element Array{Float64,1}:
+    #       0.49
+    #       0.51
+    #      99.49
+    #      99.51
+    #     100.49
+    #     100.51
+    #     199.49
+    #     199.51
+    #     200.49
+    #     200.51
 
 The first peak is the real one, the other double peaks appear at higher
 armonics.

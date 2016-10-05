@@ -1,6 +1,14 @@
 History of LombScargle.jl
 =========================
 
+v0.1.2 (201?-??-??)
+-------------------
+
+### New Features ###
+
+* New utilities: `period`, `periodpower`, `findmaxperiod`.
+
+
 v0.1.1 (2016-08-20)
 -------------------
 

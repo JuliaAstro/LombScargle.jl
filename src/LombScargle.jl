@@ -17,8 +17,7 @@ module LombScargle
 
 using Measurements
 
-export lombscargle, power, freq, freqpower, findmaxpower, findmaxfreq,
-prob, probinv, fap, fapinv
+export lombscargle
 
 # This is similar to Periodogram type of DSP.Periodograms module, but for
 # unevenly spaced frequencies.

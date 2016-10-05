@@ -15,6 +15,9 @@
 #
 ### Code:
 
+export power, freq, freqpower, findmaxpower, findmaxfreq, period, periodpower,
+    findmaxperiod, prob, probinv, fap, fapinv
+
 """
     power(p::Periodogram)
 
@@ -74,6 +77,38 @@ function findmaxfreq{R<:Real}(p::Periodogram, interval::AbstractVector{R},
     end
     return _findmaxfreq(f[indices], pow, threshold)
 end
+
+"""
+    power(p::Periodogram)
+
+Return the period vector of Lomb-Scargle periodogram `p`.  It is equal to `1./freq(p)`.
+"""
+period(p::Periodogram) = 1./freq(p)
+
+"""
+    periodpower(p::Periodogram)
+
+Return the 2-tuple `(period(p), power(p))`, where `period(p)` and `power(p)` are
+the period vector and the power vector of Lomb-Scargle periodogram `p`
+respectively.
+"""
+periodpower(p::Periodogram) = (period(p), power(p))
+
+
+"""
+    findmaxperiod(p::Periodogram, [interval::AbstractVector{Real}], threshold::Real=findmaxpower(p))
+
+Return the array of period with the highest power in the periodogram `p`.  If a
+scalar real argument `threshold` is provided, return the period with power
+larger than or equal to `threshold`.  If you want to limit the search to a
+narrower period range, pass as second argument a vector with the extrema of the
+interval.
+"""
+findmaxperiod(p::Periodogram, threshold::Real=findmaxpower(p)) =
+    1./findmaxfreq(p, threshold)
+findmaxperiod{R<:Real}(p::Periodogram, interval::AbstractVector{R},
+                       threshold::Real=NaN) =
+                           1./findmaxfreq(p, 1./interval, threshold)
 
 """
     autofrequency(times::AbstractVector{Real};
