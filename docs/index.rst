@@ -184,10 +184,10 @@ uncertainties, because the original Lomb–Scargle algorithm cannot handle them.
    <https://en.wikipedia.org/wiki/Inverse-variance_weighting>`_ weights vector
    (see [ZK09]_), that gives more importance to datapoints with lower
    uncertainties.  The case where all measurements have the same uncertainty (a
-   condition known as `homoscedasticity
+   condition known as `homoskedasticity
    <https://en.wikipedia.org/wiki/Homoscedasticity>`_) results in a costant
    weights vector, like if there are no uncertainties at all.  If you have
-   homoscedastic errors, you do not need to provide them to :func:`lombscargle`.
+   homoskedastic errors, you do not need to provide them to :func:`lombscargle`.
 
 Fast Algorithm
 ~~~~~~~~~~~~~~

@@ -8,6 +8,11 @@ v0.1.2 (201?-??-??)
 
 * New utilities: `period`, `periodpower`, `findmaxperiod`.
 
+### Bug Fixes ###
+
+* Fix power in the standard (i.e., `fast = false` variant) generalised
+  Lomb–Scargle algorithm with `fit_mean = true`.  You will find different
+  results than before, but for the better, previous results were slightly wrong.
 
 v0.1.1 (2016-08-20)
 -------------------

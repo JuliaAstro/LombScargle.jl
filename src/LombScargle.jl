@@ -104,7 +104,8 @@ function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Ab
     end
     YY = w⋅(y.^2)
     if fit_mean
-        Y  = w⋅y
+        Y   = w⋅y
+        YY -= Y*Y
     end
 
     @inbounds for n in eachindex(freqs)
@@ -156,7 +157,6 @@ function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Ab
             YS_τ  -= Y*S_τ
             SS_τ   = 1.0 - CC_τ - S_τ*S_τ
             CC_τ  -= C_τ*C_τ
-            YY    -= Y*Y
         else
             SS_τ  = 1.0 - CC_τ
         end

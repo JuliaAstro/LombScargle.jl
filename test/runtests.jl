@@ -2,6 +2,9 @@ using LombScargle
 using Measurements
 using Base.Test
 
+# Fix random seed to make test reproducible.
+srand(1)
+
 ntimes = 1001
 # Observation times
 t = linspace(0.01, 10pi, ntimes)
@@ -20,8 +23,8 @@ freqs = collect(freqs)
 # coverage.  "autofrequency" function is tested below.
 pgram1 = lombscargle(t, s, frequencies=freqs, fit_mean=false)
 pgram2 = lombscargle(t, s, frequencies=freqs, fit_mean=true)
-@test_approx_eq_eps freqpower(pgram1)[2]   freqpower(pgram2)[2] 5e-3
-@test_approx_eq_eps periodpower(pgram1)[2] periodpower(pgram2)[2] 5e-3
+@test_approx_eq freqpower(pgram1)[2]   freqpower(pgram2)[2]
+@test_approx_eq periodpower(pgram1)[2] periodpower(pgram2)[2]
 
 # Simple signal, without any randomness
 t = collect(linspace(0.01, 10pi, ntimes))
@@ -48,7 +51,7 @@ pgram4 = lombscargle(t, s, center_data=false, fit_mean=true)
 
 # Test signal with uncertainties
 err = collect(linspace(0.5, 1.5, ntimes))
-@test_approx_eq power(lombscargle(t, s, err, frequencies=0.1:0.1:1, fit_mean=true))  [0.06659683848818687,0.09361438921056377,0.006815919926284516,0.0016347568319229223,0.0005385706045724484,0.00021180745624003642,0.00010539881897690343,7.01610752020905e-5,5.519295593372065e-5,4.339157565349008e-5]
+@test_approx_eq power(lombscargle(t, s, err, frequencies=0.1:0.1:1, fit_mean=true))  [0.06659683848818691,0.09230959166317589,0.006625919314669043,0.0015664010997692612,0.0005085442118408477,0.00019704659245878378,9.658452525613897e-5,6.331573873913433e-5,4.903871967643573e-5,3.7948448825374025e-5]
 @test_approx_eq power(lombscargle(t, s, err, frequencies=0.1:0.1:1, fit_mean=false)) [0.0692080444168825,0.09360343748833044,0.006634919855866448,0.0015362074096358814,0.000485825178683968,0.000181798596773626,8.543735242380012e-5,5.380000205539795e-5,4.010727072660524e-5,2.97840883747593e-5]
 @test_approx_eq power(lombscargle(t, s, err, frequencies=0.1:0.1:1, fit_mean=false, center_data=false)) [0.06920814049261209,0.09360344864985352,0.006634919960009565,0.0015362072871144769,0.0004858250831632676,0.00018179850370583626,8.543727416919218e-5,5.379994730581837e-5,4.0107232867763e-5,2.9784059487535237e-5]
 @test power(lombscargle(t, s, err)) ==
@@ -68,6 +71,10 @@ pgram6 = lombscargle(t, s, maximum_frequency=30, fast=false)
 @test_approx_eq power(lombscargle(t, s, err, frequencies=0.2:0.2:1, fast=true, center_data=false, fit_mean=false)) [0.09360344864985332,0.0015354489715019735,0.0001784388515190763,4.744247354697125e-5,3.240223498703448e-5]
 @test power(lombscargle(t, s, err)) ==
     power(lombscargle(t, measurement(s, err)))
+
+# Compare result of uncertainties with both methods (fast and non-fast).
+errors = rand(0.1:1e-3:4.0, ntimes)
+@test_approx_eq_eps power(lombscargle(t, s, errors)) power(lombscargle(t, s, errors, fast = false)) 0.04
 
 ##################################################
 ### Testing utilities
