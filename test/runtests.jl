@@ -23,8 +23,9 @@ freqs = collect(freqs)
 # coverage.  "autofrequency" function is tested below.
 pgram1 = lombscargle(t, s, frequencies=freqs, fit_mean=false)
 pgram2 = lombscargle(t, s, frequencies=freqs, fit_mean=true)
-@test_approx_eq freqpower(pgram1)[2]   freqpower(pgram2)[2]
-@test_approx_eq periodpower(pgram1)[2] periodpower(pgram2)[2]
+@test_approx_eq freqpower(pgram1)[2] periodpower(pgram2)[2]
+# Make sure there are no infinities in `pgram1'.
+@test !(Inf in power(pgram1))
 
 # Simple signal, without any randomness
 t = collect(linspace(0.01, 10pi, ntimes))

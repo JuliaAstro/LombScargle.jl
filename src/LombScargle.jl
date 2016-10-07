@@ -65,9 +65,9 @@ function _lombscargle_orig{R1<:Real,R2<:Real,R3<:Real}(times::AbstractVector{R1}
             CS += C*S
         end
         SS      = N - CC
-        τ       = 0.5*atan2(2CS, CC - SS)/ω
-        c_τ     = cos(ω*τ)
-        s_τ     = sin(ω*τ)
+        ωτ      = 0.5*atan2(2CS, CC - SS)
+        c_τ     = cos(ωτ)
+        s_τ     = sin(ωτ)
         c_τ2    = c_τ*c_τ
         s_τ2    = s_τ*s_τ
         cs_τ_CS = 2c_τ*s_τ*CS
@@ -132,33 +132,36 @@ function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Ab
         else
             SS  = 1.0 - CC
         end
-        τ   = 0.5*atan2(2CS, CC - SS)/ω
+        ωτ   = 0.5*atan2(2CS, CC - SS)
 
         # Now we can compute the power
-        YC_τ = YS_τ = CC_τ = nil
+        YC_τ = YS_τ = CC_τ = SS_τ = nil
         for i in eachindex(times)
-            ωt    = ω*(times[i] - τ)
+            ωt    = ω*times[i] - ωτ
             W     = w[i]
             c     = cos(ωt)
             s     = sin(ωt)
             YC_τ += W*y[i]*c
             YS_τ += W*y[i]*s
             CC_τ += W*c*c
+            SS_τ += W*s*s
         end
         if fit_mean
             # "C_τ" and "S_τ" are computed following equation (7) of Press &
             # Rybicki, this formula simply comes from angle difference
             # trigonometric identities.
-            cos_ωτ = cos(ω*τ)
-            sin_ωτ = sin(ω*τ)
+            cos_ωτ = cos(ωτ)
+            sin_ωτ = sin(ωτ)
             C_τ    = C*cos_ωτ + S*sin_ωτ
             S_τ    = S*cos_ωτ - C*sin_ωτ
             YC_τ  -= Y*C_τ
             YS_τ  -= Y*S_τ
-            SS_τ   = 1.0 - CC_τ - S_τ*S_τ
             CC_τ  -= C_τ*C_τ
-        else
-            SS_τ  = 1.0 - CC_τ
+            # Note: it is possible to calculate SS_τ non-iteratively using the
+            # formula "1.0 - CC_τ - S_τ*S_τ" (or "1.0 - CC_τ" if `fit_mean' is
+            # false), but this seems to lead to numerical issues, like SS_τ ==
+            # 0.0 and so P[n] == Inf.
+            SS_τ  -= S_τ*S_τ
         end
         P[n] = (abs2(YC_τ)/CC_τ + abs2(YS_τ)/SS_τ)/YY
     end
