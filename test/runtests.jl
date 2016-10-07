@@ -26,7 +26,7 @@ pgram2 = lombscargle(t, s, frequencies=freqs, fit_mean=true)
 @test_approx_eq freqpower(pgram1)[2] periodpower(pgram2)[2]
 # Make sure there are no infinities in `pgram1'.  It seems to work only on
 # 64-bit systems.
-Sys.ARCH == 64 && @test !(Inf in power(pgram1))
+Sys.WORD_SIZE == 64 && @test(!(Inf in power(pgram1)) && !(Inf in power(pgram2)))
 
 # Simple signal, without any randomness
 t = collect(linspace(0.01, 10pi, ntimes))
