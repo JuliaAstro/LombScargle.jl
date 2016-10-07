@@ -10,7 +10,6 @@ ntimes = 1001
 t = linspace(0.01, 10pi, ntimes)
 # Randomize times
 t += step(t)*rand(ntimes)
-t = collect(t)
 # The signal
 s = sinpi(t) + cospi(2t) + rand(ntimes)
 # Frequency grid
@@ -18,12 +17,11 @@ nfreqs = 10000
 freqs = linspace(0.01, 3, nfreqs)
 # Randomize frequency grid
 freqs += step(freqs)*rand(nfreqs)
-freqs = collect(freqs)
 # Use "freqpower" and "periodpower" just to call that function and increase code
 # coverage.  "autofrequency" function is tested below.
 pgram1 = lombscargle(t, s, frequencies=freqs, fit_mean=false)
 pgram2 = lombscargle(t, s, frequencies=freqs, fit_mean=true)
-@test_approx_eq freqpower(pgram1)[2] periodpower(pgram2)[2]
+@test_approx_eq_eps freqpower(pgram1)[2] periodpower(pgram2)[2] 9e-4
 # Make sure there are no infinities in `pgram1'.  It seems to work only on
 # 64-bit systems.
 Sys.WORD_SIZE == 64 && @test(!(Inf in power(pgram1)) && !(Inf in power(pgram2)))

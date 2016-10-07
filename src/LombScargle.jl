@@ -40,8 +40,8 @@ function _lombscargle_orig{R1<:Real,R2<:Real,R3<:Real}(times::AbstractVector{R1}
                                                        signal::AbstractVector{R2},
                                                        freqs::AbstractVector{R3},
                                                        center_data::Bool)
-    P_type = promote_type(float(R1), float(R2))
-    P = Vector{P_type}(freqs)
+    P_type = promote_type(float(R1), float(R2), float(R3))
+    P = Vector{P_type}(length(freqs))
     N = length(signal)
     nil = zero(P_type)
     # If "center_data" keyword is true, subtract the mean from each point.
@@ -94,7 +94,7 @@ function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Ab
                                                                        center_data::Bool,
                                                                        fit_mean::Bool)
     P_type = promote_type(float(R1), float(R2), float(R3), float(R4))
-    P = Vector{P_type}(freqs)
+    P = Vector{P_type}(length(freqs))
     nil = zero(P_type)
     # If "center_data" keyword is true, subtract the mean from each point.
     if center_data || fit_mean
@@ -184,7 +184,7 @@ function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Range{R1},
                                                              oversampling::Int,
                                                              Mfft::Int)
     P_type = promote_type(float(R1), float(R2))
-    P = Vector{P_type}(freqs)
+    P = Vector{P_type}(length(freqs))
     nil = zero(P_type)
     # If "center_data" keyword is true, subtract the mean from each point.
     if center_data || fit_mean
