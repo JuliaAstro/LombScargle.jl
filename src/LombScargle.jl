@@ -65,7 +65,7 @@ function _lombscargle_orig{R1<:Real,R2<:Real,R3<:Real}(times::AbstractVector{R1}
             CS += C*S
         end
         SS      = N - CC
-        ωτ      = 0.5*atan2(2CS, CC - SS)
+        ωτ      = 0.5*atan2(CS, CC - N/2)
         c_τ     = cos(ωτ)
         s_τ     = sin(ωτ)
         c_τ2    = c_τ*c_τ
@@ -135,7 +135,7 @@ function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Ab
         ωτ   = 0.5*atan2(2CS, CC - SS)
 
         # Now we can compute the power
-        YC_τ = YS_τ = CC_τ = SS_τ = nil
+        YC_τ = YS_τ = CC_τ = nil
         for i in eachindex(times)
             ωt    = ω*times[i] - ωτ
             W     = w[i]
@@ -144,7 +144,6 @@ function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Ab
             YC_τ += W*y[i]*c
             YS_τ += W*y[i]*s
             CC_τ += W*c*c
-            SS_τ += W*s*s
         end
         if fit_mean
             # "C_τ" and "S_τ" are computed following equation (7) of Press &
@@ -156,12 +155,10 @@ function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Ab
             S_τ    = S*cos_ωτ - C*sin_ωτ
             YC_τ  -= Y*C_τ
             YS_τ  -= Y*S_τ
+            SS_τ   = 1.0 - CC_τ - S_τ*S_τ
             CC_τ  -= C_τ*C_τ
-            # Note: it is possible to calculate SS_τ non-iteratively using the
-            # formula "1.0 - CC_τ - S_τ*S_τ" (or "1.0 - CC_τ" if `fit_mean' is
-            # false), but this seems to lead to numerical issues, like SS_τ ==
-            # 0.0 and so P[n] == Inf.
-            SS_τ  -= S_τ*S_τ
+        else
+            SS_τ  = 1.0 - CC_τ
         end
         P[n] = (abs2(YC_τ)/CC_τ + abs2(YS_τ)/SS_τ)/YY
     end
