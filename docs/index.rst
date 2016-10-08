@@ -156,7 +156,7 @@ In addition, you can use all optional keyword arguments of
    choose the maximum frequency if ``maximum_frequency`` is not provided
 - ``minimum_frequency``: if specified, then use this minimum frequency rather
    than one chosen based on the size :math:`T` of the baseline (default:
-   :math:`1.5/T`)
+   :math:`0.75/T`)
 - ``maximum_frequency``: if specified, then use this maximum frequency rather
    than one chosen based on the average Nyquist frequency (default:
    :math:`\text{nyquist factor}\cdot N/(2T)`)

@@ -17,7 +17,7 @@ v0.1.2 (201?-??-??)
 ### Breaking Changes ###
 
 * The minimum frequency in `LombScargle.autofrequency` (and thus also in
-  `lombscargle`) now defaults to 1.5/T, where T is the time baseline
+  `lombscargle`) now defaults to 0.75/T, where T is the time baseline
   (`maximum(t) - minimum(t)`).  This entails only the default, nothing changes
   if you specified a custom `minimum_frequency`.
 
