@@ -141,6 +141,13 @@ function autofrequency{R<:Real}(times::AbstractVector{R};
                                 minimum_frequency::Real=NaN,
                                 maximum_frequency::Real=NaN)
     T = maximum(times) - minimum(times)
+    # Rationale of the choice of the default value: 1/(10*T), like what Astropy
+    # does, is very large, it means you're searching periods 10 times larger
+    # than the whole observational window.  I think that something close to 1/T
+    # is much more useful.  In addition, if one wants to plot the periodogram
+    # power vs period, the old default 1/(10*T) caused the plot to be visually
+    # almost flat and a different minimum frequency must be used anyway.  Now
+    # the maximum period is only slightly larger than T.
     f_min = isfinite(minimum_frequency) ? minimum_frequency : 0.75/T
     δf = inv(samples_per_peak*T)
     if isfinite(maximum_frequency)
