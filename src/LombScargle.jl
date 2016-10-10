@@ -30,6 +30,7 @@ end
 
 include("extirpolation.jl")
 include("utils.jl")
+include("bootstrap.jl")
 
 # Original algorithm that doesn't take into account uncertainties and doesn't
 # fit the mean of the signal.  This is implemented following the recipe by

@@ -6,6 +6,9 @@ v0.1.2 (201?-??-??)
 
 ### New Features ###
 
+* New function for performing bootstrap resampling: `LombScargle.bootstrap`.
+  The `fap` and `fapinv` functions have now new methods to estimate false-alarm
+  probability and its inverse from a bootstrap sample.
 * New utilities: `period`, `periodpower`, `findmaxperiod`.
 
 ### Bug Fixes ###

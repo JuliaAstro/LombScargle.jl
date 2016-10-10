@@ -377,9 +377,9 @@ The value of the highest power of a periodogram can be calculated with the
 False-Alarm Probability
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-.. function:: prob(P::Periodogram, p_0::Real)
+.. function:: prob(P::Periodogram, power::Real)
 .. function:: probinv(P::Periodogram, prob::Real)
-.. function:: fap(P::Periodogram, p_0::Real)
+.. function:: fap(P::Periodogram, power::Real)
 .. function:: fapinv(P::Periodogram, fap::Real)
 
 Noise in the data produce fluctuations in the periodogram that will present
@@ -459,7 +459,53 @@ present (see [CUM04]_).
    the false-alarm probability is to perform Monte Carlo or bootstrap
    simulations in order to determine how often a certain power level
    :math:`p_{0}` is exceeded just by chance (see [CMB99]_, [CUM04]_, and
-   [ZK09]_).
+   [ZK09]_).  See next section.
+
+Bootstrapping
+'''''''''''''
+
+.. function:: LombScargle.bootstrap(N::Integer, t::AbstractVector{Real}, s::AbstractVector{Real}, ...)
+.. function:: fap(b::Bootstrap, power::Real)
+.. function:: fapinv(b::Bootstrap, prob::Real)
+
+One of the possible and most simple statistical methods that you can use to
+measure the false-alarm probability and its inverse is `bootstrapping
+<https://en.wikipedia.org/wiki/Bootstrapping_%28statistics%29>`__.
+
+.. Note::
+
+   We emphasize that you can use this method only if you know your data points
+   are `independent and identically distributed
+   <https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_variables>`__,
+   and they have `white uncorrelated noise
+   <https://en.wikipedia.org/wiki/White_noise>`__.
+
+The recipe of the bootstrap method is very simple to implement:
+
+* repeat the Lomb–Scargle analysis a large number :math:`N` of times on the
+  original data, but with the signal (and errors, if present) vector randomly
+  shuffled.  As an alternative, shuffle only the time vector;
+* out of all these simulations, store the powers of the highest peaks;
+* in order to estimate the false-alarm probability of a given power, count how
+  many times the highest peak of the simulations exceeds that power, as a
+  fraction of :math:`N`.  If you instead want to find the inverse of the
+  false-alarm probability :math:`\text{prob}`, looks for the
+  :math:`N\cdot\text{prob}`-th element of the highest peaks vector sorted in
+  descending order.
+
+Remember to pass to :func:`lombscargle` function the same options, if any, you
+used to compute the Lomb–Scargle periodogram before.
+
+``LombScargle.jl`` provides simple methods to perform such analysis.  The
+:func:`LombScargle.bootstrap` function allows you to create a bootstrap sample
+with ``N`` permutations of the original data.  All the arguments after the first
+one are passed around to :func:`lombscargle`.  The output is a
+``LombScargle.Bootstrap`` object.
+
+The false alarm probability and its inverse can be calculated with :func:`fap`
+and :func:`fapinv` functions respectively.  Their syntax is the same as the
+methods introduced above, but with a ``LombScargle.bootstrap`` object as first
+argument, instead of the ``LombScargle.Periodogram`` one.
 
 ``LombScargle.model`` Function
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -656,7 +702,6 @@ This is the plot of the power versus the period:
 
 .. image:: period-uncertainties.png
 
-
 We recall that the generalised Lomb–Scargle algorithm is used when the
 ``fit_mean`` optional keyword to :func:`lombscargle` is ``true`` if no error is
 provided, instead it is always used if the signal has uncertainties.
@@ -736,93 +781,75 @@ Significance of the Peaks
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The significance of the peaks in the Lomb–Scargle periodogram can be assessed by
-measuring the `False-Alarm Probability`_.  ``LombScargle.jl`` provides two
-functions to measure this quantity and its inverse, :func:`fap` and
-:func:`fapinv` respectively, using analytical formulas, that however can only be
-employed under precise hypotheses (see above).
+measuring the `False-Alarm Probability`_.  Analytic expressions of this quantity
+and its inverse can be obtained with the :func:`fap` and :func:`fapinv`
+functions, respectively.
 
 .. code-block:: julia
 
-   t = linspace(0.01, 20)
+   t = linspace(0.01, 20, samples_per_peak = 10)
    s = sinpi(e*t).^2 - cos(5t).^4
    p = lombscargle(t, s)
    # Find the false-alarm probability for the highest peak.
    fap(p, 0.3)
-   # => 0.028042297106244507
+   # => 0.028198095962262748
 
 Thus, a peak with power :math:`0.3` has a probability of :math:`0.028` that it
-is due to noise only.  However, a quantity that is more often used is the
-inverse of the false-alarm probability: what is the minimum power whose
-false-alarm probability is lower than the given probability?  For example, if
-you want to know the minimum power for which the false-alarm probability is at
-most :math:`0.01` you can use:
+is due to noise only.  A quantity that is often used is the inverse of the
+false-alarm probability as well: what is the minimum power whose false-alarm
+probability is lower than the given probability?  For example, if you want to
+know the minimum power for which the false-alarm probability is at most
+:math:`0.01` you can use:
 
 .. code-block:: julia
 
    fapinv(p, 0.01)
-   # => 0.3303095551754588
+   # => 0.3304696923786712
 
-As we already noted many times, :func:`fap` and :func:`fapinv` are not reliable
-if your data does not satisfy specific assumptions.  An example of application
-of a statistical method to assess the significance of peaks is shown below.
+As we already noted, analytic expressions of the false-alarm probability and its
+inverse may not be reliable if your data does not satisfy specific assumptions.
+A better way to calculate this quantity is to use statistical methods.  One of
+this is bootstrapping.  In ``LombScargle.jl``, you can use the function
+:func:`LombScargle.bootstrap` to create a bootstrap sample and then you can
+calculate the false-alarm probability and its inverse using this sample.
 
-Bootstrapping
-'''''''''''''
+.. Tip::
 
-One of the possible and most simple statistical methods that you can use to
-measure the false-alarm probability and its inverse is `bootstrapping
-<https://en.wikipedia.org/wiki/Bootstrapping_%28statistics%29>`__.
-``LombScargle.jl`` does not provide a built-in method to perform such
-simulations (but it may does in the future if requests will come), below we show
-an example of application of the bootstrapping procedure.
-
-.. Caution::
-
-   Before going on, we stress that you can use this method if you know your data
-   points are independent and identically distributed, and they have `white
-   uncorrelated noise <https://en.wikipedia.org/wiki/White_noise>`__.
-
-The recipe of the bootstrap method is very simple: you repeat the analysis a
-large number of times on the same original data but with the time vector
-shuffled (remember to pass to :func:`lombscargle` function the same options, if
-any, you used to compute the Lomb–Scargle periodogram before).
+   When applying the bootstrap method you should use the same options you used
+   to perform the periodogram on your data.  However, note that the fast method
+   gives approximate results that for some frequencies may not be reliable (they
+   can go outside the range :math:`[0, 1]` for the standard normalization).
+   More robust results can be obtained with the ``fast = false`` option.
 
 .. code-block:: julia
 
-   # Number of repetitions.  The larger the better.
-   N = 10000
-   # Create the array with value of the highest peaks.
-   high_peak = Array{Float64}(N)
-   # Repeat the same analysis as above N times, with the `t` vector shuffled.
-   for i in eachindex(high_peak)
-       high_peak[i] = findmaxpower(lombscargle(shuffle(collect(t)), s))
-   end
+   # Create a bootstrap sample with 10000
+   # resamplings of the original data.  The larger
+   # the better.  This may take some minutes.
+   b = LombScargle.bootstrap(10000, t, s, samples_per_peak = 10, fast = false)
 
-In order to estimate the false-alarm probability of a given power, count how
-many times the highest peak of the simulations exceeds that power.
+   # Calculate the false-alarm probability of a peak
+   # with power 0.3 using this bootstrap sample.
+   fap(b, 0.3)
+   # => 0.0209
 
-.. code-block:: julia
+   # Calculate the lowest power that has probability
+   # less than 0.01 in this bootstrap sample.
+   fapinv(b, 0.01)
+   # => 0.3268290388848437
 
-   # The power for which you want to measure the false-alarm probability.
-   pow = 0.3
-   # Estimate the false-alarm probability by counting the fraction
-   # of simulations in which the highest power is larger that `pow`.
-   prob = length(find(x -> x >= pow, high_peak))/N
-   # => 0.0214
-
-If you instead want to find the inverse of the false-alarm probability
-:math:`\text{prob}`, looks for the :math:`N\cdot\text{prob}`-th last element of
-the vector ``high_peak`` sorted in ascending order:
+If you query :func:`fapinv` with a too low probability, the corresponding power
+cannot be determined and you will get ``NaN`` as result.
 
 .. code-block:: julia
 
-   # The false-alarm probability for which you want to
-   # find the lowest power that has fap less than `prob`.
-   prob = 0.01
-   # Sort in ascending order the `high_peak` vector
-   # and read the `N*prob`-th last element.
-   pow = sort(high_peak)[end - trunc(Int, N*prob) + 1]
-   # => 0.32123283596810454
+   fapinv(b, 1e-5)
+   # => NaN
+
+If you want to find the power corresponding to a false-alarm probability of
+:math:`\text{prob} = 10^{-5}`, you have to create a new bootstrap sample with
+:math:`N` resamplings so that :math:`N\cdot\text{prob}` can be rounded to an
+integer larger than or equal to one (for example :math:`N = 10^{5}`).
 
 Find the Best-Fitting Model
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -4,6 +4,7 @@
 |:---------------------------------------:|:-------------------------------------:|:-----------------------------------------:|:-------------------------------:|
 | [![][docs-stable-img]][docs-stable-url] | [![][pkg-0.4-img]][pkg-0.4-url]       | [![Build Status][travis-img]][travis-url] | [![][coveral-img]][coveral-url] |
 | [![][docs-latest-img]][docs-latest-url] | [![][pkg-0.5-img]][pkg-0.5-url]       | [![Build Status][appvey-img]][appvey-url] | [![][codecov-img]][codecov-url] |
+|                                         | [![][pkg-0.6-img]][pkg-0.6-url]       |                                           |                                 |
 
 Introduction
 ------------
@@ -457,6 +458,8 @@ periodogram in Astropy, in particular for the fast method by Press & Rybicki
 [pkg-0.4-img]: http://pkg.julialang.org/badges/LombScargle_0.4.svg
 [pkg-0.4-url]: http://pkg.julialang.org/detail/LombScargle.html
 [pkg-0.5-img]: http://pkg.julialang.org/badges/LombScargle_0.5.svg
+[pkg-0.5-url]: http://pkg.julialang.org/detail/LombScargle.html
+[pkg-0.5-img]: http://pkg.julialang.org/badges/LombScargle_0.6.svg
 [pkg-0.5-url]: http://pkg.julialang.org/detail/LombScargle.html
 
 [travis-img]: https://travis-ci.org/giordano/LombScargle.jl.svg?branch=master

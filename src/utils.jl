@@ -150,23 +150,23 @@ function autofrequency{R<:Real}(times::AbstractVector{R};
 end
 
 """
-    prob(P::Periodogram, p_0::Real)
+    prob(P::Periodogram, pow::Real)
 
-Return the probability that the periodogram power can exceed the value `p_{0}`.
+Return the probability that the periodogram power can exceed the value `pow`.
 
 Its inverse is the `probinv` function.
 """
-function prob(P::Periodogram, p_0::Real)
+function prob(P::Periodogram, pow::Real)
     N = length(P.times)
     normalization = P.norm
     if normalization == "standard"
-        return (1.0 - p_0)^((N - 3.0)*0.5)
+        return (1.0 - pow)^((N - 3.0)*0.5)
     elseif normalization == "Scargle"
-        return exp(-p_0)
+        return exp(-pow)
     elseif normalization == "HorneBaliunas"
-        return (1.0 - 2p_0/(N - 1))^((N - 3.0)*0.5)
+        return (1.0 - 2*pow/(N - 1))^((N - 3.0)*0.5)
     elseif normalization == "Cumming"
-        return (1.0 + 2p_0/(N - 3.0))^((3.0 - N)*0.5)
+        return (1.0 + 2*pow/(N - 3.0))^((3.0 - N)*0.5)
     else
         error("normalization \"", normalization, "\" not supported")
     end
@@ -175,7 +175,7 @@ end
 """
     probinv(P::Periodogram, prob::Real)
 
-Return the `p_0` value of the periodogram power whose probability is `prob`.
+Return the power value of the periodogram power whose probability is `prob`.
 
 This is the inverse of `prob` function.
 """
@@ -207,23 +207,23 @@ function M(P::Periodogram)
 end
 
 """
-    fap(P::Periodogram, p_0::Real)
+    fap(P::Periodogram, pow::Real)
 
-Return the false-alarm probability for periodogram `P` and power value `p_0`.
+Return the false-alarm probability for periodogram `P` and power value `pow`.
 
 Its inverse is the `fapinv` function.
 """
-fap(P::Periodogram, p_0::Real) = 1.0 - (1.0 - prob(P, p_0))^M(P)
+fap(P::Periodogram, pow::Real) = 1.0 - (1.0 - prob(P, pow))^M(P)
 
 """
-    fapinv(P::Periodogram, fap::Real)
+    fapinv(P::Periodogram, prob::Real)
 
-Return the `p_0` value of the periodogram power whose false-alarm probability is
-`fap`.
+Return the power value of the periodogram whose false-alarm probability is
+`prob`.
 
 This is the inverse of `fap` function.
 """
-fapinv(P::Periodogram, fap::Real) = probinv(P, 1.0 - (1.0 - fap)^(inv(M(P))))
+fapinv(P::Periodogram, prob::Real) = probinv(P, 1.0 - (1.0 - prob)^(inv(M(P))))
 
 """
     LombScargle.model(times::AbstractVector{Real},
