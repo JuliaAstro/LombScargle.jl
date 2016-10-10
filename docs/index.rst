@@ -150,16 +150,15 @@ In addition, you can use all optional keyword arguments of
 ``LombScargle.autofrequency`` function in order to tune the
 ``frequencies`` vector without calling the function:
 
-- ``samples_per_peak``: the approximate number of desired samples across the
-   typical peak
-- ``nyquist_factor``: the multiple of the average Nyquist frequency used to
-   choose the maximum frequency if ``maximum_frequency`` is not provided
-- ``minimum_frequency``: if specified, then use this minimum frequency rather
-   than one chosen based on the size :math:`T` of the baseline (default:
-   :math:`0.75/T`)
-- ``maximum_frequency``: if specified, then use this maximum frequency rather
-   than one chosen based on the average Nyquist frequency (default:
-   :math:`\text{nyquist factor}\cdot N/(2T)`)
+-  ``samples_per_peak``: the approximate number of desired samples
+   across the typical peak
+-  ``nyquist_factor``: the multiple of the average Nyquist frequency
+   used to choose the maximum frequency if ``maximum_frequency`` is not
+   provided
+-  ``minimum_frequency``: if specified, then use this minimum frequency
+   rather than one chosen based on the size of the baseline
+-  ``maximum_frequency``: if specified, then use this maximum frequency
+   rather than one chosen based on the average Nyquist frequency
 
 The frequency grid is determined by following prescriptions given at
 https://jakevdp.github.io/blog/2015/06/13/lomb-scargle-in-python/ and

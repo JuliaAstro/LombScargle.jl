@@ -126,10 +126,9 @@ Optional keyword arguments are:
 * `nyquist_factor`: the multiple of the average Nyquist frequency used to choose
   the maximum frequency if `maximum_frequency` is not provided
 * `minimum_frequency`: if specified, then use this minimum frequency rather than
-  one chosen based on the size T of the baseline (default: 0.75/T)
+  one chosen based on the size of the baseline
 * `maximum_frequency`: if specified, then use this maximum frequency rather than
-  one chosen based on the average Nyquist frequency (default:
-  nyquist_factor*length(times)/(2T))
+  one chosen based on the average Nyquist frequency
 
 This is based on prescription given at
 https://jakevdp.github.io/blog/2015/06/13/lomb-scargle-in-python/ and uses the
@@ -141,15 +140,8 @@ function autofrequency{R<:Real}(times::AbstractVector{R};
                                 minimum_frequency::Real=NaN,
                                 maximum_frequency::Real=NaN)
     T = maximum(times) - minimum(times)
-    # Rationale of the choice of the default value: 1/(10*T), like what Astropy
-    # does, is very large, it means you're searching periods 10 times larger
-    # than the whole observational window.  I think that something close to 1/T
-    # is much more useful.  In addition, if one wants to plot the periodogram
-    # power vs period, the old default 1/(10*T) caused the plot to be visually
-    # almost flat and a different minimum frequency must be used anyway.  Now
-    # the maximum period is only slightly larger than T.
-    f_min = isfinite(minimum_frequency) ? minimum_frequency : 0.75/T
     δf = inv(samples_per_peak*T)
+    f_min = isfinite(minimum_frequency) ? minimum_frequency : 0.5*δf
     if isfinite(maximum_frequency)
         return f_min:δf:maximum_frequency
     else

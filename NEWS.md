@@ -14,20 +14,13 @@ v0.1.2 (201?-??-??)
   Lomb–Scargle algorithm with `fit_mean = true`.  You will find different
   results than before, but for the better, previous results were slightly wrong.
 
-### Breaking Changes ###
-
-* The minimum frequency in `LombScargle.autofrequency` (and thus also in
-  `lombscargle`) now defaults to 0.75/T, where T is the time baseline
-  (`maximum(t) - minimum(t)`).  This entails only the default, nothing changes
-  if you specified a custom `minimum_frequency`.
-
 v0.1.1 (2016-08-20)
 -------------------
 
 ### New Features ###
 
-* New function: `LombScargl.model`.  It gives the best fitting Lomb–Scargle
-  model at a given frequency.
+* New function: `LombScargl.model`.  It gives the best fitting–Scargle model at
+  a given frequency.
 * `findmaxfreq` function now can take an optional argument (`interval`) to limit
   the search for the maximum frequency to a certain frequency range.
 

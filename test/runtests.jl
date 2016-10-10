@@ -80,23 +80,23 @@ errors = rand(0.1:1e-3:4.0, ntimes)
 ### Testing utilities
 
 # Test findmaxfreq and findmaxpower
-@test_approx_eq findmaxfreq(pgram1)        [63.839861489463814]
-@test_approx_eq findmaxfreq(pgram1, 0.965) [0.1576135636164722,31.68032628691091,31.998737526540143,63.52145024983458,63.839861489463814]
+@test_approx_eq findmaxfreq(pgram1)        [31.997145470342]
+@test_approx_eq findmaxfreq(pgram1, 0.965) [0.15602150741832602,31.685102455505348,31.997145470342,63.52622641842902,63.838269433265665]
 @test_approx_eq findmaxperiod(pgram1) 1./findmaxfreq(pgram1)
 @test_approx_eq findmaxperiod(pgram1, 0.965) 1./findmaxfreq(pgram1, 0.965)
 t = linspace(0.01, 10pi, 1001)
 s = sinpi(2t) + cospi(4t)
 p = lombscargle(t, s, maximum_frequency=4)
-@test_approx_eq findmaxfreq(p, [0.9, 1.1]) 0.9982192362376571
-@test_approx_eq findmaxfreq(p, [1.9, 2.1]) 1.9980305286734605
+@test_approx_eq findmaxfreq(p, [0.9, 1.1]) 1.0029954048320957
+@test_approx_eq findmaxfreq(p, [1.9, 2.1]) 2.002806697267899
 @test_approx_eq findmaxperiod(p, [1/0.9, 1/1.1]) 1./findmaxfreq(p, [0.9, 1.1])
 @test_approx_eq findmaxperiod(p, [1/1.9, 1/2.1]) 1./findmaxfreq(p, [1.9, 2.1])
-@test_approx_eq findmaxpower(pgram1) 0.9924027768854441
+@test_approx_eq findmaxpower(pgram1) 0.9695017551608017
 
 # Test autofrequency function
-@test_approx_eq LombScargle.autofrequency(t)                       0.023880842972192753:0.006368224792584734:79.67763654862205
-@test_approx_eq LombScargle.autofrequency(t, minimum_frequency=0)                   0.0:0.006368224792584734:79.68241271721648
-@test_approx_eq LombScargle.autofrequency(t, maximum_frequency=10) 0.023880842972192753:0.006368224792584734:9.996520868159887
+@test_approx_eq LombScargle.autofrequency(t)                       0.003184112396292367:0.006368224792584734:79.6824127172165
+@test_approx_eq LombScargle.autofrequency(t, minimum_frequency=0)                   0.0:0.006368224792584734:79.6792286048202
+@test_approx_eq LombScargle.autofrequency(t, maximum_frequency=10) 0.003184112396292367:0.006368224792584734:9.99492881196174
 
 # Test probabilities and FAP
 t = collect(linspace(0.01, 10pi, 101))
