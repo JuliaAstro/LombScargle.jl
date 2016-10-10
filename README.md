@@ -33,6 +33,26 @@ The algorithms used in this package are reported in the following papers:
   http://dx.doi.org/10.1051/0004-6361:200811296, Bibcode:
   http://adsabs.harvard.edu/abs/2009A%26A...496..577Z)
 
+The package provides facilities to:
+
+* compute the periodogram using different implementations (with different
+  speeds) and different normalizations;
+* access the frequency and period grid of the resulting periodogram, together
+  with the power spectrum;
+* find the maximum power in the periodogram and the frequency and period
+  corresponding to the peak.  All these queries can be restricted to a specified
+  region, in order to search a local maximum, instead of the global one;
+* calculate the probability that a peak arises from noise only (false-alarm
+  probability) using analytic formulas, in order to assess the significance of
+  the peak;
+* perform bootstrap resamplings in order to compute the false-alarm probability
+  with a statistical method;
+* determine the best-fitting Lomb–Scargle model for the given data set at the
+  given frequency.
+
+All these features are thoroughly described in the full documentation, see
+below.  Here we only give basic information.
+
 ### Documentation ###
 
 The complete manual of `LombScargle.jl` is available at
@@ -47,14 +67,12 @@ Installation
 `LombScargle.jl` is available for Julia 0.4 and later versions, and can be
 installed with
 [Julia built-in package manager](http://docs.julialang.org/en/stable/manual/packages/).
-In a Julia session run the command
+In a Julia session run the commands
 
 ```julia
+julia> Pkg.update()
 julia> Pkg.add("LombScargle")
 ```
-
-You may need to update your package list with `Pkg.update()` in order to get the
-latest version of `LombScargle.jl`.
 
 Usage
 -----
@@ -163,61 +181,38 @@ of the signal.  You can create arrays of `Measurement` objects with the
 `measurement` function, see `Measurements.jl` manual at
 http://measurementsjl.readthedocs.io/ for more details.
 
-### Fast Algorithm ###
-
-When the observation times are evenly spaced, you can compute an approximate
-generalised Lomb–Scargle periodogram using a fast algorithm proposed by Press &
-Rybicki (1989) that greatly speeds up calculations, as it scales as O[N log(M)]
-for N data points and M frequencies.  For comparison, the true Lomb–Scargle
-periodogram has complexity O[NM].  The larger the number of datapoints, the more
-accurate the approximation.
-
-The only prerequisite in order to be able to employ this fast method is to
-provide a `times` vector as a `Range` object, which ensures that the times are
-perfectly evenly spaced.
-
-Since this fast method is accurate only for large datasets, it is enabled by
-default only if the number of output frequencies is larger than 200.  You can
-override the default choice of using this method by setting the `fast` keyword
-to `true` or `false`.  We recall that in any case, the `times` vector must be a
-`Range` in order to use this method.
-
-The two integer keywords `ovesampling` and `Mfft` can be passed to `lombscargle`
-in order to affect the computation in the fast method:
-
-* `oversampling`: oversampling the frequency factor for the approximation;
-  roughly the number of time samples across the highest-frequency sinusoid.
-  This parameter contains the tradeoff between accuracy and speed.
-* `Mfft`: the number of adjacent points to use in the FFT approximation.
-
 ### Access Frequency Grid and Power Spectrum of the Periodogram ###
 
 ```julia
 power(p::Periodogram)
 freq(p::Periodogram)
 freqpower(p::Periodogram)
+period(p::Periodogram)
+periodpower(p::Periodogram)
 ```
 
 `lombscargle` function return a `LombScargle.Periodogram` object, but you most
-probably want to use the frequency grid and the power spectrum.  You can access
-these vectors with `freq` and `power` functions, just like in `DSP.jl` package.
-If you want to get the 2-tuple `(freq(p), power(p))` use the `freqpower`
-function.
+probably want to use the frequency (or period) grid and the power spectrum.  You
+can access these vectors with `freq` (or `period`) and `power` functions, just
+like in `DSP.jl` package.  If you want to get the 2-tuple `(freq(p), power(p))`
+(`(period(p), power(p))`) use the `freqpower` (`periodpower`) function.
 
-### `findmaxfreq` and `findmaxpower` Functions ###
+### `findmaxpower`, `findmaxfreq`, and `findmaxperiod` Functions ###
 
 ```julia
 findmaxpower(p::Periodogram)
 findmaxfreq(p::Periodogram, [interval::AbstractVector{Real}], threshold::Real=findmaxpower(p))
+findmaxperiod(p::Periodogram, [interval::AbstractVector{Real}], threshold::Real=findmaxpower(p))
 ```
 
 Once you compute the periodogram, you usually want to know which are the
-frequencies with highest power.  To do this, you can use the `findmaxfreq`.  It
-returns the vector of frequencies with the highest power in the periodogram `p`.
-If a scalar real argument `threshold` is provided, return the frequencies with
-power larger than or equal to `threshold`.  If you want to limit the search to a
-narrower frequency range, pass as second argument a vector with the extrema of
-the interval.
+frequencies or periods with highest power.  To do this, you can use the
+`findmaxfreq` and `findmaxperiod` functions, respectively.  They return the
+vector of frequencies and periods with the highest power in the periodogram `p`.
+If a scalar real argument `threshold` is provided, return the
+frequencies/periods with power larger than or equal to `threshold`.  If you want
+to limit the search to a narrower frequency/period range, pass as second
+argument a vector with the extrema of the interval.
 
 The value of the highest power of a periodogram can be calculated with the
 `findmaxpower` function.
@@ -252,8 +247,10 @@ as second argument the value of the FAP and returns the corresponding value
 
 **Note:** see the
 [manual](http://lombscarglejl.readthedocs.io/en/latest/#false-alarm-probability)
-for more information on the false-alarm probability and when it can be
-calculated with the methods provided by `LombScargle.jl`.
+for more information on the false-alarm probability.  There you can also find
+instructions on the `LombScargle.bootstrap` function that allows you to perform
+bootstrap resamplings in order to better estimate the false-alarm probability in
+certain cases.
 
 ### `LombScargle.model` Function ###
 

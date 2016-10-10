@@ -24,6 +24,10 @@ export lombscargle
 immutable Periodogram{T<:AbstractFloat}
     power::AbstractVector{T}
     freq::AbstractVector{T}
+    # XXX: the `times' vector is only in the `M' function (see utils.jl), but
+    #  only maximum(times) and minimum(times) are used.  We could consider the
+    #  possibility to keep in this type only the extrema of t, instead of the
+    #  whole array.
     times::AbstractVector{T}
     norm::AbstractString
 end

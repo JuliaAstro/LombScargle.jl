@@ -4,11 +4,13 @@ LombScargle.jl
 Introduction
 ------------
 
-`LombScargle.jl <https://github.com/giordano/LombScargle.jl>`__ is a `Julia
-<http://julialang.org/>`__ package to estimate the `frequency spectrum
+`LombScargle.jl <https://github.com/giordano/LombScargle.jl>`__ is a package to
+estimate the `frequency spectrum
 <https://en.wikipedia.org/wiki/Frequency_spectrum>`__ of a periodic signal with
 `the Lomb–Scargle periodogram
-<https://en.wikipedia.org/wiki/The_Lomb–Scargle_periodogram>`__.
+<https://en.wikipedia.org/wiki/The_Lomb–Scargle_periodogram>`__.  This is
+written in `Julia <http://julialang.org/>`__, a modern high-level,
+high-performance dynamic programming language designed for technical computing.
 
 Another Julia package that provides tools to perform spectral analysis of
 signals is `DSP.jl <https://github.com/JuliaDSP/DSP.jl>`__, but its methods
@@ -50,20 +52,35 @@ Othe relevant papers are:
 	  http://dx.doi.org/10.1088/0004-637X/718/1/527, Bibcode:
 	  http://adsabs.harvard.edu/abs/2010ApJ...718..527S)
 
+The package provides facilities to:
+
+* compute the periodogram using different implementations (with different
+  speeds) and different normalizations;
+* access the frequency and period grid of the resulting periodogram, together
+  with the power spectrum;
+* find the maximum power in the periodogram and the frequency and period
+  corresponding to the peak.  All these queries can be restricted to a specified
+  region, in order to search a local maximum, instead of the global one;
+* calculate the probability that a peak arises from noise only (false-alarm
+  probability) using analytic formulas, in order to assess the significance of
+  the peak;
+* perform bootstrap resamplings in order to compute the false-alarm probability
+  with a statistical method;
+* determine the best-fitting Lomb–Scargle model for the given data set at the
+  given frequency.
+
 Installation
 ------------
 
 ``LombScargle.jl`` is available for Julia 0.4 and later versions, and can be
 installed with `Julia built-in package manager
 <http://docs.julialang.org/en/stable/manual/packages/>`__.  In a Julia session
-run the command
+run the commands
 
 .. code-block:: julia
 
+    julia> Pkg.update()
     julia> Pkg.add("LombScargle")
-
-You may need to update your package list with ``Pkg.update()`` in order to get
-the latest version of ``LombScargle.jl``.
 
 Usage
 -----
@@ -504,7 +521,7 @@ one are passed around to :func:`lombscargle`.  The output is a
 
 The false alarm probability and its inverse can be calculated with :func:`fap`
 and :func:`fapinv` functions respectively.  Their syntax is the same as the
-methods introduced above, but with a ``LombScargle.bootstrap`` object as first
+methods introduced above, but with a ``LombScargle.Bootstrap`` object as first
 argument, instead of the ``LombScargle.Periodogram`` one.
 
 ``LombScargle.model`` Function
