@@ -459,8 +459,8 @@ periodogram in Astropy, in particular for the fast method by Press & Rybicki
 [pkg-0.4-url]: http://pkg.julialang.org/detail/LombScargle.html
 [pkg-0.5-img]: http://pkg.julialang.org/badges/LombScargle_0.5.svg
 [pkg-0.5-url]: http://pkg.julialang.org/detail/LombScargle.html
-[pkg-0.5-img]: http://pkg.julialang.org/badges/LombScargle_0.6.svg
-[pkg-0.5-url]: http://pkg.julialang.org/detail/LombScargle.html
+[pkg-0.6-img]: http://pkg.julialang.org/badges/LombScargle_0.6.svg
+[pkg-0.6-url]: http://pkg.julialang.org/detail/LombScargle.html
 
 [travis-img]: https://travis-ci.org/giordano/LombScargle.jl.svg?branch=master
 [travis-url]: https://travis-ci.org/giordano/LombScargle.jl
