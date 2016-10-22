@@ -1,17 +1,25 @@
 History of LombScargle.jl
 =========================
 
+v0.1.3 (201?-??-??)
+-------------------
+
+### Bug Fixes
+
+* `Periodogram` type now has 4 parameters, one for the type of each field.
+  Numerical fields need not to have all the same type.
+
 v0.1.2 (2016-10-17)
 -------------------
 
-### New Features ###
+### New Features
 
 * New function for performing bootstrap resampling: `LombScargle.bootstrap`.
   The `fap` and `fapinv` functions have now new methods to estimate false-alarm
   probability and its inverse from a bootstrap sample.
 * New utilities: `period`, `periodpower`, `findmaxperiod`.
 
-### Bug Fixes ###
+### Bug Fixes
 
 * Fix power in the standard (i.e., `fast = false` variant) generalised
   Lomb–Scargle algorithm with `fit_mean = true`.  You will find different
@@ -20,7 +28,7 @@ v0.1.2 (2016-10-17)
 v0.1.1 (2016-08-20)
 -------------------
 
-### New Features ###
+### New Features
 
 * New function: `LombScargl.model`.  It gives the best fitting–Scargle model at
   a given frequency.
@@ -30,7 +38,7 @@ v0.1.1 (2016-08-20)
 v0.1.0 (2016-08-18)
 -------------------
 
-### New Features ###
+### New Features
 
 * The fast, but approximate, method by Press & Rybicki (1989) has been
   implemented.  This has complexity O[N log(N)], to be compared with the O[N^2]
@@ -43,7 +51,7 @@ v0.1.0 (2016-08-18)
 v0.0.2 (2016-08-05)
 -------------------
 
-### New Features ###
+### New Features
 
 * New functions: `findmaxpower`, `prob`, `probinv`, `fap`, `fapinv`.
 * New optional keyword for `lombscargle` function: `noise_level`.

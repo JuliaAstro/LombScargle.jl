@@ -97,6 +97,9 @@ p = lombscargle(t, s, maximum_frequency=4)
 @test_approx_eq LombScargle.autofrequency(t)                       0.003184112396292367:0.006368224792584734:79.6824127172165
 @test_approx_eq LombScargle.autofrequency(t, minimum_frequency=0)                   0.0:0.006368224792584734:79.6792286048202
 @test_approx_eq LombScargle.autofrequency(t, maximum_frequency=10) 0.003184112396292367:0.006368224792584734:9.99492881196174
+# This last test also makes sure that `freq` and `power` fields of a Periodogram
+# object can have different type.
+@test_approx_eq freq(lombscargle(1:11, big(sin(1:11)))) 0.01:0.02:2.75
 
 # Test probabilities and FAP
 t = collect(linspace(0.01, 10pi, 101))

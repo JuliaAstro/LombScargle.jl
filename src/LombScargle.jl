@@ -21,15 +21,15 @@ export lombscargle
 
 # This is similar to Periodogram type of DSP.Periodograms module, but for
 # unevenly spaced frequencies.
-immutable Periodogram{T<:AbstractFloat}
-    power::AbstractVector{T}
-    freq::AbstractVector{T}
+immutable Periodogram{P<:AbstractFloat,F<:Real,T<:Real,S<:AbstractString}
+    power::AbstractVector{P}
+    freq::AbstractVector{F}
     # XXX: the `times' vector is only in the `M' function (see utils.jl), but
     # only maximum(times) and minimum(times) are used.  We could consider the
     # possibility to keep in this type only the extrema of t, instead of the
     # whole array.
     times::AbstractVector{T}
-    norm::AbstractString
+    norm::S
 end
 
 include("extirpolation.jl")
