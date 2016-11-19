@@ -262,7 +262,7 @@ function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector
     # frequencies.  In any case, times must have been passed as a Range.
     if floatrange && fast
         P = _press_rybicki(times, signal, w, frequencies, center_data,
-                              fit_mean, oversampling, Mfft)
+                           fit_mean, oversampling, Mfft)
     else
         if fit_mean || with_errors
             P = _generalised_lombscargle(times, signal, w, frequencies,

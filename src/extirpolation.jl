@@ -23,8 +23,8 @@
 function add_at!{N1<:Number,N2<:Number,N3<:Number}(arr::AbstractVector{N1},
                                                    ind::AbstractVector{N2},
                                                    vals::AbstractVector{N3})
-    for i in eachindex(ind)
-        arr[mod(ind[i], length(arr)) + 1] += vals[i]
+    @inbounds for i in eachindex(ind)
+        arr[ind[i]] += vals[i]
     end
 end
 
@@ -42,7 +42,7 @@ function extirpolate{RE<:Real,NU<:Number}(X::AbstractVector{RE},
     result = zeros(NU, N)
     # first take care of the easy cases where x is an integer
     integers = find(isinteger, x)
-    add_at!(result, trunc(Int, x[integers]), y[integers])
+    add_at!(result, mod(trunc(Int, x[integers]), N) + 1, y[integers])
     deleteat!(x, integers)
     deleteat!(y, integers)
     # For each remaining x, find the index describing the extirpolation range.
@@ -56,7 +56,7 @@ function extirpolate{RE<:Real,NU<:Number}(X::AbstractVector{RE},
             denominator *= j/(j - M)
         end
         ind = ilo + (M - 1 - j)
-        add_at!(result, ind, numerator ./ (denominator * (x .- ind)))
+        add_at!(result, ind + 1, numerator ./ (denominator * (x .- ind)))
     end
     return result
 end
