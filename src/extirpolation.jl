@@ -55,8 +55,8 @@ function extirpolate{RE<:Real,NU<:Number}(X::AbstractVector{RE},
         if j > 0
             denominator *= j/(j - M)
         end
-        ind = ilo + (M - 1 - j)
-        add_at!(result, ind + 1, numerator ./ (denominator * (x .- ind)))
+        ind = ilo + (M - j)
+        add_at!(result, ind, numerator ./ (denominator * (x .- ind + 1)))
     end
     return result
 end
