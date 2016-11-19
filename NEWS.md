@@ -4,6 +4,12 @@ History of LombScargle.jl
 v0.1.3 (201?-??-??)
 -------------------
 
+### Breaking Changes
+
+* The fast method is now used when the frequency grid is evenly spaced (a
+  `Range` object), no matter what the `times` vector is.  The previous behavior
+  was due to a wrong interpretation of the applicability of the method.
+
 ### Bug Fixes
 
 * `Periodogram` type now has 4 parameters, one for the type of each field.

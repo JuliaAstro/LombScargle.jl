@@ -170,9 +170,6 @@ The frequency grid is determined by following prescriptions given at
 https://jakevdp.github.io/blog/2015/06/13/lomb-scargle-in-python/ and uses the
 same keywords names adopted in Astropy.
 
-The keywords `fast`, `oversampling`, and `Mfft` are described in the "Fast
-Algorithm" section below.
-
 If the signal has uncertainties, the `signal` vector can also be a vector of
 `Measurement` objects (from
 [`Measurements.jl`](https://github.com/giordano/Measurements.jl) package), in

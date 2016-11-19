@@ -224,8 +224,9 @@ of datapoints, the more accurate the approximation.
    periodogram analysis.
 
 The only prerequisite in order to be able to employ this fast method is to
-provide a ``times`` vector as a ``Range`` object, which ensures that the times
-are perfectly evenly spaced.
+provide a ``frequencies`` vector as a ``Range`` object, which ensures that the
+frequency grid is perfectly evenly spaced.  This is the default, since
+``LombScargle.autofrequency`` returns a ``Range`` object.
 
 .. Tip::
 
@@ -246,11 +247,11 @@ are perfectly evenly spaced.
 Since this fast method is accurate only for large datasets, it is enabled by
 default only if the number of output frequencies is larger than 200.  You can
 override the default choice of using this method by setting the ``fast`` keyword
-to ``true`` or ``false``.  We recall that in any case, the ``times`` vector must
-be a ``Range`` in order to use this method.
+to ``true`` or ``false``.  We recall that in any case, the ``frequencies``
+vector must be a ``Range`` in order to use this method.
 
-To summarize, provided that ``times`` vector is a ``Range`` object, you can use
-the fast method:
+To summarize, provided that ``frequencies`` vector is a ``Range`` object, you
+can use the fast method:
 
 * by default if the length of the output frequency grid is larger than 200
   points
@@ -258,7 +259,7 @@ the fast method:
   method with the ``fast=true`` keyword
 
 Setting ``fast=false`` always ensures you that this method will not be used,
-instead ``fast=true`` enables it only if ``times`` is a ``Range``.
+instead ``fast=true`` enables it only if ``frequencies`` is a ``Range``.
 
 The two integer keywords ``ovesampling`` and ``Mfft`` can be passed to
 :func:`lombscargle` in order to affect the computation in the fast method:
@@ -267,18 +268,6 @@ The two integer keywords ``ovesampling`` and ``Mfft`` can be passed to
   roughly the number of time samples across the highest-frequency sinusoid.
   This parameter contains the tradeoff between accuracy and speed.
 * ``Mfft``: the number of adjacent points to use in the FFT approximation.
-
-.. Tip::
-
-   If you do not want to use the fast version of the generalised Lomb–Scargle
-   periodogram (so you will be using either the plain generalised Lomb–Scargle
-   algorithm or the original one) but you do care about performance, do not pass
-   the ``times`` vector as a ``Range``, but rather as a ``Vector``: in Julia a
-   ``Vector`` is more efficient than a ``Range`` (but things much improved in
-   this regard with Julia 0.5).  You can easily convert a ``Range`` to a
-   ``Vector`` with `collect
-   <docs.julialang.org/en/stable/stdlib/collections/?highlight=collect#Base.collect>`_
-   function:
 
    .. code-block:: julia
 

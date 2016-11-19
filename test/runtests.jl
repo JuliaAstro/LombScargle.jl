@@ -29,11 +29,11 @@ Sys.WORD_SIZE == 64 && @test(!(Inf in power(pgram1)) && !(Inf in power(pgram2)))
 # Simple signal, without any randomness
 t = collect(linspace(0.01, 10pi, ntimes))
 s = sin(t)
-pgram1 = lombscargle(t, s, fit_mean=false)
-pgram2 = lombscargle(t, s, fit_mean=true)
+pgram1 = lombscargle(t, s, fast = false, fit_mean=false)
+pgram2 = lombscargle(t, s, fast = false, fit_mean=true)
 @test_approx_eq_eps power(pgram1) power(pgram2) 2e-7
-pgram3 = lombscargle(t, s, center_data=false, fit_mean=false)
-pgram4 = lombscargle(t, s, center_data=false, fit_mean=true)
+pgram3 = lombscargle(t, s, fast = false, center_data=false, fit_mean=false)
+pgram4 = lombscargle(t, s, fast = false, center_data=false, fit_mean=true)
 @test_approx_eq_eps power(pgram3) power(pgram4) 3e-7
 
 # Test the values in order to prevent wrong results in both algorithms

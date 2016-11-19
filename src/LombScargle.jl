@@ -171,13 +171,13 @@ function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Ab
 end
 
 # Fast, but approximate, method to compute the Lomb-Scargle periodogram for
-# evenly spaced data.  See
+# evenly spaced frequency grid.  See
 # * Press, W. H., Rybicki, G. B. 1989, ApJ, 338, 277 (URL:
 #   http://dx.doi.org/10.1086/167197,
 #   Bibcode: http://adsabs.harvard.edu/abs/1989ApJ...338..277P)
 # This is adapted from Astropy implementation of the method.  See
 # `lombscargle_fast' function.
-function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Range{R1},
+function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector{R1},
                                                              signal::AbstractVector{R2},
                                                              w::AbstractVector{R3},
                                                              freqs::Range{R4},
@@ -234,10 +234,59 @@ function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Range{R1},
     return P
 end
 
-# This is the switch to select the appropriate function to run
+# Switches to select the appropriate algorithm to compute the periodogram.
+function periodogram_no_fast{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector{R1},
+                                                                  signal::AbstractVector{R2},
+                                                                  w::AbstractVector{R3},
+                                                                  frequencies::AbstractVector{R4},
+                                                                  with_errors::Bool,
+                                                                  center_data::Bool,
+                                                                  fit_mean::Bool)
+    if fit_mean || with_errors
+        return _generalised_lombscargle(times, signal, w, frequencies,
+                                        center_data, fit_mean)
+    else
+        return _lombscargle_orig(times, signal, frequencies, center_data)
+    end
+end
+
+function periodogram{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector{R1},
+                                                          signal::AbstractVector{R2},
+                                                          w::AbstractVector{R3},
+                                                          frequencies::Range{R4},
+                                                          fast::Bool,
+                                                          with_errors::Bool,
+                                                          center_data::Bool,
+                                                          fit_mean::Bool,
+                                                          oversampling::Integer,
+                                                          Mfft::Integer)
+    if fast
+        return _press_rybicki(times, signal, w, frequencies, center_data,
+                              fit_mean, oversampling, Mfft)
+    else
+        return periodogram_no_fast(times, signal, w, frequencies,
+                                   with_errors, center_data, fit_mean)
+    end
+end
+
+function periodogram{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector{R1},
+                                                          signal::AbstractVector{R2},
+                                                          w::AbstractVector{R3},
+                                                          frequencies::AbstractVector{R4},
+                                                          fast::Bool,
+                                                          with_errors::Bool,
+                                                          center_data::Bool,
+                                                          fit_mean::Bool,
+                                                          oversampling::Integer,
+                                                          Mfft::Integer)
+    return return periodogram_no_fast(times, signal, w, frequencies,
+                                      with_errors, center_data, fit_mean)
+end
+
+# The main purpose of this function is to compute normalization of the
+# periodogram computed with one of the functions above.
 function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector{R1},
                                                            signal::AbstractVector{R2},
-                                                           floatrange::Bool,
                                                            with_errors::Bool,
                                                            w::AbstractVector{R3}=ones(signal)/length(signal);
                                                            normalization::AbstractString="standard",
@@ -258,20 +307,8 @@ function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector
                                                                          maximum_frequency=maximum_frequency),
                                                            fast::Bool=(length(frequencies) > 200))
     @assert length(times) == length(signal) == length(w)
-    # By default, we will use the fast algorithm only if there are more than 200
-    # frequencies.  In any case, times must have been passed as a Range.
-    if floatrange && fast
-        P = _press_rybicki(times, signal, w, frequencies, center_data,
-                           fit_mean, oversampling, Mfft)
-    else
-        if fit_mean || with_errors
-            P = _generalised_lombscargle(times, signal, w, frequencies,
-                                            center_data, fit_mean)
-        else
-            P = _lombscargle_orig(times, signal, frequencies, center_data)
-        end
-    end
-
+    P = periodogram(times, signal, w, frequencies, fast, with_errors,
+                    center_data, fit_mean, oversampling, Mfft)
     N = length(signal)
     # Normalize periodogram
     if normalization == "standard"
@@ -290,74 +327,36 @@ function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector
     else
         error("normalization \"", normalization, "\" not supported")
     end
-
     return Periodogram(P, frequencies, times, normalization)
 end
 
-# No uncertainties
-lombscargle{R1<:Real,R2<:Real}(times::Range{R1},
-                               signal::AbstractVector{R2};
-                               kwargs...) =
-                                   _lombscargle(times,
-                                                signal,
-                                                true,
-                                                false;
-                                                kwargs...)
+### Main interface functions
 
+# No uncertainties
 lombscargle{R1<:Real,R2<:Real}(times::AbstractVector{R1},
                                signal::AbstractVector{R2};
                                kwargs...) =
                                    _lombscargle(times,
                                                 signal,
-                                                false,
                                                 false;
                                                 kwargs...)
 
 # Uncertainties provided
-function _lombscargle_with_errors{R1<:Real,R2<:Real,R3<:Real}(times::AbstractVector{R1},
-                                                              signal::AbstractVector{R2},
-                                                              errors::AbstractVector{R3},
-                                                              floatrange::Bool;
-                                                              kwargs...)
-    # Compute weights vector
-    w = 1.0./errors.^2
-    w /= sum(w)
-    return _lombscargle(times, signal, floatrange, true, w; kwargs...)
-end
-
-function lombscargle{R1<:Real,R2<:Real,R3<:Real}(times::Range{R1},
-                                                 signal::AbstractVector{R2},
-                                                 errors::AbstractVector{R3};
-                                                 kwargs...)
-    return _lombscargle_with_errors(times, signal, errors, true; kwargs...)
-end
-
 function lombscargle{R1<:Real,R2<:Real,R3<:Real}(times::AbstractVector{R1},
                                                  signal::AbstractVector{R2},
                                                  errors::AbstractVector{R3};
                                                  kwargs...)
-    return _lombscargle_with_errors(times, signal, errors, false; kwargs...)
+    # Compute weights vector
+    w = 1.0./errors.^2
+    w /= sum(w)
+    return _lombscargle(times, signal, true, w; kwargs...)
 end
 
 # Uncertainties provided via Measurement type
-function lombscargle{T<:Real,F<:AbstractFloat}(times::Range{T},
-                                               signal::AbstractVector{Measurement{F}};
-                                               kwargs...)
-    return _lombscargle_with_errors(times,
-                                    value(signal),
-                                    uncertainty(signal),
-                                    true;
-                                    kwargs...)
-end
-
 function lombscargle{T<:Real,F<:AbstractFloat}(times::AbstractVector{T},
                                                signal::AbstractVector{Measurement{F}};
                                                kwargs...)
-    return _lombscargle_with_errors(times,
-                                    value(signal),
-                                    uncertainty(signal),
-                                    false;
-                                    kwargs...)
+    return lombscargle(times, value(signal), uncertainty(signal); kwargs...)
 end
 
 """
@@ -400,13 +399,14 @@ Optional keywords arguments are:
   before performing the periodogram.  This is especially important if `fit_mean`
   is `false`
 * `frequencies`: the frequecy grid (not angular frequencies) at which the
-  periodogram will be computed, as a vector.  If not provided, it is
-  automatically determined with `LombScargle.autofrequency` function, which see.
-  See below for other available keywords that can be used to affect the
-  frequency grid without directly setting `frequencies`
+  periodogram will be computed, as a vector.  If not provided, it is an evenly
+  spaced grid of type `Range`, automatically determined with
+  `LombScargle.autofrequency` function, which see.  See below for other
+  available keywords that can be used to affect the frequency grid without
+  directly setting `frequencies`
 * `fast`: whether to use the fast method by Press & Rybicki, overriding the
-  default choice.  In any case, `times` must be a `Range` object in order to use
-  this method
+  default choice.  In any case, `frequencies` must be a `Range` object in order 
+  to use this method (this is the default)
 * `oversampling`: oversampling the frequency factor for the approximation;
   roughly the number of time samples across the highest-frequency sinusoid.
   This parameter contains the tradeoff between accuracy and speed.  Used only
