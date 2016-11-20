@@ -101,9 +101,10 @@ function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Ab
     P_type = promote_type(float(R1), float(R2), float(R3), float(R4))
     P = Vector{P_type}(length(freqs))
     nil = zero(P_type)
-    # If "center_data" keyword is true, subtract the mean from each point.
+    # If "center_data" or "fit_mean" keywords are true,
+    # subtract the weighted mean from each point.
     if center_data || fit_mean
-        y = signal - mean(signal)
+        y = signal - (w ⋅ signal)/sum(w)
     else
         y = signal
     end
@@ -188,7 +189,8 @@ function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVect
     P_type = promote_type(float(R1), float(R2))
     P = Vector{P_type}(length(freqs))
     nil = zero(P_type)
-    # If "center_data" keyword is true, subtract the mean from each point.
+    # If "center_data" keyword is true, subtract the weighted mean from each
+    # point.
     if center_data || fit_mean
         y = signal - w⋅signal
     else
@@ -395,9 +397,9 @@ Optional keywords arguments are:
   Lomb-Scargle algorithm (see Zechmeister & Kürster paper below).  If this is
   `false` and no uncertainty on the signal is provided, the original algorithm
   by Lomb and Scargle will be employed (see Townsend paper below)
-* `center_data`: if `true`, subtract the mean of `signal` from `signal` itself
-  before performing the periodogram.  This is especially important if `fit_mean`
-  is `false`
+* `center_data`: if `true`, subtract the weighted mean of `signal` from `signal`
+  itself before performing the periodogram.  This is especially important if
+  `fit_mean` is `false`
 * `frequencies`: the frequecy grid (not angular frequencies) at which the
   periodogram will be computed, as a vector.  If not provided, it is an evenly
   spaced grid of type `Range`, automatically determined with
@@ -405,7 +407,7 @@ Optional keywords arguments are:
   available keywords that can be used to affect the frequency grid without
   directly setting `frequencies`
 * `fast`: whether to use the fast method by Press & Rybicki, overriding the
-  default choice.  In any case, `frequencies` must be a `Range` object in order 
+  default choice.  In any case, `frequencies` must be a `Range` object in order
   to use this method (this is the default)
 * `oversampling`: oversampling the frequency factor for the approximation;
   roughly the number of time samples across the highest-frequency sinusoid.

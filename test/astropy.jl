@@ -14,15 +14,17 @@ for f in (x -> sinpi(x), x -> sin(x) + 1.5*cospi(4*x) + 3)
     # "psd" normalization in LombScargle slightly differ from that of
     # Astropy and the test would fail if we includ it.
     for fitmean in (true, false), nrm in ("standard", "model", "log"),
-        fast in ((true, "fast"), (false, "cython"))
+        fast in ((true, "fast"), (false, "cython")), center in (true, false)
         f_jl, p_jl = freqpower(lombscargle(t, s, fit_mean = fitmean,
+                                           center_data = center,
                                            normalization=nrm,
                                            maximum_frequency=20, fast = fast[1]))
         f_py, p_py =
             ast.LombScargle(t, s,
-                            fit_mean = fitmean)[:autopower](method=fast[2],
-                                                            normalization=nrm,
-                                                            maximum_frequency=20)
+                            fit_mean = fitmean,
+                            center_data = center)[:autopower](method=fast[2],
+                                                              normalization=nrm,
+                                                              maximum_frequency=20)
         @test_approx_eq f_jl f_py
         @test_approx_eq p_jl p_py
     end
@@ -36,26 +38,23 @@ for f in (x -> sinpi(x), x -> sin(x) + 1.5*cospi(4*x) + 3), err in (ones(ntimes)
     # "psd" normalization in LombScargle slightly differ from that of
     # Astropy and the test would fail if we includ it.
     for fitmean in (true, false), nrm in ("standard", "model", "log"),
-        fast in ((true, "fast"), (false, "cython"))
-        # Skip the case "fit_mean = false" && "fast = false" with
-        # heteroskedastic uncertainties, because in this case LombScargle.jl and
-        # Astropy are not consistent.  I have to check this.
-        if fitmean == fast[1] == (err != ones(ntimes)) == false
-            f_jl, p_jl = freqpower(lombscargle(t, s, err,
-                                               fast = fast[1],
-                                               fit_mean = fitmean,
-                                               normalization=nrm,
-                                               maximum_frequency=10,
-                                               samples_per_peak=10))
-            f_py, p_py =
-                ast.LombScargle(t, s, dy = err,
-                                fit_mean = fitmean)[:autopower](method=fast[2],
-                                                                normalization=nrm,
-                                                                maximum_frequency=10,
-                                                                samples_per_peak=10)
-            @test_approx_eq f_jl f_py
-            @test_approx_eq p_jl p_py
-        end
+        fast in ((true, "fast"), (false, "cython")), center in (true, false)
+        f_jl, p_jl = freqpower(lombscargle(t, s, err,
+                                           fast = fast[1],
+                                           fit_mean = fitmean,
+                                           center_data = center,
+                                           normalization=nrm,
+                                           maximum_frequency=10,
+                                           samples_per_peak=10))
+        f_py, p_py =
+            ast.LombScargle(t, s, dy = err,
+                            fit_mean = fitmean,
+                            center_data = center)[:autopower](method=fast[2],
+                                                              normalization=nrm,
+                                                              maximum_frequency=10,
+                                                              samples_per_peak=10)
+        @test_approx_eq f_jl f_py
+        @test_approx_eq p_jl p_py
     end
 end
 
@@ -64,17 +63,22 @@ end
 # results.
 for f in (x -> sinpi(x), x -> sin(x) + 1.5*cospi(4*x) + 3)
     s = f(t)
-    for fitmean in (true, false), fast in ((true, "fast"), (false, "cython"))
+    for fitmean in (true, false), nrm in ("standard", "model"),
+        fast in ((true, "fast"), (false, "cython")), center in (true, false)
         f_jl, p_jl = freqpower(lombscargle(t, s, errors,
                                            fit_mean = fitmean,
+                                           center_data = center,
                                            fast = fast[1],
+                                           normalization = nrm,
                                            maximum_frequency=20))
         f_py, p_py =
             ast.LombScargle(t, s, dy = errors,
-                            fit_mean = fitmean)[:autopower](method=fast[2],
-                                                            maximum_frequency=20)
+                            fit_mean = fitmean,
+                            center_data = center)[:autopower](method=fast[2],
+                                                              normalization = nrm,
+                                                              maximum_frequency=20)
         @test_approx_eq f_jl f_py
-        @test isapprox(p_jl, p_py, rtol = 0.08)
+        @test_approx_eq p_jl p_py
     end
 end
 

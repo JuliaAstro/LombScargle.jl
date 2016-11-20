@@ -154,9 +154,9 @@ Optional keyword arguments are:
   Generalised Lomb–Scargle algorithm (see [ZK09]_).  If this is ``false`` and no
   uncertainty on the signal is provided, the original algorithm by Lomb and
   Scargle will be employed (see [TOW10]_)
-- ``center_data``: if ``true``, subtract the mean of ``signal`` from ``signal``
-  itself before performing the periodogram. This is especially important if
-  ``fit_mean`` is ``false``
+- ``center_data``: if ``true``, subtract the weighted mean of ``signal`` from
+  ``signal`` itself before performing the periodogram.  This is especially
+  important if ``fit_mean`` is ``false``
 - ``frequencies``: the frequecy grid (not angular frequencies) at which the
   periodogram will be computed, as a vector. If not provided, it is
   automatically determined with ``LombScargle.autofrequency`` function, which

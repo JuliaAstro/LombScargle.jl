@@ -14,6 +14,10 @@ v0.1.3 (201?-??-??)
 
 * `Periodogram` type now has 4 parameters, one for the type of each field.
   Numerical fields need not to have all the same type.
+* In the non-fast variant of the Generalised Lomb–Scargle method, when
+  `fit_mean` and/or `center_data` are `true`, pre-center the data by subtracting
+  to the signal the weighted average of the signal itself, instead of the
+  arithmetic mean.
 
 v0.1.2 (2016-10-17)
 -------------------
@@ -36,8 +40,8 @@ v0.1.1 (2016-08-20)
 
 ### New Features
 
-* New function: `LombScargl.model`.  It gives the best fitting–Scargle model at
-  a given frequency.
+* New function: `LombScargl.model`.  It gives the best fitting Lomb–Scargle
+  model at a given frequency.
 * `findmaxfreq` function now can take an optional argument (`interval`) to limit
   the search for the maximum frequency to a certain frequency range.
 
