@@ -1,7 +1,7 @@
 History of LombScargle.jl
 =========================
 
-v0.1.3 (201?-??-??)
+v0.2.0 (201?-??-??)
 -------------------
 
 ### Breaking Changes
@@ -12,8 +12,9 @@ v0.1.3 (201?-??-??)
 
 ### Bug Fixes
 
-* `Periodogram` type now has 4 parameters, one for the type of each field.
-  Numerical fields need not to have all the same type.
+* `Periodogram` type now has 4 parameters, one for the type of each field.  Now
+  `power`, `freq`, and `times` fields need need not to have all the same
+  floating point type.
 * In the non-fast variant of the Generalised Lomb–Scargle method, when
   `fit_mean` and/or `center_data` are `true`, pre-center the data by subtracting
   to the signal the weighted average of the signal itself, instead of the
