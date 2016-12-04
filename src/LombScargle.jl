@@ -282,8 +282,8 @@ function periodogram{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector{
                                                           fit_mean::Bool,
                                                           oversampling::Integer,
                                                           Mfft::Integer)
-    return return periodogram_no_fast(times, signal, w, frequencies,
-                                      with_errors, center_data, fit_mean)
+    return periodogram_no_fast(times, signal, w, frequencies,
+                               with_errors, center_data, fit_mean)
 end
 
 # The main purpose of this function is to compute normalization of the
