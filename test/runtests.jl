@@ -11,7 +11,7 @@ t = linspace(0.01, 10pi, ntimes)
 # Randomize times
 t += step(t)*rand(ntimes)
 # The signal
-s = sinpi(t) + cospi(2t) + rand(ntimes)
+s = sinpi.(t) + cospi.(2t) + rand(ntimes)
 # Frequency grid
 nfreqs = 10000
 freqs = linspace(0.01, 3, nfreqs)
@@ -28,7 +28,7 @@ Sys.WORD_SIZE == 64 && @test(!(Inf in power(pgram1)) && !(Inf in power(pgram2)))
 
 # Simple signal, without any randomness
 t = collect(linspace(0.01, 10pi, ntimes))
-s = sin(t)
+s = sin.(t)
 pgram1 = lombscargle(t, s, fast = false, fit_mean=false)
 pgram2 = lombscargle(t, s, fast = false, fit_mean=true)
 @test_approx_eq_eps power(pgram1) power(pgram2) 2e-7
@@ -55,11 +55,11 @@ err = collect(linspace(0.5, 1.5, ntimes))
 @test_approx_eq power(lombscargle(t, s, err, frequencies=0.1:0.1:1, fit_mean=false)) [0.0664002483305464,0.09219168665786254,0.006625915010614472,0.0015663421089042564,0.0005085109569237008,0.00019703233981948823,9.6577091433651e-5,6.33101344670203e-5,4.9033581990442793e-5,3.7944076990210425e-5]
 @test_approx_eq power(lombscargle(t, s, err, frequencies=0.1:0.1:1, fit_mean=false, center_data=false)) [0.06920814049261209,0.09360344864985352,0.006634919960009565,0.0015362072871144769,0.0004858250831632676,0.00018179850370583626,8.543727416919218e-5,5.379994730581837e-5,4.0107232867763e-5,2.9784059487535237e-5]
 @test power(lombscargle(t, s, err)) ==
-    power(lombscargle(t, measurement(s, err)))
+    power(lombscargle(t, measurement.(s, err)))
 
 # Test fast method
 t = linspace(0.01, 10pi, ntimes)
-s = sin(t)
+s = sin.(t)
 pgram5 = lombscargle(t, s, maximum_frequency=30, fast=true)
 pgram6 = lombscargle(t, s, maximum_frequency=30, fast=false)
 @test_approx_eq_eps power(pgram5) power(pgram6) 2e-6
@@ -70,7 +70,7 @@ pgram6 = lombscargle(t, s, maximum_frequency=30, fast=false)
 @test_approx_eq power(lombscargle(t, s, err, frequencies=0.2:0.2:1, fast=true, fit_mean=false)) [0.09219168665786258,0.0015654342453078724,0.00019403694017215876,6.088944186950046e-5,6.05771360378885e-5]
 @test_approx_eq power(lombscargle(t, s, err, frequencies=0.2:0.2:1, fast=true, center_data=false, fit_mean=false)) [0.09360344864985332,0.0015354489715019735,0.0001784388515190763,4.744247354697125e-5,3.240223498703448e-5]
 @test power(lombscargle(t, s, err)) ==
-    power(lombscargle(t, measurement(s, err)))
+    power(lombscargle(t, measurement.(s, err)))
 
 # Compare result of uncertainties with both methods (fast and non-fast).
 errors = rand(0.1:1e-3:4.0, ntimes)
@@ -86,7 +86,7 @@ errors = rand(0.1:1e-3:4.0, ntimes)
 @test_approx_eq findmaxperiod(pgram1) 1./findmaxfreq(pgram1)
 @test_approx_eq findmaxperiod(pgram1, 0.965) 1./findmaxfreq(pgram1, 0.965)
 t = linspace(0.01, 10pi, 1001)
-s = sinpi(2t) + cospi(4t)
+s = sinpi.(2t) + cospi.(4t)
 p = lombscargle(t, s, maximum_frequency=4)
 @test_approx_eq findmaxfreq(p, [0.9, 1.1]) 1.0029954048320957
 @test_approx_eq findmaxfreq(p, [1.9, 2.1]) 2.002806697267899
@@ -100,11 +100,11 @@ p = lombscargle(t, s, maximum_frequency=4)
 @test_approx_eq LombScargle.autofrequency(t, maximum_frequency=10) 0.003184112396292367:0.006368224792584734:9.99492881196174
 # This last test also makes sure that `freq` and `power` fields of a Periodogram
 # object can have different type.
-@test_approx_eq freq(lombscargle(1:11, big(sin(1:11)))) 0.01:0.02:2.75
+@test_approx_eq freq(lombscargle(1:11, big(sin.(1:11)))) 0.01:0.02:2.75
 
 # Test probabilities and FAP
 t = collect(linspace(0.01, 10pi, 101))
-s = sin(t)
+s = sin.(t)
 for norm in ("standard", "Scargle", "HorneBaliunas", "Cumming")
     P = lombscargle(t, s, normalization = norm)
     for z_0 in (0.1, 0.5, 0.9)
@@ -118,8 +118,8 @@ P = lombscargle(t, s, normalization = "log")
 
 # Test model function
 @test_approx_eq s LombScargle.model(t, s, 1/2pi, center_data=false, fit_mean=false)
-s = sinpi(t) + pi*cospi(t) + e
-@test_approx_eq s LombScargle.model(t, measurement(s, ones(s)), 0.5)
+s = sinpi.(t) + pi*cospi.(t) + e
+@test_approx_eq s LombScargle.model(t, measurement.(s, ones(s)), 0.5)
 
 # Test add_at!
 a = ones(Int, 3)
@@ -128,7 +128,7 @@ LombScargle.add_at!(a, [3, 1, 3, 1, 2], 1:5)
 
 # Test extirpolation function
 x = linspace(0, 10)
-y = sin(x)
+y = sin.(x)
 vec13 = Vector{Complex{Float64}}(13)
 @test_approx_eq LombScargle.extirpolate!(vec13, x, y, 13) [0.39537718210649553,3.979484140636793,4.833090108345013,0.506805556164743,-3.828112427525919,-4.748341359084166,-1.3022050566901917,3.3367666084342256,5.070478111668922,1.291245296032218,-0.8264466821981216,0.0,0.0]
 @test_approx_eq LombScargle.extirpolate!(Vector{Complex{Float64}}(11), x, y, 11) LombScargle.extirpolate!(vec13, x, y, 13)[1:11]
@@ -148,5 +148,5 @@ srand(1)
 b = LombScargle.bootstrap(50, x, y)
 @test_approx_eq fap(b, fapinv(b, 0.02)) 0.02
 err = collect(linspace(0.5, 1.5))
-b = LombScargle.bootstrap(50, x, measurement(y, err))
+b = LombScargle.bootstrap(50, x, measurement.(y, err))
 @test_approx_eq fap(b, fapinv(b, 0.02)) 0.02

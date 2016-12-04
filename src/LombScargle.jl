@@ -230,10 +230,10 @@ function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVect
     # ωτ = 0.5 * atan(tan_2ωτ)
     # S2w, C2w = sin(2 * ωτ), cos(2 * ωτ)
     # Sw, Cw = sin(ωτ), cos(ωτ)
-    C2w = 1./(sqrt(1.0 + tan_2ωτ .* tan_2ωτ))
+    C2w = 1./(sqrt.(1.0 + tan_2ωτ .* tan_2ωτ))
     S2w = tan_2ωτ .* C2w
-    Cw = sqrt(0.5 * (1.0 + C2w))
-    Sw = sqrt(0.5) .* sign(S2w) .* sqrt(1.0 - C2w)
+    Cw = sqrt.(0.5 * (1.0 + C2w))
+    Sw = sqrt(0.5) .* sign(S2w) .* sqrt.(1.0 - C2w)
     #---------------------------------------------------------------------------
     # 2. Compute the periodogram, following Zechmeister & Kurster
     #    and using tricks from Press & Rybicki.
@@ -331,7 +331,7 @@ function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector
     elseif normalization == "model"
         P = P./(1.0 - P)
     elseif normalization == "log"
-        P = -log(1.0 - P)
+        P = -log.(1.0 - P)
     elseif normalization == "psd"
         P *= 0.5*N*(w⋅signal.^2)
     elseif normalization == "Scargle"

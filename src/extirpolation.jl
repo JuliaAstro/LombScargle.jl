@@ -71,7 +71,7 @@ function trig_sum!{R1<:Real,R2<:Real}(grid, ifft_vec, ifft_plan,
     @assert df > 0
     t0 = minimum(t)
     if f0 > 0
-        H = h .* exp(2im * pi * f0 * (t - t0))
+        H = h .* exp.(2im * pi * f0 * (t - t0))
     else
         H = complex(h)
     end
@@ -81,7 +81,7 @@ function trig_sum!{R1<:Real,R2<:Real}(grid, ifft_vec, ifft_plan,
     fftgrid = Nfft * ifft_vec[1:N]
     if t0 != 0
         f = f0 + df * (0:N - 1)
-        fftgrid .*= exp(2im * pi * t0 * f)
+        fftgrid .*= exp.(2im * pi * t0 * f)
     end
     C = real(fftgrid)
     S = imag(fftgrid)

@@ -9,7 +9,7 @@ ntimes = 401
 # Un-evenly spaced data.
 t = linspace(0.01, 10pi, ntimes)
 t += step(t)*rand(ntimes)
-for f in (x -> sinpi(x), x -> sin(x) + 1.5*cospi(4*x) + 3)
+for f in (x -> sinpi.(x), x -> sin.(x) + 1.5*cospi.(4*x) + 3)
     s = f(t)
     # "psd" normalization in LombScargle slightly differ from that of
     # Astropy and the test would fail if we includ it.
@@ -33,7 +33,7 @@ end
 # Evenly spaced data.  Use both heteroskedastic and homoskedastic uncertainties.
 t = linspace(0.01, 10pi, ntimes)
 errors = rand(0.1:1e-3:4.0, ntimes)
-for f in (x -> sinpi(x), x -> sin(x) + 1.5*cospi(4*x) + 3), err in (ones(ntimes), errors)
+for f in (x -> sinpi.(x), x -> sin.(x) + 1.5*cospi.(4*x) + 3), err in (ones(ntimes), errors)
     s = f(t)
     # "psd" normalization in LombScargle slightly differ from that of
     # Astropy and the test would fail if we includ it.
@@ -61,7 +61,7 @@ end
 # Test heteroskedastic uncertainties with non-fast method.  Test only standard
 # normalization, the only one for which LombScargle and Astropy give similar
 # results.
-for f in (x -> sinpi(x), x -> sin(x) + 1.5*cospi(4*x) + 3)
+for f in (x -> sinpi.(x), x -> sin.(x) + 1.5*cospi.(4*x) + 3)
     s = f(t)
     for fitmean in (true, false), nrm in ("standard", "model"),
         fast in ((true, "fast"), (false, "cython")), center in (true, false)
@@ -83,7 +83,7 @@ for f in (x -> sinpi(x), x -> sin(x) + 1.5*cospi(4*x) + 3)
 end
 
 # Test the model functions
-for f in (x -> sinpi(x), x -> sin(x) + 1.5*cospi(4*x) + 3)
+for f in (x -> sinpi.(x), x -> sin.(x) + 1.5*cospi.(4*x) + 3)
     s = f(t)
     for fm in (true, false), cd in (true, false)
         m_jl = LombScargle.model(t, s, 1/2pi, fit_mean=fm, center_data=cd)

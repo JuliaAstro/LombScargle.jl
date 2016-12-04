@@ -278,16 +278,16 @@ function model{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(t::AbstractVector{R1},
     #     a·cos(ωt) + b·sin(ωt) + c
     # In order to find the coefficients a, b, c for the given frequency we can
     # solve the linear system A·x = y, where A is the matrix with rows:
-    # [cos(ωt), sin(ωt), 1]; x is the column vector [a, b, c], and y is the
+    # [cos(ωt) sin(ωt) 1]; x is the column vector [a, b, c], and y is the
     # column vector of the signal
     ω = 2pi*f
     if fit_mean
-        a, b, c = hcat(cos(ω*t), sin(ω*t), ones(t))./errors \ y
-        return a*cos(ω*t_fit) + b*sin(ω*t_fit) + (c + m)
+        a, b, c = [cos.(ω*t) sin.(ω*t)  ones(t)]./errors \ y
+        return a*cos.(ω*t_fit) + b*sin.(ω*t_fit) + (c + m)
     else
         # If fit_mean==false, the model to be fitted is a·cos(ωt) + b·sin(ωt)
-        a, b = hcat(cos(ω*t), sin(ω*t))./errors \ y
-        return a*cos(ω*t_fit) + b*sin(ω*t_fit) + m
+        a, b = [cos.(ω*t) sin.(ω*t)] ./ errors \ y
+        return a*cos.(ω*t_fit) + b*sin.(ω*t_fit) + m
     end
 end
 
