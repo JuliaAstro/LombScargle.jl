@@ -209,12 +209,12 @@ uncertainties, because the original Lomb–Scargle algorithm cannot handle them.
 Fast Algorithm
 ~~~~~~~~~~~~~~
 
-When the observation times are evenly spaced, you can compute an approximate
+When the frequency grid is evenly spaced, you can compute an approximate
 generalised Lomb–Scargle periodogram using a fast algorithm proposed by [PR89]_
 that greatly speeds up calculations, as it scales as :math:`O[N \log(M)]` for
 :math:`N` data points and :math:`M` frequencies.  For comparison, the true
-Lomb–Scargle periodogram has complexity :math:`O[NM]`.  The larger the number
-of datapoints, the more accurate the approximation.
+Lomb–Scargle periodogram has complexity :math:`O[NM]`.  The larger the number of
+datapoints, the more accurate the approximation.
 
 .. Note::
 
@@ -259,7 +259,8 @@ can use the fast method:
   method with the ``fast=true`` keyword
 
 Setting ``fast=false`` always ensures you that this method will not be used,
-instead ``fast=true`` enables it only if ``frequencies`` is a ``Range``.
+instead ``fast=true`` actually enables it only if ``frequencies`` is a
+``Range``.
 
 The two integer keywords ``ovesampling`` and ``Mfft`` can be passed to
 :func:`lombscargle` in order to affect the computation in the fast method:
@@ -268,15 +269,6 @@ The two integer keywords ``ovesampling`` and ``Mfft`` can be passed to
   roughly the number of time samples across the highest-frequency sinusoid.
   This parameter contains the tradeoff between accuracy and speed.
 * ``Mfft``: the number of adjacent points to use in the FFT approximation.
-
-   .. code-block:: julia
-
-       t = collect(linspace(0, 10))
-       s = sin(t)
-       lombscargle(t, s)
-
-   Here ``t`` is a ``Vector``, not a ``Range``, thus the fast method will not be
-   used.
 
 Normalization
 ~~~~~~~~~~~~~
