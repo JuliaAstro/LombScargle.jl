@@ -121,6 +121,11 @@ P = lombscargle(t, s, normalization = "log")
 s = sinpi(t) + pi*cospi(t) + e
 @test_approx_eq s LombScargle.model(t, measurement(s, ones(s)), 0.5)
 
+# Test add_at!
+a = ones(Int, 3)
+LombScargle.add_at!(a, [3, 1, 3, 1, 2], 1:5)
+@test_approx_eq a [7, 6, 5]
+
 # Test extirpolation function
 x = linspace(0, 10)
 y = sin(x)
