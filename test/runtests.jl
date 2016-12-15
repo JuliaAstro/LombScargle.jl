@@ -129,8 +129,8 @@ LombScargle.add_at!(a, [3, 1, 3, 1, 2], 1:5)
 # Test extirpolation function
 x = linspace(0, 10)
 y = sin(x)
-@test_approx_eq LombScargle.extirpolate(x, y) [0.39537718210649553,3.979484140636793,4.833090108345013,0.506805556164743,-3.828112427525919,-4.748341359084166,-1.3022050566901917,3.3367666084342256,5.070478111668922,1.291245296032218,-0.8264466821981216,0.0,0.0]
-@test_approx_eq LombScargle.extirpolate(x, y, 11) LombScargle.extirpolate(x, y)[1:11]
+@test_approx_eq LombScargle.extirpolate(x, y, 13) [0.39537718210649553,3.979484140636793,4.833090108345013,0.506805556164743,-3.828112427525919,-4.748341359084166,-1.3022050566901917,3.3367666084342256,5.070478111668922,1.291245296032218,-0.8264466821981216,0.0,0.0]
+@test_approx_eq LombScargle.extirpolate(x, y, 11) LombScargle.extirpolate(x, y, 13)[1:11]
 
 # Test trig_sum
 C, S = LombScargle.trig_sum(x, y, 1, 10)

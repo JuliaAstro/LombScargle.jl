@@ -30,13 +30,9 @@ end
 
 function extirpolate{RE<:Real,NU<:Number}(X::AbstractVector{RE},
                                           Y::AbstractVector{NU},
-                                          N::Integer=0, M::Integer=4)
-    @assert length(X) == length(Y)
-    x, y = collect(X), collect(Y)
-    if N <= 0
-        # Get the maximum of "X", `maximum' has a faster method for ranges.
-        N = trunc(Int, maximum(X) + 0.5*M + 1)
-    end
+                                          N::Integer, M::Integer=4)
+    x = collect(X)
+    y = copy(Y)
     # Now use legendre polynomial weights to populate the results array; This is
     # an efficient recursive implementation (See Press et al. 1989)
     result = zeros(NU, N)
@@ -50,7 +46,7 @@ function extirpolate{RE<:Real,NU<:Number}(X::AbstractVector{RE},
     # the limits are within the range 0...N
     ilo = clamp(trunc(Int, x - div(M, 2)), 0, N - M)
     numerator = y .* [prod(x[j] - ilo[j] - (0:(M - 1))) for j in eachindex(x)]
-    denominator = factorial(M - 1)
+    denominator = float(factorial(M - 1))
     @inbounds for j in 0:(M - 1)
         if j > 0
             denominator *= j/(j - M)
