@@ -20,9 +20,9 @@
 #
 ### Code:
 
-function add_at!{N1<:Number,N2<:Number,N3<:Number}(arr::AbstractVector{N1},
-                                                   ind::AbstractVector{N2},
-                                                   vals::AbstractVector{N3})
+function add_at!{T1,I<:Integer,T2}(arr::AbstractVector{T1},
+                                   ind::AbstractVector{I},
+                                   vals::AbstractVector{T2})
     @inbounds for i in eachindex(ind)
         arr[ind[i]] += vals[i]
     end
@@ -57,25 +57,26 @@ function extirpolate{RE<:Real,NU<:Number}(X::AbstractVector{RE},
     return result
 end
 
-function trig_sum{R1<:Real,R2<:Real}(t::AbstractVector{R1},
+function trig_sum{R1<:Real,R2<:Real}(ifft_plan,
+                                     t::AbstractVector{R1},
                                      h::AbstractVector{R2}, df::Real,
-                                     N::Integer, f0::Real=0.0,
+                                     N::Integer, Nfft::Integer,
+                                     f0::Real=0.0,
                                      freq_factor::Integer=1,
-                                     oversampling::Integer=5, Mfft::Integer=4)
+                                     Mfft::Integer=4)
     @assert Mfft > 0
     df *= freq_factor
     f0 *= freq_factor
     @assert df > 0
-    # `ifft' can take arrays of any length in input, but it's faster when the
-    # length is exactly a power of 2.
-    Nfft = nextpow2(N * oversampling)
     t0 = minimum(t)
     if f0 > 0
-        h = h .* exp(2im * pi * f0 * (t - t0))
+        H = h .* exp(2im * pi * f0 * (t - t0))
+    else
+        H = complex(h)
     end
     tnorm = mod(((t - t0) * Nfft * df), Nfft)
-    grid = extirpolate(tnorm, h, Nfft, Mfft)
-    fftgrid = Nfft * ifft(grid)[1:N]
+    grid = extirpolate(tnorm, H, Nfft, Mfft)
+    fftgrid = Nfft * (ifft_plan * grid)[1:N]
     if t0 != 0
         f = f0 + df * (0:N - 1)
         fftgrid .*= exp(2im * pi * t0 * f)

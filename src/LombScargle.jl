@@ -202,11 +202,18 @@ function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVect
     N  = length(freqs)
     f0 = minimum(freqs)
     #---------------------------------------------------------------------------
+    # 0. prepare for the computation of IFFT.
+    # `ifft' can take arrays of any length in input, but
+    # it's faster when the length is exactly a power of 2.
+    Nfft = nextpow2(N * oversampling)
+    plan = plan_ifft(Vector{Complex{promote_type(R3, R2)}}(Nfft),
+                     flags = FFTW.MEASURE)
+    #---------------------------------------------------------------------------
     # 1. compute functions of the time-shift tau at each frequency
-    Ch, Sh = trig_sum(times, w .* y, df, N, f0, 1, oversampling, Mfft)
-    C2, S2 = trig_sum(times, w,      df, N, f0, 2, oversampling, Mfft)
+    Ch, Sh = trig_sum(plan, times, w .* y, df, N, Nfft, f0, 1, Mfft)
+    C2, S2 = trig_sum(plan, times, w,      df, N, Nfft, f0, 2, Mfft)
     if fit_mean
-        C, S = trig_sum(times, w, df, N, f0, 1, oversampling, Mfft)
+        C, S = trig_sum(plan, times, w, df,    N, Nfft, f0, 1, Mfft)
         tan_2ωτ = (S2 .- 2.0 * S .* C) ./ (C2 .- (C .* C .- S .* S))
     else
         tan_2ωτ = S2 ./ C2
