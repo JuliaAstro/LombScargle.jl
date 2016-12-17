@@ -28,14 +28,15 @@ function add_at!{T1,I<:Integer,T2}(arr::AbstractVector{T1},
     end
 end
 
-function extirpolate{RE<:Real,NU<:Number}(X::AbstractVector{RE},
-                                          Y::AbstractVector{NU},
-                                          N::Integer, M::Integer=4)
+function extirpolate!{RE<:Real,NU<:Number}(result,
+                                           X::AbstractVector{RE},
+                                           Y::AbstractVector{NU},
+                                           N::Integer, M::Integer=4)
     x = collect(X)
     y = copy(Y)
     # Now use legendre polynomial weights to populate the results array; This is
     # an efficient recursive implementation (See Press et al. 1989)
-    result = zeros(NU, N)
+    fill!(result, zero(NU))
     # first take care of the easy cases where x is an integer
     integers = find(isinteger, x)
     add_at!(result, mod(trunc(Int, x[integers]), N) + 1, y[integers])
@@ -45,9 +46,10 @@ function extirpolate{RE<:Real,NU<:Number}(X::AbstractVector{RE},
     # i.e. ilo[i] < x[i] < ilo[i] + M with x[i] in the center, adjusted so that
     # the limits are within the range 0...N
     ilo = clamp(trunc(Int, x - div(M, 2)), 0, N - M)
-    numerator = y .* [prod(x[j] - ilo[j] - (0:(M - 1))) for j in eachindex(x)]
+    v = collect(0:(M - 1))
+    numerator = y .* [prod(x[j] - ilo[j] - v) for j in eachindex(x)]
     denominator = float(factorial(M - 1))
-    @inbounds for j in 0:(M - 1)
+    @inbounds for j in v
         if j > 0
             denominator *= j/(j - M)
         end
@@ -57,14 +59,13 @@ function extirpolate{RE<:Real,NU<:Number}(X::AbstractVector{RE},
     return result
 end
 
-function trig_sum{R1<:Real,R2<:Real}(ifft_plan,
-                                     t::AbstractVector{R1},
-                                     h::AbstractVector{R2}, df::Real,
-                                     N::Integer, Nfft::Integer,
-                                     f0::Real=0.0,
-                                     freq_factor::Integer=1,
-                                     Mfft::Integer=4)
-    @assert Mfft > 0
+function trig_sum!{R1<:Real,R2<:Real}(grid, ifft_vec, ifft_plan,
+                                      t::AbstractVector{R1},
+                                      h::AbstractVector{R2}, df::Real,
+                                      N::Integer, Nfft::Integer,
+                                      f0::Real=0.0,
+                                      freq_factor::Integer=1,
+                                      Mfft::Integer=4)
     df *= freq_factor
     f0 *= freq_factor
     @assert df > 0
@@ -75,8 +76,9 @@ function trig_sum{R1<:Real,R2<:Real}(ifft_plan,
         H = complex(h)
     end
     tnorm = mod(((t - t0) * Nfft * df), Nfft)
-    grid = extirpolate(tnorm, H, Nfft, Mfft)
-    fftgrid = Nfft * (ifft_plan * grid)[1:N]
+    extirpolate!(grid, tnorm, H, Nfft, Mfft)
+    A_mul_B!(ifft_vec, ifft_plan, grid)
+    fftgrid = Nfft * ifft_vec[1:N]
     if t0 != 0
         f = f0 + df * (0:N - 1)
         fftgrid .*= exp(2im * pi * t0 * f)

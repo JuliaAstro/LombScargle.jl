@@ -187,6 +187,7 @@ function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVect
                                                              fit_mean::Bool,
                                                              oversampling::Int,
                                                              Mfft::Int)
+    @assert Mfft > 0
     P_type = promote_type(float(R1), float(R2))
     P = Vector{P_type}(length(freqs))
     nil = zero(P_type)
@@ -206,14 +207,19 @@ function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVect
     # `ifft' can take arrays of any length in input, but
     # it's faster when the length is exactly a power of 2.
     Nfft = nextpow2(N * oversampling)
-    plan = plan_ifft(Vector{Complex{promote_type(R3, R2)}}(Nfft),
-                     flags = FFTW.MEASURE)
+    T = Complex{promote_type(float(R2), float(R3))}
+    ifft_vec = Vector{T}(Nfft)
+    grid = similar(ifft_vec)
+    plan = plan_ifft(ifft_vec, flags = FFTW.MEASURE)
     #---------------------------------------------------------------------------
     # 1. compute functions of the time-shift tau at each frequency
-    Ch, Sh = trig_sum(plan, times, w .* y, df, N, Nfft, f0, 1, Mfft)
-    C2, S2 = trig_sum(plan, times, w,      df, N, Nfft, f0, 2, Mfft)
+    Ch, Sh = trig_sum!(grid, ifft_vec, plan, times, w .* y, df, N, Nfft, f0,
+                       1, Mfft)
+    C2, S2 = trig_sum!(grid, ifft_vec, plan, times, w,      df, N, Nfft, f0,
+                       2, Mfft)
     if fit_mean
-        C, S = trig_sum(plan, times, w, df,    N, Nfft, f0, 1, Mfft)
+        C, S = trig_sum!(grid, ifft_vec, plan, times, w, df,    N, Nfft, f0,
+                         1, Mfft)
         tan_2ωτ = (S2 .- 2.0 * S .* C) ./ (C2 .- (C .* C .- S .* S))
     else
         tan_2ωτ = S2 ./ C2
