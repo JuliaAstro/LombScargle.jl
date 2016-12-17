@@ -8,10 +8,11 @@ v0.3.0 (201?-??-??)
 
 * Support for Julia 0.4 was dropped.
 
-### New Features
+### Improvements
 
-* The fast method now is a bit faster.  The fast Fourier transform computed
-  internally with FFTW library can take advantage of multi-threading (call
+* The fast method now is faster, the larger the size of input array, the larger
+  the improvement.  In addition, the fast Fourier transform computed internally
+  with FFTW library can take advantage of multi-threading (call
   `FFTW.set_num_threads(n)` to use `n` threads) in order to speed-up
   computation.  However, please note that the running time will not scale as
   `1/n` because computation of the FFT is only a part of the algorithm.  The
