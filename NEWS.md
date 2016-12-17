@@ -1,6 +1,22 @@
 History of LombScargle.jl
 =========================
 
+v0.3.0 (201?-??-??)
+-------------------
+
+### Breaking Changes
+
+* Support for Julia 0.4 was dropped.
+
+### New Features
+
+* The fast method now is a bit faster.  The fast Fourier transform computed
+  internally with FFTW library can take advantage of multi-threading (call
+  `FFTW.set_num_threads(n)` to use `n` threads) in order to speed-up
+  computation.  However, please note that the running time will not scale as
+  `1/n` because computation of the FFT is only a part of the algorithm.  The
+  function is also less memory-eager than before.
+
 v0.2.0 (2016-12-07)
 -------------------
 

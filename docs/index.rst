@@ -221,9 +221,15 @@ datapoints, the more accurate the approximation.
 .. Note::
 
    This method internally performs a `Fast Fourier Transform
-   <https://en.wikipedia.org/wiki/Fast_Fourier_transform>`_ to compute some
-   quantities, but it is in no way equivalento to conventional Fourier
+   <https://en.wikipedia.org/wiki/Fast_Fourier_transform>`_ (FFT) to compute
+   some quantities, but it is in no way equivalento to conventional Fourier
    periodogram analysis.
+
+   ``LombScargle.jl`` use FFTW functions to compute the FFT.  You can speed-up
+   this task by using multi-threading: call ``FFTW.set_num_threads(n)`` to use
+   :math:`n` threads.  However, please note that the running time will not scale
+   as :math:`1/n` because computation of the FFT is only a part of the
+   algorithm.
 
 The only prerequisite in order to be able to employ this fast method is to
 provide a ``frequencies`` vector as a ``Range`` object, which ensures that the
@@ -257,8 +263,7 @@ can use the fast method:
 
 * by default if the length of the output frequency grid is larger than 200
   points
-* if the frequency grid has 200 points or less and you explicitely request the
-  method with the ``fast=true`` keyword
+* in any case with the ``fast=true`` keyword
 
 Setting ``fast=false`` always ensures you that this method will not be used,
 instead ``fast=true`` actually enables it only if ``frequencies`` is a
