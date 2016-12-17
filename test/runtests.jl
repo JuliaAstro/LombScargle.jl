@@ -134,7 +134,8 @@ vec13 = Vector{Complex{Float64}}(13)
 @test_approx_eq LombScargle.extirpolate!(Vector{Complex{Float64}}(11), x, y, 11) LombScargle.extirpolate!(vec13, x, y, 13)[1:11]
 
 # Test trig_sum!
-FFTW.set_num_threads(2)
+# Bring back this test when support for Julia 0.5 will be dropped:
+# FFTW.set_num_threads(2)
 N = 10
 Nfft = nextpow2(5N)
 ifft_vec = Vector{Complex{Float64}}(Nfft)
