@@ -188,9 +188,7 @@ function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVect
                                                              oversampling::Int,
                                                              Mfft::Int)
     @assert Mfft > 0
-    P_type = promote_type(float(R1), float(R2))
-    P = Vector{P_type}(length(freqs))
-    nil = zero(P_type)
+    nil = zero(promote_type(float(R1), float(R2)))
     # If "center_data" keyword is true, subtract the weighted mean from each
     # point.
     if center_data || fit_mean
@@ -198,7 +196,6 @@ function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVect
     else
         y = signal
     end
-
     df = step(freqs)
     N  = length(freqs)
     f0 = minimum(freqs)
@@ -207,8 +204,7 @@ function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVect
     # `ifft' can take arrays of any length in input, but
     # it's faster when the length is exactly a power of 2.
     Nfft = nextpow2(N * oversampling)
-    T = Complex{promote_type(float(R2), float(R3))}
-    ifft_vec = Vector{T}(Nfft)
+    ifft_vec = Vector{Complex{promote_type(float(R2), float(R3))}}(Nfft)
     grid = similar(ifft_vec)
     plan = plan_ifft(ifft_vec, flags = FFTW.MEASURE)
     #---------------------------------------------------------------------------
@@ -226,10 +222,9 @@ function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVect
     end
     # This is what we're computing below; the straightforward way is slower and
     # less stable, so we use trig identities instead
-    #
-    # ωτ = 0.5 * atan(tan_2ωτ)
-    # S2w, C2w = sin(2 * ωτ), cos(2 * ωτ)
-    # Sw, Cw = sin(ωτ), cos(ωτ)
+    #   ωτ = 0.5 * atan(tan_2ωτ)
+    #   S2w, C2w = sin(2 * ωτ), cos(2 * ωτ)
+    #   Sw, Cw = sin(ωτ), cos(ωτ)
     C2w = 1./(sqrt.(1.0 + tan_2ωτ .* tan_2ωτ))
     S2w = tan_2ωτ .* C2w
     Cw = sqrt.(0.5 * (1.0 + C2w))
@@ -246,8 +241,7 @@ function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVect
         CC -= (C .* Cw .+ S .* Sw) .^ 2
         SS -= (S .* Cw .- C .* Sw) .^ 2
     end
-    P = (YC .* YC ./ CC .+ YS .* YS ./ SS)/YY
-    return P
+    return (YC .* YC ./ CC .+ YS .* YS ./ SS)/YY
 end
 
 # Switches to select the appropriate algorithm to compute the periodogram.
@@ -266,6 +260,10 @@ function periodogram_no_fast{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Abstrac
     end
 end
 
+# There are two "periodogram" methods, the only different argument being
+# "frequencies".  When it is a `Range' object (first method) it could be
+# possible to use the fast method, provided that fast == true, otherwise we can
+# only use the non fast methods.
 function periodogram{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector{R1},
                                                           signal::AbstractVector{R2},
                                                           w::AbstractVector{R3},
