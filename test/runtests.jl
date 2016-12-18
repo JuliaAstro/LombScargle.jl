@@ -147,8 +147,13 @@ C, S = LombScargle.trig_sum!(grid, ifft_vec, p, x, y, 1, N, Nfft)
 
 # Test bootstrap
 srand(1)
-b = LombScargle.bootstrap(50, x, y)
+@test_approx_eq LombScargle.bootstrap(5, x, y).p [0.25956949678034225,
+                                                  0.2360115683328911,
+                                                  0.22016267001066891,
+                                                  0.1665406952388801,
+                                                  0.12516095308735742]
+b = LombScargle.bootstrap(50, x, y, fast = true)
 @test_approx_eq fap(b, fapinv(b, 0.02)) 0.02
 err = collect(linspace(0.5, 1.5))
-b = LombScargle.bootstrap(50, x, measurement.(y, err))
+b = LombScargle.bootstrap(50, x, measurement.(y, err), fast = true)
 @test_approx_eq fap(b, fapinv(b, 0.02)) 0.02

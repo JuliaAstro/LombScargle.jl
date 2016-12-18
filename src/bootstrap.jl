@@ -20,34 +20,20 @@ immutable Bootstrap{T<:AbstractFloat}
     p::AbstractVector{T} # Vector of highest peaks
 end
 
+# XXX: possible improvement: compute IFFT plan for the fast method only once.
+# However, this would require some work, instead current implementation is
+# extremely simple.
 function bootstrap{R1<:Real,R2<:Real}(N::Integer,
                                       t::AbstractVector{R1},
-                                      s::AbstractVector{R2};
+                                      s::AbstractVector{R2},
+                                      rest...;
                                       args...)
     # Allocate vector
     high_peaks = Vector{promote_type(R1, R2)}(N)
     # Run N simulations.
     @inbounds for i in eachindex(high_peaks)
         # Store the highest peaks
-        high_peaks[i] = findmaxpower(lombscargle(t, shuffle(s); args...))
-    end
-    # Create a `Bootstrap' object with the vector sorted in descending order.
-    return Bootstrap(sort(high_peaks, rev = true))
-end
-
-function bootstrap{R1<:Real,R2<:Real,R3<:Real}(N::Integer,
-                                               t::AbstractVector{R1},
-                                               s::AbstractVector{R2},
-                                               err::AbstractVector{R3};
-                                               args...)
-    # Allocate vector
-    high_peaks = Vector{promote_type(R1, R2, R3)}(N)
-    n = length(s)
-    # Run N simulations.
-    @inbounds for i in eachindex(high_peaks)
-        ind = randperm(n)
-        # Store the highest peaks
-        high_peaks[i] = findmaxpower(lombscargle(t, s[ind], err[ind]; args...))
+        high_peaks[i] = findmaxpower(lombscargle(shuffle(t), s, rest...; args...))
     end
     # Create a `Bootstrap' object with the vector sorted in descending order.
     return Bootstrap(sort(high_peaks, rev = true))
@@ -68,7 +54,7 @@ end
 
 Create `N` bootstrap samples, perform the Lomb–Scargle analysis on them, and
 store all the highest peaks for each one in a `LombScargle.Bootstrap` object.
-All the arguments after `N` are passed around to `lombscargle`.
+All the arguments after `N` are passed around to `lombscargle`, which see.
 """
 bootstrap
 
