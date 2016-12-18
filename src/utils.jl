@@ -306,8 +306,8 @@ model{R1<:Real,R2<:AbstractFloat,R3<:Real}(t::AbstractVector{R1},
                                            t_fit::AbstractVector{R3}=t;
                                            kwargs...) =
                                                model(t,
-                                                     value(s),
-                                                     uncertainty(s),
+                                                     value.(s),
+                                                     uncertainty.(s),
                                                      f,
                                                      t_fit;
                                                      kwargs...)

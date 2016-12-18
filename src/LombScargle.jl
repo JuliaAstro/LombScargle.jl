@@ -370,7 +370,7 @@ end
 function lombscargle{T<:Real,F<:AbstractFloat}(times::AbstractVector{T},
                                                signal::AbstractVector{Measurement{F}};
                                                kwargs...)
-    return lombscargle(times, value(signal), uncertainty(signal); kwargs...)
+    return lombscargle(times, value.(signal), uncertainty.(signal); kwargs...)
 end
 
 """

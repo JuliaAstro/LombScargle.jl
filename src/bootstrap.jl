@@ -43,7 +43,7 @@ function bootstrap{R<:Real,F<:AbstractFloat}(N::Integer,
                                              t::AbstractVector{R},
                                              s::AbstractVector{Measurement{F}};
                                              args...)
-    return bootstrap(N, t, value(s), uncertainty(s); args...)
+    return bootstrap(N, t, value.(s), uncertainty.(s); args...)
 end
 
 """
