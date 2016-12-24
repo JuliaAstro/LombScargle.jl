@@ -39,13 +39,13 @@ function extirpolate!{RE<:Real,NU<:Number}(result,
     fill!(result, zero(NU))
     # first take care of the easy cases where x is an integer
     integers = find(isinteger, x)
-    add_at!(result, mod(trunc(Int, x[integers]), N) + 1, y[integers])
+    add_at!(result, mod(trunc(Int, x[integers]), N) .+ 1, y[integers])
     deleteat!(x, integers)
     deleteat!(y, integers)
     # For each remaining x, find the index describing the extirpolation range.
     # i.e. ilo[i] < x[i] < ilo[i] + M with x[i] in the center, adjusted so that
     # the limits are within the range 0...N
-    ilo = clamp(trunc(Int, x - div(M, 2)), 0, N - M)
+    ilo = clamp(trunc(Int, x .- div(M, 2)), 0, N - M)
     v = collect(0:(M - 1))
     numerator = y .* [prod(x[j] - ilo[j] - v) for j in eachindex(x)]
     denominator = float(factorial(M - 1))
@@ -54,7 +54,7 @@ function extirpolate!{RE<:Real,NU<:Number}(result,
             denominator *= j/(j - M)
         end
         ind = ilo + (M - j)
-        add_at!(result, ind, numerator ./ (denominator * (x .- ind + 1)))
+        add_at!(result, ind, numerator ./ (denominator * (x .- ind .+ 1)))
     end
     return result
 end
@@ -71,17 +71,16 @@ function trig_sum!{R1<:Real,R2<:Real}(grid, ifft_vec, ifft_plan,
     @assert df > 0
     t0 = minimum(t)
     if f0 > 0
-        H = h .* exp.(2im * pi * f0 * (t - t0))
+        H = h .* exp.(2im .* pi .* f0 .* (t .- t0))
     else
         H = complex(h)
     end
-    tnorm = mod(((t - t0) * Nfft * df), Nfft)
+    tnorm = mod(((t .- t0) .* Nfft .* df), Nfft)
     extirpolate!(grid, tnorm, H, Nfft, Mfft)
     A_mul_B!(ifft_vec, ifft_plan, grid)
-    fftgrid = Nfft * ifft_vec[1:N]
+    fftgrid = Nfft .* ifft_vec[1:N]
     if t0 != 0
-        f = f0 + df * (0:N - 1)
-        fftgrid .*= exp.(2im * pi * t0 * f)
+        fftgrid .*= exp.(2im .* pi .* t0 .* (f0 .+ df .* (0:N - 1)))
     end
     C = real(fftgrid)
     S = imag(fftgrid)

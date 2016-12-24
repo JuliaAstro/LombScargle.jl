@@ -216,7 +216,7 @@ function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVect
     if fit_mean
         C, S = trig_sum!(grid, ifft_vec, plan, times, w, df,    N, Nfft, f0,
                          1, Mfft)
-        tan_2ωτ = (S2 .- 2.0 * S .* C) ./ (C2 .- (C .* C .- S .* S))
+        tan_2ωτ = (S2 .- 2 .* S .* C) ./ (C2 .- (C .* C .- S .* S))
     else
         tan_2ωτ = S2 ./ C2
     end
@@ -225,21 +225,21 @@ function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVect
     #   ωτ = 0.5 * atan(tan_2ωτ)
     #   S2w, C2w = sin(2 * ωτ), cos(2 * ωτ)
     #   Sw, Cw = sin(ωτ), cos(ωτ)
-    C2w = 1./(sqrt.(1.0 + tan_2ωτ .* tan_2ωτ))
+    C2w = 1 ./ (sqrt.(1 .+ tan_2ωτ .* tan_2ωτ))
     S2w = tan_2ωτ .* C2w
-    Cw = sqrt.(0.5 * (1.0 + C2w))
-    Sw = sqrt(0.5) .* sign(S2w) .* sqrt.(1.0 - C2w)
+    Cw = sqrt.((1 .+ C2w) ./ 2)
+    Sw = sign(S2w) .* sqrt.((1 .- C2w) ./ 2)
     #---------------------------------------------------------------------------
     # 2. Compute the periodogram, following Zechmeister & Kurster
     #    and using tricks from Press & Rybicki.
     YY = w⋅(y.^2)
     YC = Ch .* Cw .+ Sh .* Sw
     YS = Sh .* Cw .- Ch .* Sw
-    CC = 0.5 * (1.0 + C2 .* C2w .+ S2 .* S2w)
-    SS = 0.5 * (1.0 - C2 .* C2w .- S2 .* S2w)
+    CC = (1 .+ C2 .* C2w .+ S2 .* S2w) ./ 2
+    SS = (1 .- C2 .* C2w .- S2 .* S2w) ./ 2
     if fit_mean
-        CC -= (C .* Cw .+ S .* Sw) .^ 2
-        SS -= (S .* Cw .- C .* Sw) .^ 2
+        CC .-= (C .* Cw .+ S .* Sw) .^ 2
+        SS .-= (S .* Cw .- C .* Sw) .^ 2
     end
     return (YC .* YC ./ CC .+ YS .* YS ./ SS)/YY
 end
