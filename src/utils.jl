@@ -264,9 +264,9 @@ function model{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(t::AbstractVector{R1},
     @assert length(t) == length(s) == length(errors)
     if center_data
         # Compute weights vector
-        w = 1.0./errors.^2
+        w = 1 ./ (errors .^ 2)
         m = (w⋅s)/sum(w)
-        y = (s - m)./errors
+        y = (s .- m) ./ errors
     else
         # We don't want to center the data: the mean is 0 and the signal is left
         # unchanged
@@ -282,12 +282,12 @@ function model{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(t::AbstractVector{R1},
     # column vector of the signal
     ω = 2pi*f
     if fit_mean
-        a, b, c = [cos.(ω*t) sin.(ω*t)  ones(t)]./errors \ y
-        return a*cos.(ω*t_fit) + b*sin.(ω*t_fit) + (c + m)
+        a, b, c = [cos.(ω .* t) sin.(ω .* t)  ones(t)] ./ errors \ y
+        return a .* cos.(ω .* t_fit) .+ b .* sin.(ω .* t_fit) .+ (c + m)
     else
         # If fit_mean==false, the model to be fitted is a·cos(ωt) + b·sin(ωt)
-        a, b = [cos.(ω*t) sin.(ω*t)] ./ errors \ y
-        return a*cos.(ω*t_fit) + b*sin.(ω*t_fit) + m
+        a, b = [cos.(ω .* t) sin.(ω .* t)] ./ errors \ y
+        return a .* cos.(ω .* t_fit) .+ b .* sin.(ω .* t_fit) .+ m
     end
 end
 
