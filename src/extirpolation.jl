@@ -29,11 +29,9 @@ function add_at!{T1,I<:Integer,T2}(arr::AbstractVector{T1},
 end
 
 function extirpolate!{RE<:Real,NU<:Number}(result,
-                                           X::AbstractVector{RE},
-                                           Y::AbstractVector{NU},
+                                           x::AbstractVector{RE},
+                                           y::AbstractVector{NU},
                                            N::Integer, M::Integer=4)
-    x = collect(X)
-    y = copy(Y)
     # Now use legendre polynomial weights to populate the results array; This is
     # an efficient recursive implementation (See Press et al. 1989)
     fill!(result, zero(NU))
