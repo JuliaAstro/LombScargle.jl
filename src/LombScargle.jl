@@ -241,7 +241,7 @@ function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVect
         CC .-= (C .* Cw .+ S .* Sw) .^ 2
         SS .-= (S .* Cw .- C .* Sw) .^ 2
     end
-    return (YC .* YC ./ CC .+ YS .* YS ./ SS)/YY
+    return (YC .* YC ./ CC .+ YS .* YS ./ SS) ./ YY
 end
 
 # Switches to select the appropriate algorithm to compute the periodogram.
