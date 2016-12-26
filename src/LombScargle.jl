@@ -37,6 +37,36 @@ include("extirpolation.jl")
 include("utils.jl")
 include("bootstrap.jl")
 
+# XXX: Until Julia's bug #15276
+# (https://github.com/JuliaLang/julia/issues/15276) will be fixed, we have to
+# move the body loop to an external function in order to effectively gain
+# scaling when multiple threads are used.
+
+function _lombscargle_orig_loop!(P, freqs, times, X, XX, nil, N)
+    @inbounds Threads.@threads for n in eachindex(freqs)
+        ω = 2pi*freqs[n]
+        XC = XS = CC = CS = nil
+        @inbounds for j in eachindex(times)
+            ωt = ω*times[j]
+            C = cos(ωt)
+            S = sin(ωt)
+            XC += X[j]*C
+            XS += X[j]*S
+            CC += C*C
+            CS += C*S
+        end
+        SS      = N - CC
+        ωτ      = atan2(CS, CC - N / 2) / 2
+        c_τ     = cos(ωτ)
+        s_τ     = sin(ωτ)
+        c_τ2    = c_τ*c_τ
+        s_τ2    = s_τ*s_τ
+        cs_τ_CS = 2c_τ*s_τ*CS
+        P[n] = (abs2(c_τ*XC + s_τ*XS)/(c_τ2*CC + cs_τ_CS + s_τ2*SS) +
+                abs2(c_τ*XS - s_τ*XC)/(c_τ2*SS - cs_τ_CS + s_τ2*CC))/XX
+    end
+end
+
 # Original algorithm that doesn't take into account uncertainties and doesn't
 # fit the mean of the signal.  This is implemented following the recipe by
 # * Townsend, R. H. D. 2010, ApJS, 191, 247 (URL:
@@ -48,8 +78,6 @@ function _lombscargle_orig{R1<:Real,R2<:Real,R3<:Real}(times::AbstractVector{R1}
                                                        center_data::Bool)
     P_type = promote_type(float(R1), float(R2), float(R3))
     P = Vector{P_type}(length(freqs))
-    N = length(signal)
-    nil = zero(P_type)
     # If "center_data" keyword is true, subtract the mean from each point.
     if center_data
         X = signal - mean(signal)
@@ -57,30 +85,84 @@ function _lombscargle_orig{R1<:Real,R2<:Real,R3<:Real}(times::AbstractVector{R1}
         X = signal
     end
     XX = X⋅X
-
-    @inbounds for n in eachindex(freqs)
-        ω = 2pi*freqs[n]
-        XC = XS = CC = CS = nil
-        for j in eachindex(times)
-            ωt = ω*times[j]
-            C = cos(ωt)
-            S = sin(ωt)
-            XC += X[j]*C
-            XS += X[j]*S
-            CC += C*C
-            CS += C*S
-        end
-        SS      = N - CC
-        ωτ      = 0.5*atan2(CS, CC - N/2)
-        c_τ     = cos(ωτ)
-        s_τ     = sin(ωτ)
-        c_τ2    = c_τ*c_τ
-        s_τ2    = s_τ*s_τ
-        cs_τ_CS = 2c_τ*s_τ*CS
-        P[n] = (abs2(c_τ*XC + s_τ*XS)/(c_τ2*CC + cs_τ_CS + s_τ2*SS) +
-                abs2(c_τ*XS - s_τ*XC)/(c_τ2*SS - cs_τ_CS + s_τ2*CC))/XX
-    end
+    _lombscargle_orig_loop!(P, freqs, times, X, XX, zero(P_type), length(signal))
     return P
+end
+
+function _generalised_lombscargle_loop!(P, freqs, times, y, w, Y, YY, nil)
+    @inbounds Threads.@threads for n in eachindex(freqs)
+        ω = 2pi*freqs[n]
+        # Find τ for current angular frequency
+        C = S = CS = CC = nil
+        @inbounds for i in eachindex(times)
+            ωt  = ω*times[i]
+            W   = w[i]
+            c   = cos(ωt)
+            s   = sin(ωt)
+            CS += W*c*s
+            CC += W*c*c
+            C  += W*c
+            S  += W*s
+        end
+        CS -= C*S
+        SS  = 1 - CC - S*S
+        CC -= C*C
+        ωτ   = atan2(2CS, CC - SS) / 2
+        # Now we can compute the power
+        YC_τ = YS_τ = CC_τ = nil
+        @inbounds for i in eachindex(times)
+            ωt    = ω*times[i] - ωτ
+            W     = w[i]
+            c     = cos(ωt)
+            s     = sin(ωt)
+            YC_τ += W*y[i]*c
+            YS_τ += W*y[i]*s
+            CC_τ += W*c*c
+        end
+        # "C_τ" and "S_τ" are computed following equation (7) of Press &
+        # Rybicki, this formula simply comes from angle difference trigonometric
+        # identities.
+        cos_ωτ = cos(ωτ)
+        sin_ωτ = sin(ωτ)
+        C_τ    = C*cos_ωτ + S*sin_ωτ
+        S_τ    = S*cos_ωτ - C*sin_ωτ
+        YC_τ  -= Y*C_τ
+        YS_τ  -= Y*S_τ
+        SS_τ   = 1 - CC_τ - S_τ*S_τ
+        CC_τ  -= C_τ*C_τ
+        P[n] = (abs2(YC_τ)/CC_τ + abs2(YS_τ)/SS_τ)/YY
+    end
+end
+
+function _generalised_lombscargle_loop!(P, freqs, times, y, w, YY, nil)
+    @inbounds Threads.@threads for n in eachindex(freqs)
+        ω = 2pi*freqs[n]
+        # Find τ for current angular frequency
+        C = S = CS = CC = nil
+        @inbounds for i in eachindex(times)
+            ωt  = ω*times[i]
+            W   = w[i]
+            c   = cos(ωt)
+            s   = sin(ωt)
+            CS += W*c*s
+            CC += W*c*c
+        end
+        SS  = 1 - CC
+        ωτ   = atan2(2CS, CC - SS) / 2
+        # Now we can compute the power
+        YC_τ = YS_τ = CC_τ = nil
+        @inbounds for i in eachindex(times)
+            ωt    = ω*times[i] - ωτ
+            W     = w[i]
+            c     = cos(ωt)
+            s     = sin(ωt)
+            YC_τ += W*y[i]*c
+            YS_τ += W*y[i]*s
+            CC_τ += W*c*c
+        end
+        SS_τ  = 1 - CC_τ
+        P[n] = (abs2(YC_τ)/CC_τ + abs2(YS_τ)/SS_τ)/YY
+    end
 end
 
 # Generalised Lomb-Scargle algorithm: this takes into account uncertainties and
@@ -114,60 +196,10 @@ function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Ab
         Y   = w⋅y
         YY -= Y*Y
     end
-
-    @inbounds for n in eachindex(freqs)
-        ω = 2pi*freqs[n]
-
-        # Find τ for current angular frequency
-        C = S = CS = CC = nil
-        for i in eachindex(times)
-            ωt  = ω*times[i]
-            W   = w[i]
-            c   = cos(ωt)
-            s   = sin(ωt)
-            CS += W*c*s
-            CC += W*c*c
-            if fit_mean
-                C  += W*c
-                S  += W*s
-            end
-        end
-        if fit_mean
-            CS -= C*S
-            SS  = 1.0 - CC - S*S
-            CC -= C*C
-        else
-            SS  = 1.0 - CC
-        end
-        ωτ   = 0.5*atan2(2CS, CC - SS)
-
-        # Now we can compute the power
-        YC_τ = YS_τ = CC_τ = nil
-        for i in eachindex(times)
-            ωt    = ω*times[i] - ωτ
-            W     = w[i]
-            c     = cos(ωt)
-            s     = sin(ωt)
-            YC_τ += W*y[i]*c
-            YS_τ += W*y[i]*s
-            CC_τ += W*c*c
-        end
-        if fit_mean
-            # "C_τ" and "S_τ" are computed following equation (7) of Press &
-            # Rybicki, this formula simply comes from angle difference
-            # trigonometric identities.
-            cos_ωτ = cos(ωτ)
-            sin_ωτ = sin(ωτ)
-            C_τ    = C*cos_ωτ + S*sin_ωτ
-            S_τ    = S*cos_ωτ - C*sin_ωτ
-            YC_τ  -= Y*C_τ
-            YS_τ  -= Y*S_τ
-            SS_τ   = 1.0 - CC_τ - S_τ*S_τ
-            CC_τ  -= C_τ*C_τ
-        else
-            SS_τ  = 1.0 - CC_τ
-        end
-        P[n] = (abs2(YC_τ)/CC_τ + abs2(YS_τ)/SS_τ)/YY
+    if fit_mean
+        _generalised_lombscargle_loop!(P, freqs, times, y, w, Y, YY, nil)
+    else
+        _generalised_lombscargle_loop!(P, freqs, times, y, w, YY, nil)
     end
     return P
 end
