@@ -4,8 +4,8 @@ LombScargle.jl
 Introduction
 ------------
 
-`LombScargle.jl <https://github.com/giordano/LombScargle.jl>`__ is a package to
-estimate the `frequency spectrum
+`LombScargle.jl <https://github.com/giordano/LombScargle.jl>`__ is a package for
+a fast multi-threaded estimation of the `frequency spectrum
 <https://en.wikipedia.org/wiki/Frequency_spectrum>`__ of a periodic signal with
 `the Lomb–Scargle periodogram
 <https://en.wikipedia.org/wiki/The_Lomb–Scargle_periodogram>`__.  This is
@@ -54,8 +54,12 @@ Othe relevant papers are:
 
 The package provides facilities to:
 
-* compute the periodogram using different implementations (with different
-  speeds) and different normalizations;
+* compute the periodogram using different methods (with different speeds) and
+  different normalizations.  This is one of the fastest implementations of these
+  methods available as free software.  If Julia is run with more than one
+  `thread
+  <http://docs.julialang.org/en/stable/manual/parallel-computing/#multi-threading-experimental>`_,
+  computation is automatically multi-threaded, further speeding up calculations;
 * access the frequency and period grid of the resulting periodogram, together
   with the power spectrum;
 * find the maximum power in the periodogram and the frequency and period
@@ -186,6 +190,15 @@ uses the same keywords names adopted in Astropy.
 The keywords ``fast``, ``oversampling``, and ``Mfft`` are described in the `Fast
 Algorithm`_ section below.
 
+.. Tip::
+
+   ``LombScargle.jl`` exploits Julia’s native `multi-threading
+   <http://docs.julialang.org/en/stable/manual/parallel-computing/#multi-threading-experimental>`_
+   for the non-fast methods (the methods used when you set the keyword
+   ``fast=false``).  Run Julia with :math:`n` threads (e.g.,
+   ``JULIA_NUM_THREADS=4 julia`` for 4 threads) in order to automatically gain
+   an :math:`n` -fold scaling.
+
 If the signal has uncertainties, the ``signal`` vector can also be a vector of
 ``Measurement`` objects (from `Measurements.jl
 <https://github.com/giordano/Measurements.jl>`__ package), in which case you
@@ -225,11 +238,11 @@ datapoints, the more accurate the approximation.
    some quantities, but it is in no way equivalento to conventional Fourier
    periodogram analysis.
 
-   ``LombScargle.jl`` use FFTW functions to compute the FFT.  You can speed-up
-   this task by using multi-threading: call ``FFTW.set_num_threads(n)`` to use
-   :math:`n` threads.  However, please note that the running time will not scale
-   as :math:`1/n` because computation of the FFT is only a part of the
-   algorithm.
+   ``LombScargle.jl`` uses `FFTW <http://fftw.org/>`_ functions to compute the
+   FFT.  You can speed-up this task by using multi-threading: call
+   ``FFTW.set_num_threads(n)`` to use :math:`n` threads.  However, please note
+   that the running time will not scale as :math:`n` because computation of the
+   FFT is only a part of the algorithm.
 
 The only prerequisite in order to be able to employ this fast method is to
 provide a ``frequencies`` vector as a ``Range`` object, which ensures that the

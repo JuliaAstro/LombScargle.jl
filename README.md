@@ -8,9 +8,11 @@
 Introduction
 ------------
 
-`LombScargle.jl` is a [Julia](http://julialang.org/) package to estimate the
-[frequency spectrum](https://en.wikipedia.org/wiki/Frequency_spectrum) of a
-periodic signal with
+`LombScargle.jl` is a [Julia](http://julialang.org/) package is a package for a
+fast multi-threaded estimation of
+the [frequency spectrum](https://en.wikipedia.org/wiki/Frequency_spectrum) of a
+periodic signal
+with
 [the Lomb–Scargle periodogram](https://en.wikipedia.org/wiki/The_Lomb–Scargle_periodogram).
 
 Another Julia package that provides tools to perform spectral analysis of
@@ -34,8 +36,12 @@ The algorithms used in this package are reported in the following papers:
 
 The package provides facilities to:
 
-* compute the periodogram using different implementations (with different
-  speeds) and different normalizations;
+* compute the periodogram using different methods (with different speeds) and
+  different normalizations.  This is one of the fastest implementations of these
+  methods available as free software.  If Julia is run with more than
+  one
+  [thread](http://docs.julialang.org/en/stable/manual/parallel-computing/#multi-threading-experimental),
+  computation is automatically multi-threaded, further speeding up calculations;
 * access the frequency and period grid of the resulting periodogram, together
   with the power spectrum;
 * find the maximum power in the periodogram and the frequency and period

@@ -10,7 +10,7 @@ v0.3.0 (201?-??-??)
 
 ### Improvements
 
-This version faced many performance improvement, in particular to `lombscargle`
+This version faced many performance improvements, in particular to `lombscargle`
 and `LombScargle.model` functions.
 
 * The fast method of `lombscarlge` now is faster, the larger the size of input
@@ -20,12 +20,12 @@ and `LombScargle.model` functions.
   computation.  However, please note that the running time will not scale as `n`
   because computation of the FFT is only a part of the algorithm.  The function
   is also less memory-eager than before.
-* The two non-fast methods now can take advantage of
-  Julia’s
+* The two non-fast methods now supports Julia’s
+  native
   [multi-threading](http://docs.julialang.org/en/stable/manual/parallel-computing/#multi-threading-experimental).
   Run Julia with `n` threads (e.g., `JULIA_NUM_THREADS=4 julia` for 4 threads)
   in order to gain an `n`-fold scaling.
-* The `LombScargle.model` function is now a bit faster and less memory greedy
+* The `LombScargle.model` function is now a bit faster and less memory-greedy
   than before.
 
 v0.2.0 (2016-12-07)
