@@ -195,8 +195,6 @@ function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Ab
     if fit_mean
         Y   = w⋅y
         YY -= Y*Y
-    end
-    if fit_mean
         _generalised_lombscargle_loop!(P, freqs, times, y, w, Y, YY, nil)
     else
         _generalised_lombscargle_loop!(P, freqs, times, y, w, YY, nil)
@@ -268,7 +266,7 @@ function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVect
     YC = Ch .* Cw .+ Sh .* Sw
     YS = Sh .* Cw .- Ch .* Sw
     CC = (1 .+ C2 .* C2w .+ S2 .* S2w) ./ 2
-    SS = (1 .- C2 .* C2w .- S2 .* S2w) ./ 2
+    SS = (1 .- C2 .* C2w .- S2 .* S2w) ./ 2 # = 1 .- CC
     if fit_mean
         CC .-= (C .* Cw .+ S .* Sw) .^ 2
         SS .-= (S .* Cw .- C .* Sw) .^ 2

@@ -8,8 +8,8 @@
 Introduction
 ------------
 
-`LombScargle.jl` is a [Julia](http://julialang.org/) package is a package for a
-fast multi-threaded estimation of
+`LombScargle.jl` is a [Julia](http://julialang.org/) package for a fast
+multi-threaded estimation of
 the [frequency spectrum](https://en.wikipedia.org/wiki/Frequency_spectrum) of a
 periodic signal
 with
