@@ -199,6 +199,9 @@ Algorithm`_ section below.
    ``JULIA_NUM_THREADS=4 julia`` for 4 threads) in order to automatically gain
    an :math:`n` -fold scaling.
 
+   Please note that multi-threading is still an experimental feature in Julia,
+   so you may encounter issues when running it with more than one thread.
+
 If the signal has uncertainties, the ``signal`` vector can also be a vector of
 ``Measurement`` objects (from `Measurements.jl
 <https://github.com/giordano/Measurements.jl>`__ package), in which case you
