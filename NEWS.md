@@ -6,7 +6,7 @@ v0.3.0 (201?-??-??)
 
 ### Breaking Changes
 
-* Support for Julia 0.4 was dropped.
+* Support for Julia 0.4 and 0.5 was dropped.
 
 ### Improvements
 
@@ -27,6 +27,9 @@ and `LombScargle.model` functions.
   in order to gain an `n`-fold scaling.
 * The `LombScargle.model` function is now a bit faster and less memory-greedy
   than before.
+
+In this relase no bugs were detected, nor any feature was introduced, so Julia
+0.4 and 0.5 users will miss only better performances.
 
 v0.2.0 (2016-12-07)
 -------------------

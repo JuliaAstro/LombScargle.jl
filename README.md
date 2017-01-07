@@ -2,8 +2,8 @@
 
 | **Documentation**                       | [**Package Evaluator**][pkgeval-link] | **Build Status**                          | **Code Coverage**               |
 |:---------------------------------------:|:-------------------------------------:|:-----------------------------------------:|:-------------------------------:|
-| [![][docs-stable-img]][docs-stable-url] | [![][pkg-0.5-img]][pkg-0.5-url]       | [![Build Status][travis-img]][travis-url] | [![][coveral-img]][coveral-url] |
-| [![][docs-latest-img]][docs-latest-url] | [![][pkg-0.6-img]][pkg-0.6-url]       | [![Build Status][appvey-img]][appvey-url] | [![][codecov-img]][codecov-url] |
+| [![][docs-stable-img]][docs-stable-url] | [![][pkg-0.6-img]][pkg-0.6-url]       | [![Build Status][travis-img]][travis-url] | [![][coveral-img]][coveral-url] |
+| [![][docs-latest-img]][docs-latest-url] |                                       | [![Build Status][appvey-img]][appvey-url] | [![][codecov-img]][codecov-url] |
 
 Introduction
 ------------
@@ -69,7 +69,7 @@ https://media.readthedocs.org/pdf/lombscarglejl/latest/lombscarglejl.pdf.
 Installation
 ------------
 
-`LombScargle.jl` is available for Julia 0.5 and later versions, and can be
+`LombScargle.jl` is available for Julia 0.6 and later versions, and can be
 installed with
 [Julia built-in package manager](http://docs.julialang.org/en/stable/manual/packages/).
 In a Julia session run the commands
@@ -79,7 +79,7 @@ julia> Pkg.update()
 julia> Pkg.add("LombScargle")
 ```
 
-Older versions are also available for Julia 0.4.
+Older versions are also available for Julia 0.4 and 0.5.
 
 Usage
 -----
@@ -456,8 +456,6 @@ periodogram in Astropy, in particular for the fast method by Press & Rybicki
 
 [pkgeval-link]: http://pkg.julialang.org/?pkg=LombScargle
 
-[pkg-0.5-img]: http://pkg.julialang.org/badges/LombScargle_0.5.svg
-[pkg-0.5-url]: http://pkg.julialang.org/detail/LombScargle.html
 [pkg-0.6-img]: http://pkg.julialang.org/badges/LombScargle_0.6.svg
 [pkg-0.6-url]: http://pkg.julialang.org/detail/LombScargle.html
 
