@@ -2,6 +2,8 @@ using LombScargle
 using Measurements
 using Base.Test
 
+Threads.nthreads() > 1 && info("Multi-threading enabled")
+
 # Fix random seed to make test reproducible.
 srand(1)
 
