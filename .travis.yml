@@ -10,5 +10,6 @@ notifications:
 script:
  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
  - julia -e 'Pkg.clone(pwd()); Pkg.build("LombScargle"); Pkg.test("LombScargle"; coverage=true)'
+ - JULIA_NUM_THREADS=4 julia -e 'Pkg.test("LombScargle")'
 after_success:
  - julia -e 'cd(Pkg.dir("LombScargle")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder()); Codecov.submit(process_folder())'
