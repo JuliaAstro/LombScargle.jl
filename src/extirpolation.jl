@@ -76,7 +76,7 @@ function trig_sum!{R1<:Real,R2<:Real}(grid, ifft_vec, ifft_plan,
     tnorm = mod.(((t .- t0) .* Nfft .* df), Nfft)
     extirpolate!(grid, tnorm, H, Nfft, Mfft)
     A_mul_B!(ifft_vec, ifft_plan, grid)
-    fftgrid = Nfft .* ifft_vec[1:N]
+    fftgrid = Nfft .* @view(ifft_vec[1:N])
     if t0 != 0
         fftgrid .*= exp.(2im .* pi .* t0 .* (f0 .+ df .* (0:N - 1)))
     end
