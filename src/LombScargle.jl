@@ -202,6 +202,16 @@ function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Ab
     return P
 end
 
+# Compute some quantities that will be used in Press & Rybicki method.
+function _press_rybicki_helper!(C2w, S2w, Cw, Sw, tan_2ωτ)
+    # The straightforward way to compute the quantity commented is
+    # slower and less stable, so we use trig identities instead
+    C2w .= 1 ./ (sqrt.(1 .+ tan_2ωτ .* tan_2ωτ)) # = cos(2 * ωτ)
+    S2w .= tan_2ωτ .* C2w # = sin(2 * ωτ)
+    Cw  .= sqrt.((1 .+ C2w) ./ 2) # = cos(ωτ)
+    Sw  .= sign.(S2w) .* sqrt.((1 .- C2w) ./ 2) # = sin(ωτ)
+end
+
 # Fast, but approximate, method to compute the Lomb-Scargle periodogram for
 # evenly spaced frequency grid.  See
 # * Press, W. H., Rybicki, G. B. 1989, ApJ, 338, 277 (URL:
@@ -226,6 +236,7 @@ function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVect
     else
         y = signal
     end
+    YY = w⋅(y.^2)
     df = step(freqs)
     N  = length(freqs)
     f0 = minimum(freqs)
@@ -234,8 +245,9 @@ function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVect
     # `ifft' can take arrays of any length in input, but
     # it's faster when the length is exactly a power of 2.
     Nfft = nextpow2(N * oversampling)
-    ifft_vec = Vector{Complex{promote_type(float(R2), float(R3))}}(Nfft)
-    grid = similar(ifft_vec)
+    T = promote_type(float(R2), float(R3))
+    ifft_vec = Vector{Complex{T}}(Nfft)
+    grid = Vector{Complex{T}}(Nfft)
     plan = plan_ifft(ifft_vec, flags = FFTW.MEASURE)
     #---------------------------------------------------------------------------
     # 1. compute functions of the time-shift tau at each frequency
@@ -247,28 +259,25 @@ function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVect
         C, S = trig_sum!(grid, ifft_vec, plan, times, w, df,    N, Nfft, f0,
                          1, Mfft)
         tan_2ωτ = (S2 .- 2 .* S .* C) ./ (C2 .- (C .* C .- S .* S))
-    else
-        tan_2ωτ = S2 ./ C2
-    end
-    # This is what we're computing below; the straightforward way is slower and
-    # less stable, so we use trig identities instead
-    #   ωτ = 0.5 * atan(tan_2ωτ)
-    #   S2w, C2w = sin(2 * ωτ), cos(2 * ωτ)
-    #   Sw, Cw = sin(ωτ), cos(ωτ)
-    C2w = 1 ./ (sqrt.(1 .+ tan_2ωτ .* tan_2ωτ))
-    S2w = tan_2ωτ .* C2w
-    Cw = sqrt.((1 .+ C2w) ./ 2)
-    Sw = sign(S2w) .* sqrt.((1 .- C2w) ./ 2)
-    #---------------------------------------------------------------------------
-    # 2. Compute the periodogram, following Zechmeister & Kurster
-    #    and using tricks from Press & Rybicki.
-    YY = w⋅(y.^2)
-    if fit_mean
+        #-----------------------------------------------------------------------
+        # 2. Compute the periodogram, following Zechmeister & Kurster
+        #    and using tricks from Press & Rybicki.
+        C2w = Vector{T}(N)
+        S2w = Vector{T}(N)
+        Cw = Vector{T}(N)
+        Sw = Vector{T}(N)
+        _press_rybicki_helper!(C2w, S2w, Cw, Sw, tan_2ωτ)
         return ((Ch .* Cw .+ Sh .* Sw) .^ 2 ./
                 ((1 .+ C2 .* C2w .+ S2 .* S2w) ./ 2 .- (C .* Cw .+ S .* Sw) .^ 2) .+
                 (Sh .* Cw .- Ch .* Sw) .^ 2 ./
                 ((1 .- C2 .* C2w .- S2 .* S2w) ./ 2 .- (S .* Cw .- C .* Sw) .^ 2)) ./ YY
     else
+        tan_2ωτ = S2 ./ C2
+        C2w = Vector{T}(N)
+        S2w = Vector{T}(N)
+        Cw = Vector{T}(N)
+        Sw = Vector{T}(N)
+        _press_rybicki_helper!(C2w, S2w, Cw, Sw, tan_2ωτ)
         return ((Ch .* Cw .+ Sh .* Sw) .^ 2 ./ ((1 .+ C2 .* C2w .+ S2 .* S2w) ./ 2) .+
                 (Sh .* Cw .- Ch .* Sw) .^ 2 ./ ((1 .- C2 .* C2w .- S2 .* S2w) ./ 2)) ./ YY
     end
