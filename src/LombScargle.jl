@@ -22,7 +22,7 @@ export lombscargle
 # This is similar to Periodogram type of DSP.Periodograms module, but for
 # unevenly spaced frequencies.
 immutable Periodogram{P<:AbstractFloat, F<:AbstractVector,
-                      T<:AbstractVector, S<:AbstractString}
+                      T<:AbstractVector}
     power::Vector{P}
     freq::F
     # XXX: the `times' vector is only in the `M' function (see utils.jl), but
@@ -30,7 +30,7 @@ immutable Periodogram{P<:AbstractFloat, F<:AbstractVector,
     # possibility to keep in this type only the extrema of t, instead of the
     # whole array.
     times::T
-    norm::S
+    norm::Symbol
 end
 
 include("extirpolation.jl")
@@ -342,7 +342,7 @@ function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector
                                                            signal::AbstractVector{R2},
                                                            with_errors::Bool,
                                                            w::AbstractVector{R3}=ones(signal)/length(signal);
-                                                           normalization::AbstractString="standard",
+                                                           normalization::Symbol=:standard,
                                                            noise_level::Real=1.0,
                                                            center_data::Bool=true,
                                                            fit_mean::Bool=true,
@@ -364,21 +364,21 @@ function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector
                     center_data, fit_mean, oversampling, Mfft)
     N = length(signal)
     # Normalize periodogram
-    if normalization == "standard"
-    elseif normalization == "model"
+    if normalization == :standard
+    elseif normalization == :model
         P = P./(1.0 - P)
-    elseif normalization == "log"
+    elseif normalization == :log
         P = -log.(1.0 - P)
-    elseif normalization == "psd"
+    elseif normalization == :psd
         P *= 0.5*N*(w⋅signal.^2)
-    elseif normalization == "Scargle"
+    elseif normalization == :Scargle
         P /= noise_level
-    elseif normalization == "HorneBaliunas"
+    elseif normalization == :HorneBaliunas
         P *= 0.5*(N - 1.0)
-    elseif normalization == "Cumming"
+    elseif normalization == :Cumming
         P *= 0.5*(N - 3.0)/(1.0 - maximum(P))
     else
-        error("normalization \"", normalization, "\" not supported")
+        error("normalization \"", string(normalization), "\" not supported")
     end
     return Periodogram(P, frequencies, times, normalization)
 end
@@ -415,7 +415,7 @@ end
 """
     lombscargle(times::AbstractVector{Real}, signal::AbstractVector{Real},
                 errors::AbstractVector{Real}=ones(signal);
-                normalization::AbstractString="standard",
+                normalization::Symbol=:standard,
                 noise_level::Real=1.0,
                 center_data::Bool=true,
                 fit_mean::Bool=true,
@@ -440,10 +440,10 @@ Compute the Lomb-Scargle periodogram of the `signal` vector, observed at
 Optional keywords arguments are:
 
 * `normalization`: how to normalize the periodogram.  Valid choices are:
-  `"standard"`, `"model"`, `"log"`, `"psd"`, `"Scargle"`, `"HorneBaliunas"`,
-  `"Cumming"`
+  `:standard`, `:model`, `:log`, `:psd`, `:Scargle`, `:HorneBaliunas`,
+  `:Cumming`
 * `noise_level`: the noise level used to normalize the periodogram when
-  `normalization` is set to `"Scargle"`
+  `normalization` is set to `:Scargle`
 * `fit_mean`: if `true`, fit for the mean of the signal using the Generalised
   Lomb-Scargle algorithm (see Zechmeister & Kürster paper below).  If this is
   `false` and no uncertainty on the signal is provided, the original algorithm

@@ -101,7 +101,7 @@ The main function provided by the package is `lombscargle`:
 lombscargle(times::AbstractVector{Real},
             signal::AbstractVector{Real},
             errors::AbstractVector{Real}=ones(signal);
-            normalization::AbstractString="standard",
+            normalization::Symbol=:standard,
             noise_level::Real=1.0,
             center_data::Bool=true,
             fit_mean::Bool=true,
@@ -141,12 +141,12 @@ Also `errors` must have the same length as `times` and `signal`.
 Optional keyword arguments are:
 
 * `normalization`: how to normalize the periodogram.  Valid choices are:
-  `"standard"`, `"model"`, `"log"`, `"psd"`, `"Scargle"`, `"HorneBaliunas"`,
-  `"Cumming"`.  See the
-  [manual](http://lombscarglejl.readthedocs.io/en/latest/#normalization) for
+  `:standard`, `:model`, `:log`, `:psd`, `:Scargle`, `:HorneBaliunas`,
+  `:Cumming`.  See
+  the [manual](http://lombscarglejl.readthedocs.io/en/latest/#normalization) for
   details
 * `noise_level`: the noise level used to normalize the periodogram when
-  `normalization` is set to `"Scargle"`
+  `normalization` is set to `:Scargle`
 * `fit_mean`: if `true`, fit for the mean of the signal using the Generalised
   Lomb–Scargle algorithm (see Zechmeister & Kürster paper below).  If this is
   `false` and no uncertainty on the signal is provided, the original algorithm

@@ -43,13 +43,13 @@ pgram4 = lombscargle(t, s, fast = false, center_data=false, fit_mean=true)
 @test power(lombscargle(t, s, frequencies=0.2:0.2:1, fit_mean=false)) ≈ [0.02988686776042212, 0.0005456197937194695,1.9125076826683257e-5,4.542583863304549e-6,1.0238340733199874e-5]
 @test power(lombscargle(t, s, frequencies=0.2:0.2:1, center_data=false, fit_mean=true)) ≈ [0.029886871262325004,0.0005456198989536703,1.9125077421448458e-5,4.5425840956285145e-6,1.023834278337881e-5]
 @test power(lombscargle(t, s, frequencies=0.2:0.2:1, center_data=false, fit_mean=false)) ≈ [0.029886868328967767,0.0005456198924872134,1.9125084251687147e-5,4.542588504467314e-6,1.0238354525870936e-5]
-@test power(lombscargle(t, s, frequencies=0.2:0.2:1, normalization="model")) ≈ [0.030807614469885718,0.0005459177625354441,1.9125443196143085e-5,4.54260473047638e-6,1.0238447607164715e-5]
-@test power(lombscargle(t, s, frequencies=0.2:0.2:1, normalization="log")) ≈ [0.030342586720560734,0.0005457688036440774,1.9125260307148152e-5,4.542594412890309e-6,1.0238395194654036e-5]
-@test power(lombscargle(t, s, frequencies=0.2:0.2:1, normalization="psd")) ≈ [7.474096700871138,0.1364484040771917,0.004782791641128195,0.0011360075968541799,0.002560400630125523]
-@test power(lombscargle(t, s, frequencies=0.2:0.2:1, normalization="Scargle")) ≈ [0.029886871262324904,0.0005456198989410194,1.912507742056126e-5,4.54258409531238e-6,1.0238342782428552e-5]
-@test power(lombscargle(t, s, frequencies=0.2:0.2:1, normalization="HorneBaliunas")) ≈ [14.943435631162451,0.2728099494705097,0.009562538710280628,0.00227129204765619,0.005119171391214276]
-@test power(lombscargle(t, s, frequencies=0.2:0.2:1, normalization="Cumming")) ≈ [15.372999620472974,0.2806521440709115,0.009837423440787873,0.0023365826071340815,0.005266327088140394]
-@test_throws ErrorException lombscargle(t, s, frequencies=0.2:0.2:1, normalization="foo")
+@test power(lombscargle(t, s, frequencies=0.2:0.2:1, normalization=:model)) ≈ [0.030807614469885718,0.0005459177625354441,1.9125443196143085e-5,4.54260473047638e-6,1.0238447607164715e-5]
+@test power(lombscargle(t, s, frequencies=0.2:0.2:1, normalization=:log)) ≈ [0.030342586720560734,0.0005457688036440774,1.9125260307148152e-5,4.542594412890309e-6,1.0238395194654036e-5]
+@test power(lombscargle(t, s, frequencies=0.2:0.2:1, normalization=:psd)) ≈ [7.474096700871138,0.1364484040771917,0.004782791641128195,0.0011360075968541799,0.002560400630125523]
+@test power(lombscargle(t, s, frequencies=0.2:0.2:1, normalization=:Scargle)) ≈ [0.029886871262324904,0.0005456198989410194,1.912507742056126e-5,4.54258409531238e-6,1.0238342782428552e-5]
+@test power(lombscargle(t, s, frequencies=0.2:0.2:1, normalization=:HorneBaliunas)) ≈ [14.943435631162451,0.2728099494705097,0.009562538710280628,0.00227129204765619,0.005119171391214276]
+@test power(lombscargle(t, s, frequencies=0.2:0.2:1, normalization=:Cumming)) ≈ [15.372999620472974,0.2806521440709115,0.009837423440787873,0.0023365826071340815,0.005266327088140394]
+@test_throws ErrorException lombscargle(t, s, frequencies=0.2:0.2:1, normalization=:foo)
 
 # Test signal with uncertainties
 err = collect(linspace(0.5, 1.5, ntimes))
@@ -108,14 +108,14 @@ p = lombscargle(t, s, maximum_frequency=4)
 # Test probabilities and FAP
 t = collect(linspace(0.01, 10pi, 101))
 s = sin.(t)
-for norm in ("standard", "Scargle", "HorneBaliunas", "Cumming")
+for norm in (:standard, :Scargle, :HorneBaliunas, :Cumming)
     P = lombscargle(t, s, normalization = norm)
     for z_0 in (0.1, 0.5, 0.9)
         @test prob(P, probinv(P, z_0)) ≈ z_0
         @test fap(P,  fapinv(P, z_0)) ≈ z_0
     end
 end
-P = lombscargle(t, s, normalization = "log")
+P = lombscargle(t, s, normalization = :log)
 @test_throws ErrorException prob(P, 0.5)
 @test_throws ErrorException probinv(P, 0.5)
 

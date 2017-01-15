@@ -8,6 +8,11 @@ v0.3.0 (201?-??-??)
 
 * Support for Julia 0.4 and 0.5 was dropped.
 
+* The `normalization` keyword of `lombscargle` function now must be a `Symbol`
+  (instead of `AbstractString`), the default being `:standard` (instead of
+  `"standard"`).  The same normalizations as before are supported, the names
+  kept the same capitalization.
+
 ### Improvements
 
 This version faced many performance improvements, in particular to `lombscargle`

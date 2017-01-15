@@ -125,7 +125,7 @@ the complete syntax:
     lombscargle(times::AbstractVector{Real},
                 signal::AbstractVector{Real},
                 errors::AbstractVector{Real}=ones(signal);
-                normalization::AbstractString="standard",
+                normalization::Symbol=:standard,
                 noise_level::Real=1.0,
                 center_data::Bool=true,
                 fit_mean::Bool=true,
@@ -152,10 +152,10 @@ Also ``errors`` must have the same length as ``times`` and ``signal``.
 Optional keyword arguments are:
 
 - ``normalization``: how to normalize the periodogram.  Valid choices are:
-  ``"standard"``, ``"model"``, ``"log"``, ``"psd"``, ``"Scargle"``,
-  ``"HorneBaliunas"``, ``"Cumming"``.  See Normalization_ section for details
+  ``:standard``, ``:model``, ``:log``, ``:psd``, ``:Scargle``,
+  ``:HorneBaliunas``, ``:Cumming``.  See Normalization_ section for details
 - ``noise_level``: the noise level used to normalize the periodogram when
-  ``normalization`` is set to ``"Scargle"``
+  ``normalization`` is set to ``:Scargle``
 - ``fit_mean``: if ``true``, fit for the mean of the signal using the
   Generalised Lomb–Scargle algorithm (see [ZK09]_).  If this is ``false`` and no
   uncertainty on the signal is provided, the original algorithm by Lomb and
@@ -300,7 +300,7 @@ By default, the periodogram :math:`p(f)` is normalized so that it has values in
 the range :math:`0 \leq p(f) \leq 1`, with :math:`p = 0` indicating no
 improvement of the fit and :math:`p = 1` a "perfect" fit (100% reduction of
 :math:`\chi^2` or :math:`\chi^2 = 0`).  This is the normalization suggested by
-[LOM76]_ and [ZK09]_, and corresponds to the ``"standard"`` normalization in
+[LOM76]_ and [ZK09]_, and corresponds to the ``:standard`` normalization in
 :func:`lombscargle` function.  [ZK09]_ wrote the formula for the power of the
 periodogram at frequency :math:`f` as
 
@@ -310,23 +310,23 @@ See the paper for details.  The other normalizations for periodograms
 :math:`P(f)` are calculated from this one.  In what follows, :math:`N` is the
 number of observations.
 
-- ``"model"``:
+- ``:model``:
 
   .. math::
      P(f) = \frac{p(f)}{1 - p(f)}
 
-- ``"log"``:
+- ``:log``:
 
   .. math::
      P(f) = -\log(1 - p(f))
 
-- ``"psd"``:
+- ``:psd``:
 
   .. math::
      P(f) = \frac{1}{2}\left[\frac{YC^2_{\tau}}{CC_{\tau}} +
             \frac{YS^2_{\tau}}{SS_{\tau}}\right] = p(f) \frac{YY}{2}
 
-- ``"Scargle"``:
+- ``:Scargle``:
 
   .. math::
      P(f) = \frac{p(f)}{\text{noise level}}
@@ -334,12 +334,12 @@ number of observations.
   This normalization can be used when you know the noise level (expected from
   the a priori known noise variance or population variance), but this isn’t
   usually the case.  See [SCA82]_
-- ``"HorneBaliunas"``:
+- ``:HorneBaliunas``:
 
   .. math::
      P(f) = \frac{N - 1}{2} p(f)
 
-  This is like the ``"Scargle"`` normalization, where the noise has been
+  This is like the ``:Scargle`` normalization, where the noise has been
   estimated for Gaussian noise to be :math:`(N - 1)/2`.  See [HB86]_
 - If the data contains a signal or if errors are under- or overestimated or if
   intrinsic variability is present, then :math:`(N-1)/2` may not be a good
@@ -350,7 +350,7 @@ number of observations.
   .. math::
      P(f) = \frac{N - 3}{2} \frac{p(f)}{1 - p(f_{\text{best}})}
 
-  This is the ``"Cumming"`` normalization option
+  This is the ``:Cumming`` normalization option
 
 Access Frequency Grid and Power Spectrum of the Periodogram
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -414,8 +414,7 @@ will be this probability.
    [CMB99]_ showed that the different normalizations result in different
    probability functions.  ``LombScargle.jl`` can calculate the probability (and
    the false-alarm probability) only for the normalizations reported by [ZK09]_,
-   that are ``"standard"``, ``"Scargle"``, ``"HorneBaliunas"``, and
-   ``"Cumming"``.
+   that are ``:standard``, ``:Scargle``, ``:HorneBaliunas``, and ``:Cumming``.
 
 The probability :math:`\text{Prob}(p > p_{0})` that the periodogram power
 :math:`p` can exceed the value :math:`p_{0}` can be calculated with the
@@ -427,22 +426,22 @@ takes the probability as second argument and returns the corresponding
 Here are the probability functions for each normalization supported by
 ``LombScargle.jl``:
 
-- ``"standard"`` (:math:`p \in [0, 1]`):
+- ``:standard`` (:math:`p \in [0, 1]`):
 
   .. math::
      \text{Prob}(p > p_{0}) = (1 - p_{0})^{(N - 3)/2}
 
-- ``"Scargle"`` (:math:`p \in [0, \infty)`):
+- ``:Scargle`` (:math:`p \in [0, \infty)`):
 
   .. math::
      \text{Prob}(p > p_{0}) = \exp(-p_{0})
 
-- ``"HorneBaliunas"`` (:math:`p \in [0, (N - 1)/2]`):
+- ``:HorneBaliunas`` (:math:`p \in [0, (N - 1)/2]`):
 
   .. math::
      \text{Prob}(p > p_{0}) = \left(1 - \frac{2p_{0}}{N - 1}\right)^{(N - 3)/2}
 
-- ``"Cumming"`` (:math:`p \in [0, \infty)`):
+- ``:Cumming`` (:math:`p \in [0, \infty)`):
 
   .. math::
      \text{Prob}(p > p_{0}) = \left(1 + \frac{2p_{0}}{N - 3}\right)^{-(N - 3)/2}

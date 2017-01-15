@@ -159,16 +159,16 @@ Its inverse is the `probinv` function.
 function prob(P::Periodogram, pow::Real)
     N = length(P.times)
     normalization = P.norm
-    if normalization == "standard"
+    if normalization == :standard
         return (1.0 - pow)^((N - 3.0)*0.5)
-    elseif normalization == "Scargle"
+    elseif normalization == :Scargle
         return exp(-pow)
-    elseif normalization == "HorneBaliunas"
+    elseif normalization == :HorneBaliunas
         return (1.0 - 2*pow/(N - 1))^((N - 3.0)*0.5)
-    elseif normalization == "Cumming"
+    elseif normalization == :Cumming
         return (1.0 + 2*pow/(N - 3.0))^((3.0 - N)*0.5)
     else
-        error("normalization \"", normalization, "\" not supported")
+        error("normalization \"", string(normalization), "\" not supported")
     end
 end
 
@@ -182,16 +182,16 @@ This is the inverse of `prob` function.
 function probinv(P::Periodogram, prob::Real)
     N = length(P.times)
     normalization = P.norm
-    if normalization == "standard"
+    if normalization == :standard
         return 1.0 - prob^(2.0/(N - 3.0))
-    elseif normalization == "Scargle"
+    elseif normalization == :Scargle
         return -log(prob)
-    elseif normalization == "HorneBaliunas"
+    elseif normalization == :HorneBaliunas
         return 0.5*(N - 1.0)*(1.0 - prob^(2.0/(N - 3.0)))
-    elseif normalization == "Cumming"
+    elseif normalization == :Cumming
         return 0.5*(N - 3.0)*(prob^(2.0/(3.0 - N)) - 1.0)
     else
-        error("normalization \"", normalization, "\" not supported")
+        error("normalization \"", string(normalization), "\" not supported")
     end
 end
 

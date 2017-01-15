@@ -17,7 +17,7 @@ for f in (x -> sinpi.(x), x -> sin.(x) + 1.5*cospi.(4*x) + 3)
         fast in ((true, "fast"), (false, "cython")), center in (true, false)
         f_jl, p_jl = freqpower(lombscargle(t, s, fit_mean = fitmean,
                                            center_data = center,
-                                           normalization=nrm,
+                                           normalization=Symbol(nrm),
                                            maximum_frequency=20, fast = fast[1]))
         f_py, p_py =
             ast.LombScargle(t, s,
@@ -43,7 +43,7 @@ for f in (x -> sinpi.(x), x -> sin.(x) + 1.5*cospi.(4*x) + 3), err in (ones(ntim
                                            fast = fast[1],
                                            fit_mean = fitmean,
                                            center_data = center,
-                                           normalization=nrm,
+                                           normalization=Symbol(nrm),
                                            maximum_frequency=10,
                                            samples_per_peak=10))
         f_py, p_py =
@@ -69,7 +69,7 @@ for f in (x -> sinpi.(x), x -> sin.(x) + 1.5*cospi.(4*x) + 3)
                                            fit_mean = fitmean,
                                            center_data = center,
                                            fast = fast[1],
-                                           normalization = nrm,
+                                           normalization = Symbol(nrm),
                                            maximum_frequency=20))
         f_py, p_py =
             ast.LombScargle(t, s, dy = errors,
