@@ -263,13 +263,15 @@ function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVect
     # 2. Compute the periodogram, following Zechmeister & Kurster
     #    and using tricks from Press & Rybicki.
     YY = w⋅(y.^2)
-    CC = (1 .+ C2 .* C2w .+ S2 .* S2w) ./ 2
-    SS = (1 .- C2 .* C2w .- S2 .* S2w) ./ 2 # = 1 .- CC
     if fit_mean
-        CC .-= (C .* Cw .+ S .* Sw) .^ 2
-        SS .-= (S .* Cw .- C .* Sw) .^ 2
+        return ((Ch .* Cw .+ Sh .* Sw) .^ 2 ./
+                ((1 .+ C2 .* C2w .+ S2 .* S2w) ./ 2 .- (C .* Cw .+ S .* Sw) .^ 2) .+
+                (Sh .* Cw .- Ch .* Sw) .^ 2 ./
+                ((1 .- C2 .* C2w .- S2 .* S2w) ./ 2 .- (S .* Cw .- C .* Sw) .^ 2)) ./ YY
+    else
+        return ((Ch .* Cw .+ Sh .* Sw) .^ 2 ./ ((1 .+ C2 .* C2w .+ S2 .* S2w) ./ 2) .+
+                (Sh .* Cw .- Ch .* Sw) .^ 2 ./ ((1 .- C2 .* C2w .- S2 .* S2w) ./ 2)) ./ YY
     end
-    return ((Ch .* Cw .+ Sh .* Sw) .^ 2 ./ CC .+ (Sh .* Cw .- Ch .* Sw) .^ 2 ./ SS) ./ YY
 end
 
 # Switches to select the appropriate algorithm to compute the periodogram.
