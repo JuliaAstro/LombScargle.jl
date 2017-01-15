@@ -2,7 +2,7 @@ using LombScargle
 using Measurements
 using Base.Test
 
-Threads.nthreads() > 1 && info("Multi-threading enabled")
+Threads.nthreads() > 1 && info("Julia running in multi-threading mode")
 
 # Fix random seed to make test reproducible.
 srand(1)
@@ -140,8 +140,8 @@ y = sin.(x)
 @test LombScargle.extirpolate!(Vector{Complex{Float64}}(11), x, y, 11) ≈ vec13[1:11]
 
 # Test trig_sum!
-# Bring back this test when support for Julia 0.5 will be dropped:
-# FFTW.set_num_threads(2)
+FFTW.set_num_threads(2)
+info("Multi-threading in FFTW enabled")
 x = collect(linspace(0, 10))
 y = sin.(x)
 N = 10
