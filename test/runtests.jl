@@ -146,10 +146,10 @@ x = collect(linspace(0, 10))
 y = sin.(x)
 N = 10
 Nfft = nextpow2(5N)
-ifft_vec = Vector{Complex{Float64}}(Nfft)
-p = plan_ifft(ifft_vec)
-grid = similar(ifft_vec)
-C, S = LombScargle.trig_sum!(grid, ifft_vec, p, x, y, 1, N, Nfft)
+bfft_vec = Vector{Complex{Float64}}(Nfft)
+p = plan_bfft(bfft_vec)
+grid = similar(bfft_vec)
+C, S = LombScargle.trig_sum!(grid, bfft_vec, p, x, y, 1, N, Nfft)
 @test S ≈ [0.0,0.3753570125888358,0.08163980192703546,-0.10139634351774979,-0.4334223744905633,-2.7843373311769777,0.32405810159838055,0.05729663600471602,-0.13191736591325876,-0.5295781583202946]
 @test C ≈ [8.708141477890015,-0.5402668064176129,-0.37460815054027985,-0.3793457539084364,-0.5972351546196192,14.612204307982497,-0.5020253140297526,-0.37724493022381034,-0.394096831764578,-0.6828241623474718]
 
