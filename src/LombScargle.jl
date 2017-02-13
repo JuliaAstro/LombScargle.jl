@@ -238,6 +238,7 @@ function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVect
     end
     YY = w⋅(y.^2)
     df = step(freqs)
+    @assert df > 0
     N  = length(freqs)
     f0 = minimum(freqs)
     #---------------------------------------------------------------------------
@@ -366,17 +367,17 @@ function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector
     # Normalize periodogram
     if normalization == :standard
     elseif normalization == :model
-        P = P./(1.0 - P)
+        P ./= (1 .- P)
     elseif normalization == :log
-        P = -log.(1.0 - P)
+        P .= -log.(1 .- P)
     elseif normalization == :psd
-        P *= 0.5*N*(w⋅signal.^2)
+        P .*= N .* (w ⋅ (signal .^ 2)) ./ 2
     elseif normalization == :Scargle
-        P /= noise_level
+        P ./= noise_level
     elseif normalization == :HorneBaliunas
-        P *= 0.5*(N - 1.0)
+        P .*= (N .- 1) ./ 2
     elseif normalization == :Cumming
-        P *= 0.5*(N - 3.0)/(1.0 - maximum(P))
+        P .*= (N .- 3) ./ (1 .- maximum(P)) ./ 2
     else
         error("normalization \"", string(normalization), "\" not supported")
     end

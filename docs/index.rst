@@ -45,6 +45,9 @@ Othe relevant papers are:
 .. [LOM76] Lomb, N. R. 1976, Ap&SS, 39, 447 (URL:
 	   http://dx.doi.org/10.1007/BF00648343, Bibcode:
 	   http://adsabs.harvard.edu/abs/1976Ap%26SS..39..447L)
+.. [MHC93] Murdoch, K. A., Hearnshaw, J. B., & Clark, M. 1993, ApJ, 413, 349
+	   (URL: http://dx.doi.org/10.1086/173003, Bibcode:
+	   http://adsabs.harvard.edu/abs/1993ApJ...413..349M)
 .. [SCA82] Scargle, J. D. 1982, ApJ, 263, 835 (URL:
 	   http://dx.doi.org/10.1086/160554, Bibcode:
 	   http://adsabs.harvard.edu/abs/1982ApJ...263..835S)
@@ -86,7 +89,7 @@ run the commands
     julia> Pkg.update()
     julia> Pkg.add("LombScargle")
 
-Older versions are also available for Julia 0.4 and 0.6.
+Older versions are also available for Julia 0.4 and 0.5.
 
 Usage
 -----
@@ -200,7 +203,10 @@ Algorithm`_ section below.
    an :math:`n` -fold scaling.
 
    Please note that multi-threading is still an experimental feature in Julia,
-   so you may encounter issues when running it with more than one thread.
+   so you may encounter issues when running it with more than one thread.  For
+   example, bug `#17395 <https://github.com/JuliaLang/julia/issues/17395>`__ (if
+   still open) may prevent the function, on some systems, from effectively
+   scaling.
 
 If the signal has uncertainties, the ``signal`` vector can also be a vector of
 ``Measurement`` objects (from `Measurements.jl
@@ -490,7 +496,8 @@ Bootstrapping
 
 One of the possible and most simple statistical methods that you can use to
 measure the false-alarm probability and its inverse is `bootstrapping
-<https://en.wikipedia.org/wiki/Bootstrapping_%28statistics%29>`__.
+<https://en.wikipedia.org/wiki/Bootstrapping_%28statistics%29>`__ (see section
+4.2.2 of [MHC93]_).
 
 .. Note::
 

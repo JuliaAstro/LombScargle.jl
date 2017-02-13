@@ -66,7 +66,6 @@ function trig_sum!{R1<:Real,R2<:Real}(grid, bfft_vec, bfft_plan,
                                       Mfft::Integer=4)
     df *= freq_factor
     f0 *= freq_factor
-    @assert df > 0
     t0 = minimum(t)
     if f0 > 0
         H = h .* cis.(2pi .* f0 .* (t .- t0))
