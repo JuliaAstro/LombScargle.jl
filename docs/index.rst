@@ -628,15 +628,20 @@ Here is an example of a noisy periodic signal (:math:`\sin(\pi t) +
 
 .. code-block:: julia
 
-    using LombScargle
-    ntimes = 1001
-    # Observation times
-    t = linspace(0.01, 10pi, ntimes)
-    # Randomize times
-    t += step(t)*rand(ntimes)
-    # The signal
-    s = sinpi(t) + 1.5cospi(2t) + rand(ntimes)
-    pgram = lombscargle(t, s)
+   julia> using LombScargle
+
+   julia> ntimes = 1001
+   1001
+
+   julia> t = linspace(0.01, 10pi, ntimes) # Observation times
+   0.01:0.03140592653589793:31.41592653589793
+
+   julia> t += step(t)*rand(ntimes) # Randomize times
+
+   julia> s = sinpi.(t) .+ 1.5cospi.(2t) .+ rand(ntimes) # The signal
+
+   julia> pgram = lombscargle(t, s)
+   LombScargle.Periodogram{Float64,StepRangeLen{Float64,Base.TwicePrecision{Float64},Base.TwicePrecision{Float64}},Array{Float64,1}}([0.000472346, 0.000461633, 0.000440906, 0.000412717, 0.000383552, 0.000355828, 0.000289723, 0.000154585, 3.44734e-5, 5.94437e-7  …  3.15125e-5, 0.000487391, 0.0018939, 0.00367003, 0.00484181, 0.00495189, 0.00453233, 0.00480968, 0.00619657, 0.0074052], 0.003185690706734265:0.00637138141346853:79.72190993602499, [0.0295785, 0.0540516, 0.0780093, 0.122759, 0.15685, 0.192366, 0.206601, 0.252829, 0.265771, 0.315443  …  31.1512, 31.1758, 31.2195, 31.2342, 31.2752, 31.293, 31.3517, 31.3761, 31.4148, 31.4199], :standard)
 
 You can plot the result, for example with `Plots
 <https://github.com/tbreloff/Plots.jl>`__ package.  Use :func:`freqpower`
@@ -645,8 +650,9 @@ function to get the frequency grid and the power of the periodogram as a
 
 .. code-block:: julia
 
-    using Plots
-    plot(freqpower(pgram)...)
+   julia> using Plots
+
+   julia> plot(freqpower(pgram)...)
 
 .. image:: freq-periodogram.png
 
@@ -655,8 +661,9 @@ You can also plot the power vs the period, instead of the frequency, with
 
 .. code-block:: julia
 
-    using Plots
-    plot(periodpower(pgram)...)
+   julia> using Plots
+
+   julia> plot(periodpower(pgram)...)
 
 .. image:: period-periodogram.png
 
@@ -670,7 +677,7 @@ You can also plot the power vs the period, instead of the frequency, with
 
    .. code-block:: julia
 
-      plot(freqpower(lombscargle(t, s, fit_mean=false, center_data=false))...)
+      julia> plot(freqpower(lombscargle(t, s, fit_mean=false, center_data=false))...)
 
    .. image:: figure_2.png
 
@@ -683,7 +690,7 @@ You can also plot the power vs the period, instead of the frequency, with
 
    .. code-block:: julia
 
-      plot(freqpower(lombscargle(t, s, samples_per_peak=20, maximum_frequency=1.5))...)
+      julia> plot(freqpower(lombscargle(t, s, samples_per_peak=20, maximum_frequency=1.5))...)
 
    .. image:: figure_3.png
 
@@ -692,7 +699,7 @@ You can also plot the power vs the period, instead of the frequency, with
 
    .. code-block:: julia
 
-      plot(freqpower(lombscargle(t, s, frequencies=0.001:1e-3:1.5))...)
+      julia> plot(freqpower(lombscargle(t, s, frequencies=0.001:1e-3:1.5))...)
 
    .. image:: figure_4.png
 
@@ -708,14 +715,20 @@ type ``Measurement`` (from `Measurements.jl
 
 .. code-block:: julia
 
-    using Measurements, Plots
-    ntimes = 1001
-    t = linspace(0.01, 10pi, ntimes)
-    s = sinpi(2t)
-    errors = rand(0.1:1e-3:4.0, ntimes)
+    julia> using Measurements, Plots
+
+    julia> ntimes = 1001
+
+    julia> t = linspace(0.01, 10pi, ntimes)
+
+    julia> s = sinpi(2t)
+
+    julia> errors = rand(0.1:1e-3:4.0, ntimes)
+
     # Run one of the two following equivalent commands
-    plot(freqpower(lombscargle(t, s, errors, maximum_frequency=1.5))...)
-    plot(freqpower(lombscargle(t, measurement(s, errors), maximum_frequency=1.5))...)
+    julia> plot(freqpower(lombscargle(t, s, errors, maximum_frequency=1.5))...)
+
+    julia> plot(freqpower(lombscargle(t, measurement(s, errors), maximum_frequency=1.5))...)
 
 .. image:: freq-uncertainties.png
 
@@ -724,8 +737,9 @@ This is the plot of the power versus the period:
 .. code-block:: julia
 
     # Run one of the two following equivalent commands
-    plot(periodpower(lombscargle(t, s, errors, maximum_frequency=1.5))...)
-    plot(periodpower(lombscargle(t, measurement(s, errors), maximum_frequency=1.5))...)
+    julia> plot(periodpower(lombscargle(t, s, errors, maximum_frequency=1.5))...)
+
+    julia> plot(periodpower(lombscargle(t, measurement(s, errors), maximum_frequency=1.5))...)
 
 .. image:: period-uncertainties.png
 
@@ -741,15 +755,19 @@ the periodogram (and you can get the period by taking its inverse):
 
 .. code-block:: julia
 
-    t = linspace(0, 10, 1001)
-    s = sinpi(t)
-    p = lombscargle(t, s)
-    findmaxperiod(p) # Period with highest power
-    # => 1-element Array{Float64,1}:
-    #     0.00498778
-    findmaxfreq(p) # Frequency with the highest power
-    # => 1-element Array{Float64,1}:
-    #     200.49
+   julia> t = linspace(0, 10, 1001)
+
+   julia> s = sinpi(t)
+
+   julia> p = lombscargle(t, s)
+
+   julia> findmaxperiod(p) # Period with highest power
+   1-element Array{Float64,1}:
+    0.00498778
+
+   julia> findmaxfreq(p) # Frequency with the highest power
+   1-element Array{Float64,1}:
+    200.49
 
 This peak is at high frequencies, very far from the expected value of the period
 of 2.  In order to find the real peak, you can either narrow the ranges in order
@@ -757,12 +775,13 @@ to exclude higher armonics
 
 .. code-block:: julia
 
-   findmaxperiod(p, [1, 10]) # Limit the search to periods in [1, 10]
-   # => 1-element Array{Float64,1}:
-   #     2.04082
-   findmaxfreq(p, [0.1, 1]) # Limit the search to frequencies in [0.1, 1]
-   # => 1-element Array{Float64,1}:
-   #     0.49
+   julia> findmaxperiod(p, [1, 10]) # Limit the search to periods in [1, 10]
+   1-element Array{Float64,1}:
+    2.04082
+
+   julia> findmaxfreq(p, [0.1, 1]) # Limit the search to frequencies in [0.1, 1]
+   1-element Array{Float64,1}:
+    0.49
 
 or pass the ``threshold`` argument to :func:`findmaxfreq` or
 :func:`findmaxperiod`.  You can use :func:`findmaxpower` to discover the highest
@@ -770,32 +789,34 @@ power in the periodogram:
 
 .. code-block:: julia
 
-    findmaxpower(p)
-    # => 0.9958310178312316
-    findmaxperiod(p, 0.95)
-    # => 10-element Array{Float64,1}:
-    #     2.04082
-    #     1.96078
-    #     0.0100513
-    #     0.0100492
-    #     0.00995124
-    #     0.00994926
-    #     0.00501278
-    #     0.00501228
-    #     0.00498778
-    #     0.00498728
-    findmaxfreq(p, 0.95)
-    # => 10-element Array{Float64,1}:
-    #       0.49
-    #       0.51
-    #      99.49
-    #      99.51
-    #     100.49
-    #     100.51
-    #     199.49
-    #     199.51
-    #     200.49
-    #     200.51
+   julia> findmaxpower(p)
+   0.9958310178312316
+
+   julia> findmaxperiod(p, 0.95)
+   10-element Array{Float64,1}:
+    2.04082
+    1.96078
+    0.0100513
+    0.0100492
+    0.00995124
+    0.00994926
+    0.00501278
+    0.00501228
+    0.00498778
+    0.00498728
+
+   julia> findmaxfreq(p, 0.95)
+   10-element Array{Float64,1}:
+      0.49
+      0.51
+     99.49
+     99.51
+    100.49
+    100.51
+    199.49
+    199.51
+    200.49
+    200.51
 
 The first peak is the real one, the other double peaks appear at higher
 armonics.
@@ -814,12 +835,15 @@ functions, respectively.
 
 .. code-block:: julia
 
-   t = linspace(0.01, 20, samples_per_peak = 10)
-   s = sinpi(e*t).^2 - cos(5t).^4
-   p = lombscargle(t, s)
+   julia> t = linspace(0.01, 20, samples_per_peak = 10)
+
+   julia> s = sinpi.(e.*t).^2 .- cos.(5t).^4
+
+   julia> p = lombscargle(t, s)
+
    # Find the false-alarm probability for the highest peak.
-   fap(p, 0.3)
-   # => 0.028198095962262748
+   julia> fap(p, 0.3)
+   0.028198095962262748
 
 Thus, a peak with power :math:`0.3` has a probability of :math:`0.028` that it
 is due to noise only.  A quantity that is often used is the inverse of the
@@ -830,8 +854,8 @@ know the minimum power for which the false-alarm probability is at most
 
 .. code-block:: julia
 
-   fapinv(p, 0.01)
-   # => 0.3304696923786712
+   julia> fapinv(p, 0.01)
+   0.3304696923786712
 
 As we already noted, analytic expressions of the false-alarm probability and its
 inverse may not be reliable if your data does not satisfy specific assumptions.
@@ -853,25 +877,25 @@ calculate the false-alarm probability and its inverse using this sample.
    # Create a bootstrap sample with 10000
    # resamplings of the original data.  The larger
    # the better.  This may take some minutes.
-   b = LombScargle.bootstrap(10000, t, s, samples_per_peak = 10, fast = false)
+   julia> b = LombScargle.bootstrap(10000, t, s, samples_per_peak = 10, fast = false)
 
    # Calculate the false-alarm probability of a peak
    # with power 0.3 using this bootstrap sample.
-   fap(b, 0.3)
-   # => 0.0209
+   julia> fap(b, 0.3)
+   0.0209
 
    # Calculate the lowest power that has probability
    # less than 0.01 in this bootstrap sample.
-   fapinv(b, 0.01)
-   # => 0.3268290388848437
+   julia> fapinv(b, 0.01)
+   0.3268290388848437
 
 If you query :func:`fapinv` with a too low probability, the corresponding power
 cannot be determined and you will get ``NaN`` as result.
 
 .. code-block:: julia
 
-   fapinv(b, 1e-5)
-   # => NaN
+   julia> fapinv(b, 1e-5)
+   NaN
 
 If you want to find the power corresponding to a false-alarm probability of
 :math:`\text{prob} = 10^{-5}`, you have to create a new bootstrap sample with
@@ -886,15 +910,22 @@ frequency fits well your data.
 
 .. code-block:: julia
 
-    using Plots
-    t = linspace(0.01, 10pi, 1000) # Observation times
-    s = sinpi(t) + 1.2cospi(t) + 0.3rand(length(t)) # The noisy signal
+    julia> using Plots
+
+    julia> t = linspace(0.01, 10pi, 1000) # Observation times
+
+    julia> s = sinpi.(t) .+ 1.2cospi.(t) .+ 0.3rand(length(t)) # The noisy signal
+
     # Pick-up the best frequency
-    f = findmaxfreq(lombscargle(t, s, maximum_frequency=10, samples_per_peak=20))[1]
-    t_fit = linspace(0, 1)
-    s_fit = LombScargle.model(t, s, f, t_fit/f) # Determine the model
-    scatter(mod(t*f, 1), s, lab="Phased data", title="Best Lomb-Scargle frequency: $f")
-    plot!(t_fit, s_fit, lab="Best-fitting model", linewidth=4)
+    julia> f = findmaxfreq(lombscargle(t, s, maximum_frequency=10, samples_per_peak=20))[1]
+
+    julia> t_fit = linspace(0, 1)
+
+    julia> s_fit = LombScargle.model(t, s, f, t_fit/f) # Determine the model
+
+    julia> scatter(mod.(t.*f, 1), s, lab="Phased data", title="Best Lomb-Scargle frequency: $f")
+
+    julia> plot!(t_fit, s_fit, lab="Best-fitting model", linewidth=4)
 
 .. image:: figure_6.png
 
@@ -906,18 +937,27 @@ frequency fits well your data.
 
    .. code-block:: julia
 
-      using Plots
-      t = linspace(0.01, 5, 1000) # Observation times
-      s = sinpi(2t) + 1.2cospi(4t) + 0.3rand(length(t)) # Noisy signal
-      p = lombscargle(t, s, samples_per_peak=50)
+      julia> using Plots
+
+      julia> t = linspace(0.01, 5, 1000) # Observation times
+
+      julia> s = sinpi.(2t) .+ 1.2cospi.(4t) .+ 0.3rand(length(t)) # Noisy signal
+
+      julia> p = lombscargle(t, s, samples_per_peak=50)
+
       # After plotting the periodogram, you discover
       # that it has two prominent peaks around 1 and 2.
-      f1 = findmaxfreq(p, [0.8, 1.2])[1] # Get peak frequency around 1
-      f2 = findmaxfreq(p, [1.8, 2.2])[1] # Get peak frequency around 2
-      fit1 = LombScargle.model(t, s, f1) # Determine the first model
-      fit2 = LombScargle.model(t, s, f2) # Determine the second model
-      scatter(t, s, lab="Data", title="Best-fitting Lomb-Scargle model")
-      plot!(t, fit1 + fit2, lab="Best-fitting model", linewidth=4)
+      julia> f1 = findmaxfreq(p, [0.8, 1.2])[1] # Get peak frequency around 1
+
+      julia> f2 = findmaxfreq(p, [1.8, 2.2])[1] # Get peak frequency around 2
+
+      julia> fit1 = LombScargle.model(t, s, f1) # Determine the first model
+
+      julia> fit2 = LombScargle.model(t, s, f2) # Determine the second model
+
+      julia> scatter(t, s, lab="Data", title="Best-fitting Lomb-Scargle model")
+
+      julia> plot!(t, fit1 + fit2, lab="Best-fitting model", linewidth=4)
 
    .. image:: figure_7.png
 

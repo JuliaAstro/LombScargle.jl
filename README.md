@@ -368,12 +368,15 @@ plot(freqpower(lombscargle(t, measurement(s, errors), maximum_frequency=1.5))...
 periodogram (and you can get the period by taking its inverse):
 
 ```julia
-t = linspace(0, 10, 1001)
-s = sinpi(2t)
-p = lombscargle(t, s)
-1.0./findmaxfreq(p) # Period with highest power
-# => 1-element Array{Float64,1}:
-#     0.00502487
+julia> t = linspace(0, 10, 1001)
+
+julia> s = sinpi.(2t)
+
+julia> p = lombscargle(t, s)
+
+julia> 1.0./findmaxfreq(p) # Period with highest power
+1-element Array{Float64,1}:
+ 0.00502487
 ```
 
 This peak is at high frequencies, very far from the expected value of the period
@@ -381,24 +384,25 @@ of 1.  In order to find the real peak, you can either narrow the frequency range
 in order to exclude higher armonics
 
 ```julia
-1.0./findmaxfreq(p, [0.5, 1.5]) # Limit the search to the interval [0.5, 1.5]
-# => 1-element Array{Float64,1}:
-#     1.0101
+julia> 1.0./findmaxfreq(p, [0.5, 1.5]) # Limit the search to the interval [0.5, 1.5]
+1-element Array{Float64,1}:
+ 1.0101
 ```
 
 or pass the `threshold` argument to `findmaxfreq`.  You can use `findmaxpower`
 to discover the highest power in the periodogram:
 
 ```julia
-findmaxpower(p)
-# => 0.9712085205753647
-1.0./findmaxfreq(p, 0.97) # Use a threshold
-# => 5-element Array{Float64,1}:
-#     1.0101
-#     0.0101
-#     0.00990197
-#     0.00502487
-#     0.00497537
+julia> findmaxpower(p)
+0.9712085205753647
+
+julia> 1.0./findmaxfreq(p, 0.97) # Use a threshold
+5-element Array{Float64,1}:
+ 1.0101
+ 0.0101
+ 0.00990197
+ 0.00502487
+ 0.00497537
 ```
 
 The first peak is the real one, the other double peaks appear at higher
@@ -411,15 +415,22 @@ The `LombScargle.model` function can help you to test whether a certain
 frequency fits well your data.
 
 ```julia
-using Plots
-t = linspace(0.01, 10pi, 1000)
-s = sin(t) + 0.3rand(length(t))
+julia> using Plots
+
+julia> t = linspace(0.01, 10pi, 1000)
+
+julia> s = sin.(t) .+ 0.3rand(length(t))
+
 # Find the best frequency
-f = findmaxfreq(lombscargle(t, s, maximum_frequency=10, samples_per_peak=20))[1]
-t_fit = linspace(0, 1)
-s_fit = LombScargle.model(t, s, f, t_fit/f) # Determine the model
-scatter(mod(t*f, 1), s, lab="Phased data", title="Best Lomb-Scargle frequency: $f")
-plot!(t_fit, s_fit, lab="Best-fitting model", linewidth=4)
+julia> f = findmaxfreq(lombscargle(t, s, maximum_frequency=10, samples_per_peak=20))[1]
+
+julia> t_fit = linspace(0, 1)
+
+julia> s_fit = LombScargle.model(t, s, f, t_fit/f) # Determine the model
+
+julia> scatter(mod.(t.*f, 1), s, lab="Phased data", title="Best Lomb-Scargle frequency: $f")
+
+julia> plot!(t_fit, s_fit, lab="Best-fitting model", linewidth=4)
 ```
 
 Development
