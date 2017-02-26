@@ -87,7 +87,7 @@ Usage
 After installing the package, you can start using it with
 
 ```julia
-using LombScargle
+julia> using LombScargle
 ```
 
 The module defines a new `LombScargle.Periodogram` data type, which, however, is
@@ -297,15 +297,20 @@ Here is an example of a noisy periodic signal (`sin(π*t) + 1.5*cos(2π*t)`)
 sampled at unevenly spaced times.
 
 ```julia
-using LombScargle
-ntimes = 1001
+julia> using LombScargle
+
+julia> ntimes = 1001
+
 # Observation times
-t = linspace(0.01, 10pi, ntimes)
+julia> t = linspace(0.01, 10pi, ntimes)
+
 # Randomize times
-t += step(t)*rand(ntimes)
+julia> t += step(t)*rand(ntimes)
+
 # The signal
-s = sinpi(t) + 1.5cospi(2t) + rand(ntimes)
-pgram = lombscargle(t, s)
+julia> s = sinpi.(t) .+ 1.5cospi.(2t) .+ rand(ntimes)
+
+julia> pgram = lombscargle(t, s)
 ```
 
 You can plot the result, for example with
@@ -314,8 +319,9 @@ function to get the frequency grid and the power of the periodogram as a
 2-tuple.
 
 ```julia
-using Plots
-plot(freqpower(pgram)...)
+julia> using Plots
+
+julia> plot(freqpower(pgram)...)
 ```
 
 Beware that if you use original Lomb–Scargle algorithm (`fit_mean=false` keyword
@@ -324,7 +330,7 @@ can get inaccurate results.  For example, spurious peaks at low frequencies can
 appear.
 
 ```julia
-plot(freqpower(lombscargle(t, s, fit_mean=false, center_data=false))...)
+julia> plot(freqpower(lombscargle(t, s, fit_mean=false, center_data=false))...)
 ```
 
 You can tune the frequency grid with appropriate keywords to `lombscargle`
@@ -333,14 +339,14 @@ function.  For example, in order to increase the sampling increase
 narrow the frequency range:
 
 ```julia
-plot(freqpower(lombscargle(t, s, samples_per_peak=20, maximum_frequency=1.5))...)
+julia> plot(freqpower(lombscargle(t, s, samples_per_peak=20, maximum_frequency=1.5))...)
 ```
 
 If you simply want to use your own frequency grid, directly set the
 `frequencies` keyword:
 
 ```julia
-plot(freqpower(lombscargle(t, s, frequencies=0.001:1e-3:1.5))...)
+julia> plot(freqpower(lombscargle(t, s, frequencies=0.001:1e-3:1.5))...)
 ```
 
 ### Signal with Uncertainties ###
@@ -353,13 +359,19 @@ function with a `signal` vector of type `Measurement` (from
 [`Measurements.jl`](https://github.com/giordano/Measurements.jl) package).
 
 ```julia
-using Measurements, Plots
-ntimes = 1001
-t = linspace(0.01, 10pi, ntimes)
-s = sinpi(2t)
-errors = rand(0.1:1e-3:4.0, ntimes)
-plot(freqpower(lombscargle(t, s, errors, maximum_frequency=1.5))...)
-plot(freqpower(lombscargle(t, measurement(s, errors), maximum_frequency=1.5))...)
+julia> using Measurements, Plots
+
+julia> ntimes = 1001
+
+julia> t = linspace(0.01, 10pi, ntimes)
+
+julia> s = sinpi.(2t)
+
+julia> errors = rand(0.1:1e-3:4.0, ntimes)
+
+julia> plot(freqpower(lombscargle(t, s, errors, maximum_frequency=1.5))...)
+
+julia> plot(freqpower(lombscargle(t, measurement(s, errors), maximum_frequency=1.5))...)
 ```
 
 ### Find Highest Power and Associated Frequencies ###
