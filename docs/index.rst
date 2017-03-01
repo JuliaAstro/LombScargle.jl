@@ -721,7 +721,7 @@ type ``Measurement`` (from `Measurements.jl
 
     julia> t = linspace(0.01, 10pi, ntimes)
 
-    julia> s = sinpi(2t)
+    julia> s = sinpi.(2t)
 
     julia> errors = rand(0.1:1e-3:4.0, ntimes)
 
@@ -757,7 +757,7 @@ the periodogram (and you can get the period by taking its inverse):
 
    julia> t = linspace(0, 10, 1001)
 
-   julia> s = sinpi(t)
+   julia> s = sinpi.(t)
 
    julia> p = lombscargle(t, s)
 
