@@ -4,7 +4,10 @@ os:
   - linux
   - osx
 julia:
+  - 0.6
   - nightly
+git:
+  depth: 999999
 notifications:
   email: false
 script:
