@@ -187,7 +187,7 @@ function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::Ab
     # If "center_data" or "fit_mean" keywords are true,
     # subtract the weighted mean from each point.
     if center_data || fit_mean
-        y = signal - (w ⋅ signal)/sum(w)
+        y = signal .- (w ⋅ signal) ./ sum(w)
     else
         y = signal
     end
@@ -232,7 +232,7 @@ function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVect
     # If "center_data" keyword is true, subtract the weighted mean from each
     # point.
     if center_data || fit_mean
-        y = signal - w⋅signal
+        y = signal .- w⋅signal
     else
         y = signal
     end
