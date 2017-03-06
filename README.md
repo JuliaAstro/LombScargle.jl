@@ -297,20 +297,15 @@ Here is an example of a noisy periodic signal (`sin(π*t) + 1.5*cos(2π*t)`)
 sampled at unevenly spaced times.
 
 ```julia
-julia> using LombScargle
-
-julia> ntimes = 1001
-
+using LombScargle
+ntimes = 1001
 # Observation times
-julia> t = linspace(0.01, 10pi, ntimes)
-
+t = linspace(0.01, 10pi, ntimes)
 # Randomize times
-julia> t += step(t)*rand(ntimes)
-
+t += step(t)*rand(ntimes)
 # The signal
-julia> s = sinpi.(t) .+ 1.5cospi.(2t) .+ rand(ntimes)
-
-julia> pgram = lombscargle(t, s)
+s = sinpi.(t) .+ 1.5cospi.(2t) .+ rand(ntimes)
+pgram = lombscargle(t, s)
 ```
 
 You can plot the result, for example with
@@ -319,9 +314,8 @@ function to get the frequency grid and the power of the periodogram as a
 2-tuple.
 
 ```julia
-julia> using Plots
-
-julia> plot(freqpower(pgram)...)
+using Plots
+plot(freqpower(pgram)...)
 ```
 
 Beware that if you use original Lomb–Scargle algorithm (`fit_mean=false` keyword
@@ -330,7 +324,7 @@ can get inaccurate results.  For example, spurious peaks at low frequencies can
 appear.
 
 ```julia
-julia> plot(freqpower(lombscargle(t, s, fit_mean=false, center_data=false))...)
+plot(freqpower(lombscargle(t, s, fit_mean=false, center_data=false))...)
 ```
 
 You can tune the frequency grid with appropriate keywords to `lombscargle`
@@ -339,14 +333,14 @@ function.  For example, in order to increase the sampling increase
 narrow the frequency range:
 
 ```julia
-julia> plot(freqpower(lombscargle(t, s, samples_per_peak=20, maximum_frequency=1.5))...)
+plot(freqpower(lombscargle(t, s, samples_per_peak=20, maximum_frequency=1.5))...)
 ```
 
 If you simply want to use your own frequency grid, directly set the
 `frequencies` keyword:
 
 ```julia
-julia> plot(freqpower(lombscargle(t, s, frequencies=0.001:1e-3:1.5))...)
+plot(freqpower(lombscargle(t, s, frequencies=0.001:1e-3:1.5))...)
 ```
 
 ### Signal with Uncertainties ###
@@ -359,19 +353,13 @@ function with a `signal` vector of type `Measurement` (from
 [`Measurements.jl`](https://github.com/giordano/Measurements.jl) package).
 
 ```julia
-julia> using Measurements, Plots
-
-julia> ntimes = 1001
-
-julia> t = linspace(0.01, 10pi, ntimes)
-
-julia> s = sinpi.(2t)
-
-julia> errors = rand(0.1:1e-3:4.0, ntimes)
-
-julia> plot(freqpower(lombscargle(t, s, errors, maximum_frequency=1.5))...)
-
-julia> plot(freqpower(lombscargle(t, measurement(s, errors), maximum_frequency=1.5))...)
+using Measurements, Plots
+ntimes = 1001
+t = linspace(0.01, 10pi, ntimes)
+s = sinpi.(2t)
+errors = rand(0.1:1e-3:4.0, ntimes)
+plot(freqpower(lombscargle(t, s, errors, maximum_frequency=1.5))...)
+plot(freqpower(lombscargle(t, measurement(s, errors), maximum_frequency=1.5))...)
 ```
 
 ### Find Highest Power and Associated Frequencies ###
@@ -427,22 +415,15 @@ The `LombScargle.model` function can help you to test whether a certain
 frequency fits well your data.
 
 ```julia
-julia> using Plots
-
-julia> t = linspace(0.01, 10pi, 1000)
-
-julia> s = sin.(t) .+ 0.3rand(length(t))
-
+using Plots
+t = linspace(0.01, 10pi, 1000)
+s = sin.(t) .+ 0.3rand(length(t))
 # Find the best frequency
-julia> f = findmaxfreq(lombscargle(t, s, maximum_frequency=10, samples_per_peak=20))[1]
-
-julia> t_fit = linspace(0, 1)
-
-julia> s_fit = LombScargle.model(t, s, f, t_fit/f) # Determine the model
-
-julia> scatter(mod.(t.*f, 1), s, lab="Phased data", title="Best Lomb-Scargle frequency: $f")
-
-julia> plot!(t_fit, s_fit, lab="Best-fitting model", linewidth=4)
+f = findmaxfreq(lombscargle(t, s, maximum_frequency=10, samples_per_peak=20))[1]
+t_fit = linspace(0, 1)
+s_fit = LombScargle.model(t, s, f, t_fit/f) # Determine the model
+scatter(mod.(t.*f, 1), s, lab="Phased data", title="Best Lomb-Scargle frequency: $f")
+plot!(t_fit, s_fit, lab="Best-fitting model", linewidth=4)
 ```
 
 Development
