@@ -241,6 +241,7 @@ function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVect
     @assert df > 0
     N  = length(freqs)
     f0 = minimum(freqs)
+    t0 = minimum(times)
     #---------------------------------------------------------------------------
     # 0. prepare for the computation of BFFT.
     # `bfft' can take arrays of any length in input, but
@@ -252,12 +253,12 @@ function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVect
     plan = plan_bfft(bfft_vec, flags = FFTW.MEASURE)
     #---------------------------------------------------------------------------
     # 1. compute functions of the time-shift tau at each frequency
-    Ch, Sh = trig_sum!(grid, bfft_vec, plan, times, w .* y, df, N, Nfft, f0,
+    Ch, Sh = trig_sum!(grid, bfft_vec, plan, times, w .* y, df, N, Nfft, t0, f0,
                        1, Mfft)
-    C2, S2 = trig_sum!(grid, bfft_vec, plan, times, w,      df, N, Nfft, f0,
+    C2, S2 = trig_sum!(grid, bfft_vec, plan, times, w,      df, N, Nfft, t0, f0,
                        2, Mfft)
     if fit_mean
-        C, S = trig_sum!(grid, bfft_vec, plan, times, w, df,    N, Nfft, f0,
+        C, S = trig_sum!(grid, bfft_vec, plan, times, w, df,    N, Nfft, t0, f0,
                          1, Mfft)
         tan_2ωτ = (S2 .- 2 .* S .* C) ./ (C2 .- (C .* C .- S .* S))
         #-----------------------------------------------------------------------

@@ -61,12 +61,12 @@ function trig_sum!{R1<:Real,R2<:Real}(grid, bfft_vec, bfft_plan,
                                       t::AbstractVector{R1},
                                       h::AbstractVector{R2}, df::Real,
                                       N::Integer, Nfft::Integer,
+                                      t0::Real,
                                       f0::Real=0.0,
                                       freq_factor::Integer=1,
                                       Mfft::Integer=4)
     df *= freq_factor
     f0 *= freq_factor
-    t0 = minimum(t)
     if f0 > 0
         H = h .* cis.(2pi .* f0 .* (t .- t0))
     else
@@ -77,9 +77,7 @@ function trig_sum!{R1<:Real,R2<:Real}(grid, bfft_vec, bfft_plan,
     A_mul_B!(bfft_vec, bfft_plan, grid)
     fftgrid = @view(bfft_vec[1:N])
     if t0 != 0
-        fftgrid .*= cis.(2pi .* t0 .* (f0 .+ df .* (0:N - 1)))
+        fftgrid .*= cis.(2pi .* t0 .* (f0 .+ df .* (0:(N - 1))))
     end
-    C = real(fftgrid)
-    S = imag(fftgrid)
-    return C, S
+    return real(fftgrid), imag(fftgrid)
 end
