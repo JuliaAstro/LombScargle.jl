@@ -345,7 +345,7 @@ function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector
                                                            with_errors::Bool,
                                                            w::AbstractVector{R3}=ones(signal)/length(signal);
                                                            normalization::Symbol=:standard,
-                                                           noise_level::Real=1.0,
+                                                           noise_level::Real=1,
                                                            center_data::Bool=true,
                                                            fit_mean::Bool=true,
                                                            oversampling::Integer=5,
@@ -402,7 +402,7 @@ function lombscargle{R1<:Real,R2<:Real,R3<:Real}(times::AbstractVector{R1},
                                                  errors::AbstractVector{R3};
                                                  kwargs...)
     # Compute weights vector
-    w = 1.0./errors.^2
+    w = 1 ./ errors .^ 2
     w /= sum(w)
     return _lombscargle(times, signal, true, w; kwargs...)
 end
@@ -420,7 +420,7 @@ end
     lombscargle(times::AbstractVector{Real}, signal::AbstractVector{Real},
                 errors::AbstractVector{Real}=ones(signal);
                 normalization::Symbol=:standard,
-                noise_level::Real=1.0,
+                noise_level::Real=1,
                 center_data::Bool=true,
                 fit_mean::Bool=true,
                 fast::Bool=true,
