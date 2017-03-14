@@ -51,7 +51,7 @@ function extirpolate!{RE<:Real,NU<:Number}(result,
         if j > 0
             denominator *= j/(j - M)
         end
-        ind = ilo + (M - j)
+        ind = ilo .+ (M .- j)
         add_at!(result, ind, numerator ./ (denominator .* (x .- ind .+ 1)))
     end
     return result
