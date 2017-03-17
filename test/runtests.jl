@@ -10,10 +10,10 @@ t = linspace(0.01, 10pi, ntimes)
 # Signal
 s = sin.(t)
 
-pgram1 = lombscargle(t, s, fast = false, fit_mean=false)
-pgram2 = lombscargle(t, s, fast = false, fit_mean=true)
-pgram3 = lombscargle(t, s, fast = false, center_data=false, fit_mean=false)
-pgram4 = lombscargle(t, s, fast = false, center_data=false, fit_mean=true)
+pgram1 = @inferred(lombscargle(LombScargle.plan(t, s, fast = false, fit_mean=false)))
+pgram2 = @inferred(lombscargle(LombScargle.plan(t, s, fast = false, fit_mean=true)))
+pgram3 = @inferred(lombscargle(LombScargle.plan(t, s, fast = false, center_data=false, fit_mean=false)))
+pgram4 = @inferred(lombscargle(LombScargle.plan(t, s, fast = false, center_data=false, fit_mean=true)))
 
 @testset "Periodograms" begin
     @testset "Random stuff" begin
@@ -174,7 +174,8 @@ end
 
     @testset "Bootstrap" begin
         srand(1)
-        @test LombScargle.bootstrap(5, x, y).p ≈
+        p = LombScargle.plan(x, y)
+        @test LombScargle.bootstrap(5, p).p ≈
             [0.25956949678034225, 0.2360115683328911, 0.22016267001066891, 0.1665406952388801,
              0.12516095308735742]
         b = LombScargle.bootstrap(50, x, y, fast = true)
@@ -182,5 +183,8 @@ end
         err = collect(linspace(0.5, 1.5))
         b = LombScargle.bootstrap(50, x, measurement.(y, err), fast = true)
         @test fap(b, fapinv(b, 0.02)) ≈ 0.02
+        srand(1)
+        @test fapinv(LombScargle.bootstrap(1000, x, y, fast=false, fit_mean=false), 0.2) ≈
+            0.22195685099625417
     end
 end

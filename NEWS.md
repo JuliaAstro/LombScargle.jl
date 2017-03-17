@@ -4,6 +4,13 @@ History of LombScargle.jl
 v0.3.0 (201?-??-??)
 -------------------
 
+### New Features
+
+* You can pre-plan a periodogram before actually performing it using
+  `LombScargle.plan` function.  This computes some quantities needed afterwards
+  and pre-allocate the memory for the actual computation of the periodogram.
+  The speed-up is particularly relevant for the fast method.
+
 ### Breaking Changes
 
 * Support for Julia 0.4 and 0.5 was dropped.
@@ -15,8 +22,9 @@ v0.3.0 (201?-??-??)
 
 ### Improvements
 
-This version faced many performance improvements, in particular to `lombscargle`
-and `LombScargle.model` functions.
+This version faced several performance improvements, in particular to
+`lombscargle` and `LombScargle.model` functions, besides the pre-planning
+feature.
 
 * The fast method of `lombscarlge` now is faster, the larger the size of input
   array, the larger the improvement.  In addition, the fast Fourier transform
@@ -24,17 +32,20 @@ and `LombScargle.model` functions.
   (call `FFTW.set_num_threads(n)` to use `n` threads) in order to speed-up
   computation.  However, please note that the running time will not scale as `n`
   because computation of the FFT is only a part of the algorithm.  The function
-  is also less memory-eager than before.
+  is also less memory-eager than before.  To give you an idea of the
+  improvement, for an input of 100000 datapoints, a pre-planned periodogram is
+  70% faster than a periodogram in previous version and requires 85% memory
+  less.  With 4 FFTW threads the speed-up is of 80%.
 * The two non-fast methods now supports Julia’s
   native
   [multi-threading](http://docs.julialang.org/en/stable/manual/parallel-computing/#multi-threading-experimental).
   Run Julia with `n` threads (e.g., `JULIA_NUM_THREADS=4 julia` for 4 threads)
-  in order to gain an `n`-fold scaling.
+  in order to gain an `n`-fold scaling.  These function also eat considerably
+  less memory: if the periodogram is pre-planned, all operations are then
+  performed in-place, so memory usage of the periodogram only is independent
+  from input size.
 * The `LombScargle.model` function is now a bit faster and less memory-greedy
   than before.
-
-In this relase no bugs were detected, nor any feature was introduced, so Julia
-0.4 and 0.5 users will miss only better performances.
 
 v0.2.0 (2016-12-07)
 -------------------

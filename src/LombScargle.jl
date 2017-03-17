@@ -21,8 +21,7 @@ export lombscargle
 
 # This is similar to Periodogram type of DSP.Periodograms module, but for
 # unevenly spaced frequencies.
-immutable Periodogram{P<:AbstractFloat, F<:AbstractVector,
-                      T<:AbstractVector}
+struct Periodogram{P<:AbstractFloat, F<:AbstractVector, T<:AbstractVector}
     power::Vector{P}
     freq::F
     # XXX: the `times' vector is only in the `M' function (see utils.jl), but
@@ -33,388 +32,50 @@ immutable Periodogram{P<:AbstractFloat, F<:AbstractVector,
     norm::Symbol
 end
 
-include("extirpolation.jl")
+abstract type PeriodogramPlan end
+
 include("utils.jl")
 include("bootstrap.jl")
 
-# XXX: Until Julia's bug #15276
-# (https://github.com/JuliaLang/julia/issues/15276) will be fixed, we have to
-# move the body loop to an external function in order to effectively gain
-# scaling when multiple threads are used.
+include("townsend.jl")
+include("gls.jl")
+include("press-rybicki.jl")
 
-function _lombscargle_orig_loop!(P, freqs, times, X, XX, nil, N)
-    @inbounds Threads.@threads for n in eachindex(freqs)
-        ω = 2pi*freqs[n]
-        XC = XS = CC = CS = nil
-        @inbounds for j in eachindex(times)
-            ωt = ω*times[j]
-            C = cos(ωt)
-            S = sin(ωt)
-            XC += X[j]*C
-            XS += X[j]*S
-            CC += C*C
-            CS += C*S
-        end
-        SS      = N - CC
-        ωτ      = atan2(CS, CC - N / 2) / 2
-        c_τ     = cos(ωτ)
-        s_τ     = sin(ωτ)
-        c_τ2    = c_τ*c_τ
-        s_τ2    = s_τ*s_τ
-        cs_τ_CS = 2c_τ*s_τ*CS
-        P[n] = (abs2(c_τ*XC + s_τ*XS)/(c_τ2*CC + cs_τ_CS + s_τ2*SS) +
-                abs2(c_τ*XS - s_τ*XC)/(c_τ2*SS - cs_τ_CS + s_τ2*CC))/XX
-    end
-end
+include("planning.jl")
 
-# Original algorithm that doesn't take into account uncertainties and doesn't
-# fit the mean of the signal.  This is implemented following the recipe by
-# * Townsend, R. H. D. 2010, ApJS, 191, 247 (URL:
-#   http://dx.doi.org/10.1088/0067-0049/191/2/247,
-#   Bibcode: http://adsabs.harvard.edu/abs/2010ApJS..191..247T)
-function _lombscargle_orig{R1<:Real,R2<:Real,R3<:Real}(times::AbstractVector{R1},
-                                                       signal::AbstractVector{R2},
-                                                       freqs::AbstractVector{R3},
-                                                       center_data::Bool)
-    P_type = promote_type(float(R1), float(R2), float(R3))
-    P = Vector{P_type}(length(freqs))
-    # If "center_data" keyword is true, subtract the mean from each point.
-    if center_data
-        X = signal - mean(signal)
-    else
-        X = signal
-    end
-    XX = X⋅X
-    _lombscargle_orig_loop!(P, freqs, times, X, XX, zero(P_type), length(signal))
-    return P
-end
-
-function _generalised_lombscargle_loop!(P, freqs, times, y, w, Y, YY, nil)
-    @inbounds Threads.@threads for n in eachindex(freqs)
-        ω = 2pi*freqs[n]
-        # Find τ for current angular frequency
-        C = S = CS = CC = nil
-        @inbounds for i in eachindex(times)
-            ωt  = ω*times[i]
-            W   = w[i]
-            c   = cos(ωt)
-            s   = sin(ωt)
-            CS += W*c*s
-            CC += W*c*c
-            C  += W*c
-            S  += W*s
-        end
-        CS -= C*S
-        SS  = 1 - CC - S*S
-        CC -= C*C
-        ωτ   = atan2(2CS, CC - SS) / 2
-        # Now we can compute the power
-        YC_τ = YS_τ = CC_τ = nil
-        @inbounds for i in eachindex(times)
-            ωt    = ω*times[i] - ωτ
-            W     = w[i]
-            c     = cos(ωt)
-            s     = sin(ωt)
-            YC_τ += W*y[i]*c
-            YS_τ += W*y[i]*s
-            CC_τ += W*c*c
-        end
-        # "C_τ" and "S_τ" are computed following equation (7) of Press &
-        # Rybicki, this formula simply comes from angle difference trigonometric
-        # identities.
-        cos_ωτ = cos(ωτ)
-        sin_ωτ = sin(ωτ)
-        C_τ    = C*cos_ωτ + S*sin_ωτ
-        S_τ    = S*cos_ωτ - C*sin_ωτ
-        YC_τ  -= Y*C_τ
-        YS_τ  -= Y*S_τ
-        SS_τ   = 1 - CC_τ - S_τ*S_τ
-        CC_τ  -= C_τ*C_τ
-        P[n] = (abs2(YC_τ)/CC_τ + abs2(YS_τ)/SS_τ)/YY
-    end
-end
-
-function _generalised_lombscargle_loop!(P, freqs, times, y, w, YY, nil)
-    @inbounds Threads.@threads for n in eachindex(freqs)
-        ω = 2pi*freqs[n]
-        # Find τ for current angular frequency
-        C = S = CS = CC = nil
-        @inbounds for i in eachindex(times)
-            ωt  = ω*times[i]
-            W   = w[i]
-            c   = cos(ωt)
-            s   = sin(ωt)
-            CS += W*c*s
-            CC += W*c*c
-        end
-        SS  = 1 - CC
-        ωτ   = atan2(2CS, CC - SS) / 2
-        # Now we can compute the power
-        YC_τ = YS_τ = CC_τ = nil
-        @inbounds for i in eachindex(times)
-            ωt    = ω*times[i] - ωτ
-            W     = w[i]
-            c     = cos(ωt)
-            s     = sin(ωt)
-            YC_τ += W*y[i]*c
-            YS_τ += W*y[i]*s
-            CC_τ += W*c*c
-        end
-        SS_τ  = 1 - CC_τ
-        P[n] = (abs2(YC_τ)/CC_τ + abs2(YS_τ)/SS_τ)/YY
-    end
-end
-
-# Generalised Lomb-Scargle algorithm: this takes into account uncertainties and
-# fit the mean of the signal.  This is implemented following the recipe by
-# * Zechmeister, M., Kürster, M. 2009, A&A, 496, 577  (URL:
-#   http://dx.doi.org/10.1051/0004-6361:200811296,
-#   Bibcode: http://adsabs.harvard.edu/abs/2009A%26A...496..577Z)
-# In addition, some tricks suggested by
-# * Press, W. H., Rybicki, G. B. 1989, ApJ, 338, 277 (URL:
-#   http://dx.doi.org/10.1086/167197,
-#   Bibcode: http://adsabs.harvard.edu/abs/1989ApJ...338..277P)
-# to make computation faster are adopted.
-function _generalised_lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector{R1},
-                                                                       signal::AbstractVector{R2},
-                                                                       w::AbstractVector{R3},
-                                                                       freqs::AbstractVector{R4},
-                                                                       center_data::Bool,
-                                                                       fit_mean::Bool)
-    P_type = promote_type(float(R1), float(R2), float(R3), float(R4))
-    P = Vector{P_type}(length(freqs))
-    nil = zero(P_type)
-    # If "center_data" or "fit_mean" keywords are true,
-    # subtract the weighted mean from each point.
-    if center_data || fit_mean
-        y = signal .- (w ⋅ signal) ./ sum(w)
-    else
-        y = signal
-    end
-    YY = w⋅(y.^2)
-    if fit_mean
-        Y   = w⋅y
-        YY -= Y*Y
-        _generalised_lombscargle_loop!(P, freqs, times, y, w, Y, YY, nil)
-    else
-        _generalised_lombscargle_loop!(P, freqs, times, y, w, YY, nil)
-    end
-    return P
-end
-
-# Compute some quantities that will be used in Press & Rybicki method.
-function _press_rybicki_helper!(C2w, S2w, Cw, Sw, tan_2ωτ)
-    # The straightforward way to compute the quantity commented is
-    # slower and less stable, so we use trig identities instead
-    C2w .= 1 ./ (sqrt.(1 .+ tan_2ωτ .* tan_2ωτ)) # = cos(2 * ωτ)
-    S2w .= tan_2ωτ .* C2w # = sin(2 * ωτ)
-    Cw  .= sqrt.((1 .+ C2w) ./ 2) # = cos(ωτ)
-    Sw  .= sign.(S2w) .* sqrt.((1 .- C2w) ./ 2) # = sin(ωτ)
-end
-
-# Fast, but approximate, method to compute the Lomb-Scargle periodogram for
-# evenly spaced frequency grid.  See
-# * Press, W. H., Rybicki, G. B. 1989, ApJ, 338, 277 (URL:
-#   http://dx.doi.org/10.1086/167197,
-#   Bibcode: http://adsabs.harvard.edu/abs/1989ApJ...338..277P)
-# This is adapted from Astropy implementation of the method.  See
-# `lombscargle_fast' function.
-function _press_rybicki{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector{R1},
-                                                             signal::AbstractVector{R2},
-                                                             w::AbstractVector{R3},
-                                                             freqs::Range{R4},
-                                                             center_data::Bool,
-                                                             fit_mean::Bool,
-                                                             oversampling::Int,
-                                                             Mfft::Int)
-    @assert Mfft > 0
-    nil = zero(promote_type(float(R1), float(R2)))
-    # If "center_data" keyword is true, subtract the weighted mean from each
-    # point.
-    if center_data || fit_mean
-        y = signal .- w⋅signal
-    else
-        y = signal
-    end
-    YY = w⋅(y.^2)
-    df = step(freqs)
-    @assert df > 0
-    N  = length(freqs)
-    f0 = minimum(freqs)
-    t0 = minimum(times)
-    #---------------------------------------------------------------------------
-    # 0. prepare for the computation of BFFT.
-    # `bfft' can take arrays of any length in input, but
-    # it's faster when the length is exactly a power of 2.
-    Nfft = nextpow2(N * oversampling)
-    T = promote_type(float(R2), float(R3))
-    bfft_vec = Vector{Complex{T}}(Nfft)
-    grid = Vector{Complex{T}}(Nfft)
-    plan = plan_bfft(bfft_vec, flags = FFTW.MEASURE)
-    #---------------------------------------------------------------------------
-    # 1. compute functions of the time-shift tau at each frequency
-    Ch, Sh = trig_sum!(grid, bfft_vec, plan, times, w .* y, df, N, Nfft, t0, f0,
-                       1, Mfft)
-    C2, S2 = trig_sum!(grid, bfft_vec, plan, times, w,      df, N, Nfft, t0, f0,
-                       2, Mfft)
-    if fit_mean
-        C, S = trig_sum!(grid, bfft_vec, plan, times, w, df,    N, Nfft, t0, f0,
-                         1, Mfft)
-        tan_2ωτ = (S2 .- 2 .* S .* C) ./ (C2 .- (C .* C .- S .* S))
-        #-----------------------------------------------------------------------
-        # 2. Compute the periodogram, following Zechmeister & Kurster
-        #    and using tricks from Press & Rybicki.
-        C2w = Vector{T}(N)
-        S2w = Vector{T}(N)
-        Cw = Vector{T}(N)
-        Sw = Vector{T}(N)
-        _press_rybicki_helper!(C2w, S2w, Cw, Sw, tan_2ωτ)
-        return ((Ch .* Cw .+ Sh .* Sw) .^ 2 ./
-                ((1 .+ C2 .* C2w .+ S2 .* S2w) ./ 2 .- (C .* Cw .+ S .* Sw) .^ 2) .+
-                (Sh .* Cw .- Ch .* Sw) .^ 2 ./
-                ((1 .- C2 .* C2w .- S2 .* S2w) ./ 2 .- (S .* Cw .- C .* Sw) .^ 2)) ./ YY
-    else
-        tan_2ωτ = S2 ./ C2
-        C2w = Vector{T}(N)
-        S2w = Vector{T}(N)
-        Cw = Vector{T}(N)
-        Sw = Vector{T}(N)
-        _press_rybicki_helper!(C2w, S2w, Cw, Sw, tan_2ωτ)
-        return ((Ch .* Cw .+ Sh .* Sw) .^ 2 ./ ((1 .+ C2 .* C2w .+ S2 .* S2w) ./ 2) .+
-                (Sh .* Cw .- Ch .* Sw) .^ 2 ./ ((1 .- C2 .* C2w .- S2 .* S2w) ./ 2)) ./ YY
-    end
-end
-
-# Switches to select the appropriate algorithm to compute the periodogram.
-function periodogram_no_fast{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector{R1},
-                                                                  signal::AbstractVector{R2},
-                                                                  w::AbstractVector{R3},
-                                                                  frequencies::AbstractVector{R4},
-                                                                  with_errors::Bool,
-                                                                  center_data::Bool,
-                                                                  fit_mean::Bool)
-    if fit_mean || with_errors
-        return _generalised_lombscargle(times, signal, w, frequencies,
-                                        center_data, fit_mean)
-    else
-        return _lombscargle_orig(times, signal, frequencies, center_data)
-    end
-end
-
-# There are two "periodogram" methods, the only different argument being
-# "frequencies".  When it is a `Range' object (first method) it could be
-# possible to use the fast method, provided that fast == true, otherwise we can
-# only use the non fast methods.
-function periodogram{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector{R1},
-                                                          signal::AbstractVector{R2},
-                                                          w::AbstractVector{R3},
-                                                          frequencies::Range{R4},
-                                                          fast::Bool,
-                                                          with_errors::Bool,
-                                                          center_data::Bool,
-                                                          fit_mean::Bool,
-                                                          oversampling::Integer,
-                                                          Mfft::Integer)
-    if fast
-        return _press_rybicki(times, signal, w, frequencies, center_data,
-                              fit_mean, oversampling, Mfft)
-    else
-        return periodogram_no_fast(times, signal, w, frequencies,
-                                   with_errors, center_data, fit_mean)
-    end
-end
-
-function periodogram{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector{R1},
-                                                          signal::AbstractVector{R2},
-                                                          w::AbstractVector{R3},
-                                                          frequencies::AbstractVector{R4},
-                                                          fast::Bool,
-                                                          with_errors::Bool,
-                                                          center_data::Bool,
-                                                          fit_mean::Bool,
-                                                          oversampling::Integer,
-                                                          Mfft::Integer)
-    return periodogram_no_fast(times, signal, w, frequencies,
-                               with_errors, center_data, fit_mean)
-end
-
-# The main purpose of this function is to compute normalization of the
-# periodogram computed with one of the functions above.
-function _lombscargle{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector{R1},
-                                                           signal::AbstractVector{R2},
-                                                           with_errors::Bool,
-                                                           w::AbstractVector{R3}=ones(signal)/length(signal);
-                                                           normalization::Symbol=:standard,
-                                                           noise_level::Real=1,
-                                                           center_data::Bool=true,
-                                                           fit_mean::Bool=true,
-                                                           oversampling::Integer=5,
-                                                           Mfft::Integer=4,
-                                                           samples_per_peak::Integer=5,
-                                                           nyquist_factor::Integer=5,
-                                                           minimum_frequency::Real=NaN,
-                                                           maximum_frequency::Real=NaN,
-                                                           frequencies::AbstractVector{R4}=
-                                                           autofrequency(times,
-                                                                         samples_per_peak=samples_per_peak,
-                                                                         nyquist_factor=nyquist_factor,
-                                                                         minimum_frequency=minimum_frequency,
-                                                                         maximum_frequency=maximum_frequency),
-                                                           fast::Bool=(length(frequencies) > 200))
-    @assert length(times) == length(signal) == length(w)
-    P = periodogram(times, signal, w, frequencies, fast, with_errors,
-                    center_data, fit_mean, oversampling, Mfft)
-    N = length(signal)
-    # Normalize periodogram
+function normalize!(P::AbstractVector{<:AbstractFloat},
+                    signal::AbstractVector{<:Real},
+                    w::AbstractVector{<:Real},
+                    N::Integer,
+                    noise_level::Real,
+                    normalization::Symbol)
     if normalization == :standard
+        return P
     elseif normalization == :model
-        P ./= (1 .- P)
+        return P ./= (1 .- P)
     elseif normalization == :log
-        P .= -log.(1 .- P)
+        return P .= -log.(1 .- P)
     elseif normalization == :psd
-        P .*= N .* (w ⋅ (signal .^ 2)) ./ 2
+        YY = w ⋅ (signal .^ 2)
+        return P .*= N .* YY ./ 2
     elseif normalization == :Scargle
-        P ./= noise_level
+        return P ./= noise_level
     elseif normalization == :HorneBaliunas
-        P .*= (N .- 1) ./ 2
+        return P .*= (N .- 1) ./ 2
     elseif normalization == :Cumming
-        P .*= (N .- 3) ./ (1 .- maximum(P)) ./ 2
+        return P .*= (N .- 3) ./ (1 .- maximum(P)) ./ 2
     else
         error("normalization \"", string(normalization), "\" not supported")
     end
-    return Periodogram(P, frequencies, times, normalization)
 end
 
-### Main interface functions
+normalize!(P::AbstractVector{<:AbstractFloat}, p::PeriodogramPlan) =
+    normalize!(P, p.signal, p.w, length(p.signal), p.noise, p.norm)
 
-# No uncertainties
-lombscargle{R1<:Real,R2<:Real}(times::AbstractVector{R1},
-                               signal::AbstractVector{R2};
-                               kwargs...) =
-                                   _lombscargle(times,
-                                                signal,
-                                                false;
-                                                kwargs...)
+lombscargle(p::PeriodogramPlan) =
+    Periodogram(normalize!(_periodogram!(p), p), p.freq, p.times, p.norm)
 
-# Uncertainties provided
-function lombscargle{R1<:Real,R2<:Real,R3<:Real}(times::AbstractVector{R1},
-                                                 signal::AbstractVector{R2},
-                                                 errors::AbstractVector{R3};
-                                                 kwargs...)
-    # Compute weights vector
-    w = 1 ./ errors .^ 2
-    w /= sum(w)
-    return _lombscargle(times, signal, true, w; kwargs...)
-end
-
-# Uncertainties provided via Measurement type
-function lombscargle{T<:Real,F<:AbstractFloat}(times::AbstractVector{T},
-                                               signal::AbstractVector{Measurement{F}};
-                                               kwargs...)
-    return lombscargle(times,
-                       Measurements.value.(signal),
-                       Measurements.uncertainty.(signal); kwargs...)
-end
+lombscargle(args...; kwargs...) = lombscargle(plan(args...; kwargs...))
 
 """
     lombscargle(times::AbstractVector{Real}, signal::AbstractVector{Real},
