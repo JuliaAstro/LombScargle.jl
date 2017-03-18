@@ -174,13 +174,15 @@ end
 
     @testset "Bootstrap" begin
         srand(1)
-        p = LombScargle.plan(x, y)
-        @test LombScargle.bootstrap(5, p).p ≈
+        @test LombScargle.bootstrap(5, x, y).p ≈
             [0.25956949678034225, 0.2360115683328911, 0.22016267001066891, 0.1665406952388801,
              0.12516095308735742]
-        b = LombScargle.bootstrap(50, x, y, fast = true)
-        @test fap(b, fapinv(b, 0.02)) ≈ 0.02
+        srand(1)
+        @test LombScargle.bootstrap(5, x, y, fit_mean = false).p ≈
+            [0.2593941251038504, 0.23547209359157387, 0.219973555583272,
+             0.1665298143445746, 0.11304204776090254]
         err = collect(linspace(0.5, 1.5))
+        srand(1)
         b = LombScargle.bootstrap(50, x, measurement.(y, err), fast = true)
         @test fap(b, fapinv(b, 0.02)) ≈ 0.02
         srand(1)
