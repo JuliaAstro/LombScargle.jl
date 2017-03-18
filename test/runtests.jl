@@ -184,6 +184,12 @@ end
         b = LombScargle.bootstrap(50, x, measurement.(y, err), fast = true)
         @test fap(b, fapinv(b, 0.02)) ≈ 0.02
         srand(1)
+        b = LombScargle.bootstrap(50, x, measurement.(y, err), fast = false)
+        @test fap(b, fapinv(b, 0.02)) ≈ 0.02
+        srand(1)
+        @test fapinv(LombScargle.bootstrap(50, x, measurement.(y, err), fast = false, fit_mean = false),
+                     0.2) ≈ 0.25009623372392176
+        srand(1)
         @test fapinv(LombScargle.bootstrap(1000, x, y, fast=false, fit_mean=false), 0.2) ≈
             0.22195685099625417
     end
