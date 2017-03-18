@@ -106,8 +106,7 @@ function _generalised_lombscargle!(P, freqs, times, y, w, YY, nil)
             CS += W*c*s
             CC += W*c*c
         end
-        SS  = 1 - CC
-        ωτ   = atan2(2CS, CC - SS) / 2
+        ωτ   = atan2(2CS, 2CC - 1) / 2
         # Now we can compute the power
         YC_τ = YS_τ = CC_τ = nil
         @inbounds for i in eachindex(times)
@@ -119,8 +118,11 @@ function _generalised_lombscargle!(P, freqs, times, y, w, YY, nil)
             YS_τ += W*y[i]*s
             CC_τ += W*c*c
         end
-        SS_τ  = 1 - CC_τ
-        P[n] = (abs2(YC_τ)/CC_τ + abs2(YS_τ)/SS_τ)/YY
+        # P[n] should be (abs2(YC_τ)/CC_τ + abs2(YS_τ)/SS_τ)/YY, but we guard the values of
+        # CC_τ and SS_τ in case they're zeros (note that SS_τ = 1 - CC_τ).
+        frac_C = ifelse(iszero(CC_τ), nil, abs2(YC_τ) / CC_τ)
+        frac_S = ifelse(CC_τ == 1,    nil, abs2(YS_τ) / (1 - CC_τ))
+        P[n] = (frac_C + frac_S)/YY
     end
     return P
 end
