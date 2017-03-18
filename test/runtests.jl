@@ -160,8 +160,8 @@ end
     y = sin.(x)
 
     @testset "LombScargle.trig_sum!" begin
-        FFTW.set_num_threads(2)
-        info("Multi-threading in FFTW enabled")
+        # FFTW.set_num_threads(2)
+        # info("Multi-threading in FFTW enabled")
         N = 10
         Nfft = nextpow2(5N)
         bfft_vec = Vector{Complex{Float64}}(Nfft)
