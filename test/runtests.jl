@@ -2,7 +2,7 @@ using LombScargle
 using Measurements
 using Base.Test
 
-Threads.nthreads() > 1 && info("Julia running in multi-threading mode")
+Threads.nthreads() > 1 && (FFTW.set_num_threads(2); info("Multi-threading enabled"))
 
 ntimes = 1001
 # Observation times
@@ -160,8 +160,6 @@ end
     y = sin.(x)
 
     @testset "LombScargle.trig_sum!" begin
-        # FFTW.set_num_threads(2)
-        # info("Multi-threading in FFTW enabled")
         N = 10
         Nfft = nextpow2(5N)
         bfft_vec = Vector{Complex{Float64}}(Nfft)
