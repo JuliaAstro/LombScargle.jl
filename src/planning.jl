@@ -73,9 +73,15 @@ function _plan{R1<:Real,R2<:Real}(times::AbstractVector{<:Real}, signal::Abstrac
         bfft_vect = Vector{Complex{T}}(Nfft)
         bfft_grid = Vector{Complex{T}}(Nfft)
         bfft_plan = plan_bfft(bfft_vect, flags = FFTW.MEASURE)
-        return FastGLSPlan(times, signal, frequencies, w, y, YY,
-                           bfft_vect, bfft_grid, bfft_plan, Mfft,
-                           fit_mean, noise, normalization, Vector{T}(length(frequencies)))
+        if fit_mean
+            return FastGLSPlan_fit_mean(times, signal, frequencies, w, y, YY,
+                                        bfft_vect, bfft_grid, bfft_plan, Mfft,
+                                        noise, normalization, Vector{T}(length(frequencies)))
+        else
+            return FastGLSPlan(times, signal, frequencies, w, y, YY,
+                               bfft_vect, bfft_grid, bfft_plan, Mfft,
+                               noise, normalization, Vector{T}(length(frequencies)))
+        end
     else
         return _plan_no_fast(times, signal, w, frequencies, with_errors,
                              center_data, fit_mean, noise, normalization)

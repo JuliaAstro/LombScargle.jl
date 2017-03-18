@@ -49,7 +49,7 @@ end
 
 function _generalised_lombscargle!(P, freqs, times, y, w, Y, YY, nil)
     @inbounds Threads.@threads for n in eachindex(freqs)
-        ω = 2pi*freqs[n]
+        ω = freqs[n] * 2 * pi
         # Find τ for current angular frequency
         C = S = CS = CC = nil
         @inbounds for i in eachindex(times)
@@ -95,7 +95,7 @@ end
 
 function _generalised_lombscargle!(P, freqs, times, y, w, YY, nil)
     @inbounds Threads.@threads for n in eachindex(freqs)
-        ω = 2pi*freqs[n]
+        ω = freqs[n] * 2 * pi
         # Find τ for current angular frequency
         C = S = CS = CC = nil
         @inbounds for i in eachindex(times)
