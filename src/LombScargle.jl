@@ -1,4 +1,4 @@
-### LombScargle.jl ---  Perform Lomb-Scargle periodogram
+### LombScargle.jl ---  Perform Lomb–Scargle periodogram
 #
 # Copyright (C) 2016 Mosè Giordano.
 #
@@ -98,7 +98,7 @@ lombscargle(args...; kwargs...) = lombscargle(plan(args...; kwargs...))
                               minimum_frequency=minimum_frequency,
                               maximum_frequency=maximum_frequency))
 
-Compute the Lomb-Scargle periodogram of the `signal` vector, observed at
+Compute the Lomb–Scargle periodogram of the `signal` vector, observed at
 `times`.  You can also specify the uncertainties for each signal point with in
 `errors` argument.  All these vectors must have the same length.
 
@@ -110,7 +110,7 @@ Optional keywords arguments are:
 * `noise_level`: the noise level used to normalize the periodogram when
   `normalization` is set to `:Scargle`
 * `fit_mean`: if `true`, fit for the mean of the signal using the Generalised
-  Lomb-Scargle algorithm (see Zechmeister & Kürster paper below).  If this is
+  Lomb–Scargle algorithm (see Zechmeister & Kürster paper below).  If this is
   `false` and no uncertainty on the signal is provided, the original algorithm
   by Lomb and Scargle will be employed (see Townsend paper below)
 * `center_data`: if `true`, subtract the weighted mean of `signal` from `signal`
@@ -165,6 +165,15 @@ The algorithm used here are reported in the following papers:
   http://dx.doi.org/10.1051/0004-6361:200811296,
   Bibcode: http://adsabs.harvard.edu/abs/2009A%26A...496..577Z)
 """
-lombscargle
+lombscargle(::AbstractVector{<:Real}, rest...)
+
+"""
+    lombscargle(plan::PeriodogramPlan)
+
+Compute the Lomb–Scargle periodogram for the given `plan`.  This method has no other
+argument.  See documentation of `LombScargle.plan` for how to plan a Lomb–Scargle
+periodogram.
+"""
+lombscargle(::PeriodogramPlan)
 
 end # module

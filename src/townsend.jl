@@ -1,4 +1,4 @@
-### townsend.jl ---  Perform original Lomb-Scargle periodogram
+### townsend.jl ---  Perform original Lomb–Scargle periodogram
 #
 # Copyright (C) 2017 Mosè Giordano.
 #

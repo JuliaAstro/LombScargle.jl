@@ -1,4 +1,4 @@
-### press-rybicki.jl ---  Perform fast but approximate Lomb-Scargle periodogram
+### press-rybicki.jl ---  Perform fast but approximate Lomb–Scargle periodogram
 #
 # Copyright (C) 2017 Mosè Giordano.
 #
@@ -45,7 +45,7 @@ end
 
 include("extirpolation.jl")
 
-# Fast, but approximate, method to compute the Lomb-Scargle periodogram for
+# Fast, but approximate, method to compute the Lomb–Scargle periodogram for
 # evenly spaced frequency grid.  See
 # * Press, W. H., Rybicki, G. B. 1989, ApJ, 338, 277 (URL:
 #   http://dx.doi.org/10.1086/167197,

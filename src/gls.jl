@@ -1,4 +1,4 @@
-### gls.jl ---  Perform Generalised Lomb-Scargle periodogram
+### gls.jl ---  Perform Generalised Lomb–Scargle periodogram
 #
 # Copyright (C) 2017 Mosè Giordano.
 #
@@ -36,7 +36,7 @@ struct GLSPlan_fit_mean{T,A,B<:AbstractVector{T},C,D,E,F,G} <: PeriodogramPlan
     P::G
 end
 
-# Generalised Lomb-Scargle algorithm: this takes into account uncertainties and
+# Generalised Lomb–Scargle algorithm: this takes into account uncertainties and
 # fit the mean of the signal.  This is implemented following the recipe by
 # * Zechmeister, M., Kürster, M. 2009, A&A, 496, 577  (URL:
 #   http://dx.doi.org/10.1051/0004-6361:200811296,
