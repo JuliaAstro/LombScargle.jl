@@ -117,6 +117,13 @@ are:
 
 All these vectors must have the same length.
 
+.. Tip::
+
+   You can pre-plan a periodogram with :func:`LombScargle.plan` function, which
+   has the same syntax as :func:`lombscargle` described in this section.  In
+   this way the actual computation of the periodogram is faster and you will
+   save memory.  See the `Planning the Periodogram`_ section below.
+
 Besides the two arguments introduced above, :func:`lombscargle` has a number of
 other optional arguments and keywords in order to choose the right algorithm to
 use and tweak the appearance of the periodogram (do not be scared, you will most
@@ -358,6 +365,28 @@ number of observations.
 
   This is the ``:Cumming`` normalization option
 
+Planning the Periodogram
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+In a manner similar to planning Fourier transforms with FFTW, it is possible to
+speed-up computation of the Lomb–Scargle periodogram by pre-planning it with
+``LombScargle.plan`` function.  It has the same syntax as :func:`lombscargle`,
+which in the base case is:
+
+.. function:: LombScargle.plan(times::AbstractVector{Real}, signal::AbstractVector{Real})
+
+It takes all the same argument as :func:`lombscargle` shown above and returns a
+``LombScargle.PeriodogramPlan`` object after having pre-computed certain
+quantities needed afterwards, and pre-allocated the memory for the periodogram.
+It is highly suggested to plan a periodogram before actually computing it,
+especially for the fast method.  Once you plan a periodogram, you can pass the
+``LombScargle.PeriodogramPlan`` to :func:`lombscargle` as the only argument.
+
+Pre-planning the periodogram is also useful if you want to calculate the
+false-alarm probability via bootstrapping with :func:`LombScargle.bootstrap`
+function, because you ensure that you will use the same options you used to
+compute the periodogram, besides saving time and memory.
+
 Access Frequency Grid and Power Spectrum of the Periodogram
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -491,6 +520,7 @@ Bootstrapping
 '''''''''''''
 
 .. function:: LombScargle.bootstrap(N::Integer, t::AbstractVector{Real}, s::AbstractVector{Real}, ...)
+.. function:: LombScargle.bootstrap(N::Integer, plan::LombScargle.PeriodogramPlan)
 .. function:: fap(b::Bootstrap, power::Real)
 .. function:: fapinv(b::Bootstrap, prob::Real)
 
@@ -529,7 +559,13 @@ with ``N`` permutations of the original data.  All the arguments after the first
 one are passed around to :func:`lombscargle`.  The output is a
 ``LombScargle.Bootstrap`` object.
 
-The false alarm probability and its inverse can be calculated with :func:`fap`
+You can also pass to :func:`LombScargle.bootstrap` a pre-computed
+``LombScargle.PeriodogramPlan`` as second argument (this method takes no other
+argument nor keyword).  In this way you will be sure to use exactly the same
+options you used before for computing the periodogram with the same periodogram
+plan.
+
+The false-alarm probability and its inverse can be calculated with :func:`fap`
 and :func:`fapinv` functions respectively.  Their syntax is the same as the
 methods introduced above, but with a ``LombScargle.Bootstrap`` object as first
 argument, instead of the ``LombScargle.Periodogram`` one.
@@ -640,7 +676,9 @@ Here is an example of a noisy periodic signal (:math:`\sin(\pi t) +
 
    julia> s = sinpi.(t) .+ 1.5cospi.(2t) .+ rand(ntimes) # The signal
 
-   julia> pgram = lombscargle(t, s)
+   julia> plan = LombScargle.plan(t, s); # Pre-plan the periodogram
+
+   julia> pgram = lombscargle(plan) # Compute the periodogram
    LombScargle.Periodogram{Float64,StepRangeLen{Float64,Base.TwicePrecision{Float64},Base.TwicePrecision{Float64}},Array{Float64,1}}([0.000472346, 0.000461633, 0.000440906, 0.000412717, 0.000383552, 0.000355828, 0.000289723, 0.000154585, 3.44734e-5, 5.94437e-7  …  3.15125e-5, 0.000487391, 0.0018939, 0.00367003, 0.00484181, 0.00495189, 0.00453233, 0.00480968, 0.00619657, 0.0074052], 0.003185690706734265:0.00637138141346853:79.72190993602499, [0.0295785, 0.0540516, 0.0780093, 0.122759, 0.15685, 0.192366, 0.206601, 0.252829, 0.265771, 0.315443  …  31.1512, 31.1758, 31.2195, 31.2342, 31.2752, 31.293, 31.3517, 31.3761, 31.4148, 31.4199], :standard)
 
 You can plot the result, for example with `Plots
@@ -750,7 +788,9 @@ the periodogram (and you can get the period by taking its inverse):
 
    julia> s = sinpi.(t)
 
-   julia> p = lombscargle(t, s)
+   julia> plan = LombScargle.plan(t, s); # Plan the periodogram
+
+   julia> p = lombscargle(plan)
 
    julia> findmaxperiod(p) # Period with highest power
    1-element Array{Float64,1}:
@@ -830,7 +870,9 @@ functions, respectively.
 
    julia> s = sinpi.(e.*t).^2 .- cos.(5t).^4
 
-   julia> p = lombscargle(t, s)
+   julia> plan = LombScargle.plan(t, s);
+
+   julia> p = lombscargle(plan)
 
    # Find the false-alarm probability for the highest peak.
    julia> fap(p, 0.3)
@@ -858,17 +900,20 @@ calculate the false-alarm probability and its inverse using this sample.
 .. Tip::
 
    When applying the bootstrap method you should use the same options you used
-   to perform the periodogram on your data.  However, note that the fast method
-   gives approximate results that for some frequencies may not be reliable (they
-   can go outside the range :math:`[0, 1]` for the standard normalization).
-   More robust results can be obtained with the ``fast = false`` option.
+   to perform the periodogram on your data.  Using the same periodogram plan you
+   used to compute the periodogram will ensure that you use the same options.
+   However, note that the fast method gives approximate results that for some
+   frequencies may not be reliable (they can go outside the range :math:`[0, 1]`
+   for the standard normalization).  More robust results can be obtained with
+   the ``fast = false`` option.
 
 .. code-block:: julia
 
    # Create a bootstrap sample with 10000
-   # resamplings of the original data.  The larger
-   # the better.  This may take some minutes.
-   julia> b = LombScargle.bootstrap(10000, t, s, samples_per_peak = 10, fast = false)
+   # resamplings of the original data, re-using the
+   # same periodogram plan.  The larger the better.
+   # This may take some minutes.
+   julia> b = LombScargle.bootstrap(10000, plan)
 
    # Calculate the false-alarm probability of a peak
    # with power 0.3 using this bootstrap sample.
@@ -924,7 +969,8 @@ frequency fits well your data.
       using Plots
       t = linspace(0.01, 5, 1000) # Observation times
       s = sinpi.(2t) .+ 1.2cospi.(4t) .+ 0.3rand(length(t)) # Noisy signal
-      p = lombscargle(t, s, samples_per_peak=50)
+      plan = LombScargle.plan(t, s, samples_per_peak=50)
+      p = lombscargle(plan)
       # After plotting the periodogram, you discover
       # that it has two prominent peaks around 1 and 2.
       f1 = findmaxfreq(p, [0.8, 1.2])[1] # Get peak frequency around 1

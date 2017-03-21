@@ -68,7 +68,7 @@ function trig_sum!{R1<:Real,R2<:Real}(grid, bfft_vec, bfft_plan,
     df *= freq_factor
     f0 *= freq_factor
     if f0 > 0
-        H = h .* cis.(2pi .* f0 .* (t .- t0))
+        H = h .* cis.(f0 .* (t .- t0) .* 2 .* pi)
     else
         H = complex(h)
     end
@@ -77,7 +77,7 @@ function trig_sum!{R1<:Real,R2<:Real}(grid, bfft_vec, bfft_plan,
     A_mul_B!(bfft_vec, bfft_plan, grid)
     fftgrid = @view(bfft_vec[1:N])
     if t0 != 0
-        fftgrid .*= cis.(2pi .* t0 .* (f0 .+ df .* (0:(N - 1))))
+        fftgrid .*= cis.(t0 .* (f0 .+ df .* (0:(N - 1))) .* 2 .* pi)
     end
     return real(fftgrid), imag(fftgrid)
 end

@@ -20,31 +20,20 @@ immutable Bootstrap{T<:AbstractFloat}
     p::AbstractVector{T} # Vector of highest peaks
 end
 
-# XXX: possible improvement: compute IFFT plan for the fast method only once.
-# However, this would require some work, instead current implementation is
-# extremely simple.
-function bootstrap{R1<:Real,R2<:Real}(N::Integer,
-                                      t::AbstractVector{R1},
-                                      s::AbstractVector{R2},
-                                      rest...;
-                                      args...)
+function bootstrap(N::Integer, p::PeriodogramPlan)
     # Allocate vector
-    high_peaks = Vector{promote_type(R1, R2)}(N)
+    high_peaks = Vector{eltype(p.P)}(N)
     # Run N simulations.
     @inbounds for i in eachindex(high_peaks)
         # Store the highest peaks
-        high_peaks[i] = findmaxpower(lombscargle(shuffle(t), s, rest...; args...))
+        high_peaks[i] = maximum(normalize!(_periodogram!(shuffle(p.times), p), p))
     end
     # Create a `Bootstrap' object with the vector sorted in descending order.
     return Bootstrap(sort(high_peaks, rev = true))
 end
 
-function bootstrap{R<:Real,F<:AbstractFloat}(N::Integer,
-                                             t::AbstractVector{R},
-                                             s::AbstractVector{Measurement{F}};
-                                             args...)
-    return bootstrap(N, t, Measurements.value.(s), Measurements.uncertainty.(s); args...)
-end
+bootstrap(N::Integer, t::AbstractVector{<:Real}, rest...; kwargs...) =
+    bootstrap(N, plan(t, rest...; kwargs...))
 
 """
     LombScargle.bootstrap(N::Integer,
@@ -56,8 +45,17 @@ Create `N` bootstrap samples, perform the Lomb–Scargle analysis on them, and
 store all the highest peaks for each one in a `LombScargle.Bootstrap` object.
 All the arguments after `N` are passed around to `lombscargle`, which see.
 """
-bootstrap
+bootstrap(::Integer, ::AbstractVector{<:Real})
 
+"""
+    LombScargle.bootstrap(N::Integer, plan::PeriodogramPlan)
+
+Create `N` bootstrap samples, perform the Lomb–Scargle analysis on them for the given
+`plan`, and store all the highest peaks for each one in a `LombScargle.Bootstrap` object.
+
+See documentation of `LombScargle.plan` for how to plan a Lomb–Scargle periodogram.
+"""
+bootstrap(::Integer, ::PeriodogramPlan)
 
 """
     fap(b::Bootstrap, power::Real)

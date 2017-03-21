@@ -2,7 +2,7 @@ using LombScargle
 using Measurements
 using Base.Test
 
-Threads.nthreads() > 1 && info("Julia running in multi-threading mode")
+Threads.nthreads() > 1 && (FFTW.set_num_threads(2); info("Multi-threading enabled"))
 
 ntimes = 1001
 # Observation times
@@ -10,10 +10,10 @@ t = linspace(0.01, 10pi, ntimes)
 # Signal
 s = sin.(t)
 
-pgram1 = lombscargle(t, s, fast = false, fit_mean=false)
-pgram2 = lombscargle(t, s, fast = false, fit_mean=true)
-pgram3 = lombscargle(t, s, fast = false, center_data=false, fit_mean=false)
-pgram4 = lombscargle(t, s, fast = false, center_data=false, fit_mean=true)
+pgram1 = @inferred(lombscargle(LombScargle.plan(t, s, fast = false, fit_mean=false)))
+pgram2 = @inferred(lombscargle(LombScargle.plan(t, s, fast = false, fit_mean=true)))
+pgram3 = @inferred(lombscargle(LombScargle.plan(t, s, fast = false, center_data=false, fit_mean=false)))
+pgram4 = @inferred(lombscargle(LombScargle.plan(t, s, fast = false, center_data=false, fit_mean=true)))
 
 @testset "Periodograms" begin
     @testset "Random stuff" begin
@@ -160,8 +160,6 @@ end
     y = sin.(x)
 
     @testset "LombScargle.trig_sum!" begin
-        FFTW.set_num_threads(2)
-        info("Multi-threading in FFTW enabled")
         N = 10
         Nfft = nextpow2(5N)
         bfft_vec = Vector{Complex{Float64}}(Nfft)
@@ -177,10 +175,22 @@ end
         @test LombScargle.bootstrap(5, x, y).p ≈
             [0.25956949678034225, 0.2360115683328911, 0.22016267001066891, 0.1665406952388801,
              0.12516095308735742]
-        b = LombScargle.bootstrap(50, x, y, fast = true)
-        @test fap(b, fapinv(b, 0.02)) ≈ 0.02
+        srand(1)
+        @test LombScargle.bootstrap(5, x, y, fit_mean = false).p ≈
+            [0.2593941251038504, 0.23547209359157387, 0.219973555583272,
+             0.1665298143445746, 0.11304204776090254]
         err = collect(linspace(0.5, 1.5))
+        srand(1)
         b = LombScargle.bootstrap(50, x, measurement.(y, err), fast = true)
         @test fap(b, fapinv(b, 0.02)) ≈ 0.02
+        srand(1)
+        b = LombScargle.bootstrap(50, x, measurement.(y, err), fast = false)
+        @test fap(b, fapinv(b, 0.02)) ≈ 0.02
+        srand(1)
+        @test fapinv(LombScargle.bootstrap(50, x, measurement.(y, err), fast = false, fit_mean = false),
+                     0.2) ≈ 0.25009623372392176
+        srand(1)
+        @test fapinv(LombScargle.bootstrap(1000, x, y, fast=false, fit_mean=false), 0.2) ≈
+            0.22195685099625417
     end
 end

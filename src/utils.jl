@@ -21,14 +21,14 @@ export power, freq, freqpower, findmaxpower, findmaxfreq, period, periodpower,
 """
     power(p::Periodogram)
 
-Return the power vector of Lomb-Scargle periodogram `p`.
+Return the power vector of Lomb–Scargle periodogram `p`.
 """
 power(p::Periodogram) = p.power
 
 """
     freq(p::Periodogram)
 
-Return the frequency vector of Lomb-Scargle periodogram `p`.
+Return the frequency vector of Lomb–Scargle periodogram `p`.
 """
 freq(p::Periodogram) = p.freq
 
@@ -36,7 +36,7 @@ freq(p::Periodogram) = p.freq
     freqpower(p::Periodogram)
 
 Return the 2-tuple `(freq(p), power(p))`, where `freq(p)` and `power(p)` are the
-frequency vector and the power vector of Lomb-Scargle periodogram `p`
+frequency vector and the power vector of Lomb–Scargle periodogram `p`
 respectively.
 """
 freqpower(p::Periodogram) = (freq(p), power(p))
@@ -81,7 +81,7 @@ end
 """
     power(p::Periodogram)
 
-Return the period vector of Lomb-Scargle periodogram `p`.  It is equal to `1./freq(p)`.
+Return the period vector of Lomb–Scargle periodogram `p`.  It is equal to `1./freq(p)`.
 """
 period(p::Periodogram) = 1./freq(p)
 
@@ -89,7 +89,7 @@ period(p::Periodogram) = 1./freq(p)
     periodpower(p::Periodogram)
 
 Return the 2-tuple `(period(p), power(p))`, where `period(p)` and `power(p)` are
-the period vector and the power vector of Lomb-Scargle periodogram `p`
+the period vector and the power vector of Lomb–Scargle periodogram `p`
 respectively.
 """
 periodpower(p::Periodogram) = (period(p), power(p))
@@ -234,7 +234,7 @@ fapinv(P::Periodogram, prob::Real) = probinv(P, 1.0 - (1.0 - prob)^(inv(M(P))))
                       center_data::Bool=true,
                       fit_mean::Bool=true)
 
-Return the best fitting Lomb-Scargle model for the given signal at the given
+Return the best fitting Lomb–Scargle model for the given signal at the given
 frequency.
 
 Mandatory arguments are:
@@ -273,14 +273,14 @@ function model{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(t::AbstractVector{R1},
         m = zero(R2)
         y = s./errors
     end
-    # The Lomb-Scargle periodogram looks for the best fitting sinusoidal
+    # The Lomb–Scargle periodogram looks for the best fitting sinusoidal
     # function
     #     a·cos(ωt) + b·sin(ωt) + c
     # In order to find the coefficients a, b, c for the given frequency we can
     # solve the linear system A·x = y, where A is the matrix with rows:
     # [cos(ωt) sin(ωt) 1]; x is the column vector [a, b, c], and y is the
     # column vector of the signal
-    ω = 2pi*f
+    ω = f * 2 * pi
     if fit_mean
         a, b, c = [cos.(ω .* t) sin.(ω .* t)  ones(t)] ./ errors \ y
         return a .* cos.(ω .* t_fit) .+ b .* sin.(ω .* t_fit) .+ (c + m)

@@ -185,6 +185,11 @@ of the signal.  You can create arrays of `Measurement` objects with the
 `measurement` function, see `Measurements.jl` manual at
 http://measurementsjl.readthedocs.io/ for more details.
 
+With the `LombScargle.plan` function you can pre-plan a periodogram and save
+time and memory for the actual computation of the periodogram.  See
+the [manual](https://lombscarglejl.readthedocs.io/#planning-the-periodogram) for
+details.
+
 ### Access Frequency Grid and Power Spectrum of the Periodogram ###
 
 ```julia
@@ -297,15 +302,24 @@ Here is an example of a noisy periodic signal (`sin(π*t) + 1.5*cos(2π*t)`)
 sampled at unevenly spaced times.
 
 ```julia
-using LombScargle
-ntimes = 1001
+julia> using LombScargle
+
+julia> ntimes = 1001
+1001
+
 # Observation times
-t = linspace(0.01, 10pi, ntimes)
+julia> t = linspace(0.01, 10pi, ntimes)
+0.01:0.03140592653589793:31.41592653589793
+
 # Randomize times
-t += step(t)*rand(ntimes)
+julia> t += step(t)*rand(ntimes);
+
 # The signal
-s = sinpi.(t) .+ 1.5cospi.(2t) .+ rand(ntimes)
-pgram = lombscargle(t, s)
+julia> s = sinpi.(t) .+ 1.5 .* cospi.(2t) .+ rand(ntimes);
+
+julia> plan = LombScargle.plan(t, s);
+
+julia> pgram = lombscargle(plan)
 ```
 
 You can plot the result, for example with
@@ -368,11 +382,13 @@ plot(freqpower(lombscargle(t, measurement(s, errors), maximum_frequency=1.5))...
 periodogram (and you can get the period by taking its inverse):
 
 ```julia
-julia> t = linspace(0, 10, 1001)
+julia> t = linspace(0, 10, 1001);
 
-julia> s = sinpi.(2t)
+julia> s = sinpi.(2t);
 
-julia> p = lombscargle(t, s)
+julia> plan = LombScargle.plan(t, s);
+
+julia> p = lombscargle(plan)
 
 julia> 1.0./findmaxfreq(p) # Period with highest power
 1-element Array{Float64,1}:
