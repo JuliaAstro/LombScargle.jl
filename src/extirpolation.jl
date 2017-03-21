@@ -47,12 +47,13 @@ function extirpolate!{RE<:Real,NU<:Number}(result,
     v = collect(0:(M - 1))
     numerator = y .* [prod(x[j] - ilo[j] - v) for j in eachindex(x)]
     denominator = float(factorial(M - 1))
+    ilo .+= M .+ 1
     @inbounds for j in v
         if j > 0
             denominator *= j/(j - M)
         end
-        ind = ilo .+ (M .- j)
-        add_at!(result, ind, numerator ./ (denominator .* (x .- ind .+ 1)))
+        ilo .-= 1
+        add_at!(result, ilo, numerator ./ (denominator .* (x .- ilo .+ 1)))
     end
     return result
 end
