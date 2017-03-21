@@ -560,9 +560,10 @@ one are passed around to :func:`lombscargle`.  The output is a
 ``LombScargle.Bootstrap`` object.
 
 You can also pass to :func:`LombScargle.bootstrap` a pre-computed
-``LombScargle.PeriodogramPlan`` as second argument.  In this way you will be
-sure to use exactly the same options you used before for computing the
-periodogram with the same periodogram plan.
+``LombScargle.PeriodogramPlan`` as second argument (this method takes no other
+argument nor keyword).  In this way you will be sure to use exactly the same
+options you used before for computing the periodogram with the same periodogram
+plan.
 
 The false-alarm probability and its inverse can be calculated with :func:`fap`
 and :func:`fapinv` functions respectively.  Their syntax is the same as the
@@ -787,7 +788,7 @@ the periodogram (and you can get the period by taking its inverse):
 
    julia> s = sinpi.(t)
 
-   julia> plan = LombScargle.plan(t, s) # Plan the periodogram
+   julia> plan = LombScargle.plan(t, s); # Plan the periodogram
 
    julia> p = lombscargle(plan)
 
@@ -869,7 +870,7 @@ functions, respectively.
 
    julia> s = sinpi.(e.*t).^2 .- cos.(5t).^4
 
-   julia> plan = LombScargle.plan(t, s)
+   julia> plan = LombScargle.plan(t, s);
 
    julia> p = lombscargle(plan)
 
