@@ -20,17 +20,8 @@ immutable Bootstrap{T<:AbstractFloat}
     p::Vector{T} # Vector of highest peaks
 end
 
-function bootstrap(N::Integer, p::PeriodogramPlan)
-    # Allocate vector
-    high_peaks = Vector{eltype(p.P)}(N)
-    # Run N simulations.
-    @inbounds for i in eachindex(high_peaks)
-        # Store the highest peaks
-        high_peaks[i] = maximum(normalize!(_periodogram!(shuffle(p.times), p), p))
-    end
-    # Create a `Bootstrap' object with the vector sorted in descending order.
-    return Bootstrap(sort(high_peaks, rev = true))
-end
+bootstrap(N::Integer, p::PeriodogramPlan) =
+    Bootstrap(sort!([maximum(normalize!(_periodogram!(shuffle(p.times), p), p)) for _ in 1:N], rev = true))
 
 bootstrap(N::Integer, t::AbstractVector{<:Real}, rest...; kwargs...) =
     bootstrap(N, plan(t, rest...; kwargs...))
