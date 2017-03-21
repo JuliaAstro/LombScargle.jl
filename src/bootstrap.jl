@@ -17,7 +17,7 @@
 ### Code:
 
 immutable Bootstrap{T<:AbstractFloat}
-    p::AbstractVector{T} # Vector of highest peaks
+    p::Vector{T} # Vector of highest peaks
 end
 
 function bootstrap(N::Integer, p::PeriodogramPlan)
