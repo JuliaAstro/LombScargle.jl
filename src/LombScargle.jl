@@ -63,7 +63,8 @@ function normalize!(P::AbstractVector{<:AbstractFloat},
     elseif normalization == :HorneBaliunas
         return P .*= (N .- 1) ./ 2
     elseif normalization == :Cumming
-        return P .*= (N .- 3) ./ (1 .- maximum(P)) ./ 2
+        M = maximum(P)
+        return P .*= (N .- 3) ./ (1 .- M) ./ 2
     else
         error("normalization \"", string(normalization), "\" not supported")
     end

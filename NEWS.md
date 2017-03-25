@@ -31,10 +31,10 @@ feature.
   computed internally with FFTW library can take advantage of multi-threading
   (call `FFTW.set_num_threads(n)` to use `n` threads) in order to speed-up
   computation.  However, please note that the running time will not scale as `n`
-  because computation of the FFT is only a part of the algorithm.  The function
-  is also less memory-eager than before.  To give you an idea of the
-  improvement, for an input of 100000 datapoints, a pre-planned periodogram is
-  70% faster than a periodogram in previous version and requires 85% memory
+  because computation of the FFT is only a part of the algorithm.  The memory
+  footprint of this function is also considerably lower.  To give you an idea of
+  the improvement, for an input of 100000 datapoints, a pre-planned periodogram
+  is 70% faster than a periodogram in previous version and requires 85% memory
   less.  With 4 FFTW threads the speed-up is of 80%.
 * The two non-fast methods now supports Julia’s
   native
@@ -42,8 +42,8 @@ feature.
   Run Julia with `n` threads (e.g., `JULIA_NUM_THREADS=4 julia` for 4 threads)
   in order to gain an `n`-fold scaling.  These function also eat considerably
   less memory: if the periodogram is pre-planned, all operations are then
-  performed in-place, so memory usage of the periodogram only is independent
-  from input size.
+  performed in-place, so memory usage of the periodogram only is independent of
+  input size.
 * The `LombScargle.model` function is now a bit faster and less memory-greedy
   than before.
 
@@ -63,7 +63,7 @@ v0.2.0 (2016-12-07)
   point type.
 * In the non-fast variant of the Generalised Lomb–Scargle method, when
   `fit_mean` and/or `center_data` are `true`, pre-center the data by subtracting
-  to the signal the weighted average of the signal itself, instead of the
+  from the signal the weighted average of the signal itself, instead of the
   arithmetic mean.
 
 v0.1.2 (2016-10-17)
