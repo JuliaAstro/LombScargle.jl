@@ -442,6 +442,26 @@ scatter(mod.(t.*f, 1), s, lab="Phased data", title="Best Lomb-Scargle frequency:
 plot!(t_fit, s_fit, lab="Best-fitting model", linewidth=4)
 ```
 
+Performance
+-----------
+
+A pre-planned periodogram in `LombScargle.jl` computed with the fast method is
+more than 2.5 times faster than the implementation provided by AstroPy in the
+single thread mode, and more than 4 times faster if 4 FFTW threads are used (on
+systems with at least 4 physical CPUs).
+
+The following plot shows a comparison between the times needed to compute a
+periodogram for a signal with N datapoints using `LombScargle.jl`, with 1 or 4
+threads, and the single-threaded AstroPy implementation.  (Julia version:
+0.6.0-pre.alpha.242, commit d694548; `LombScargle.jl` version: 0.3.0; Python
+version: 3.5.3; AstroPy version: 1.3.  CPU: Intel(R) Core(TM) i7-4700MQ.)
+
+![benchmarks](perf/benchmarks.png)
+
+Note that this comparison is unfair, as AstroPy doesn’t support pre-planning a
+periodogram nor exploiting multi-threading.  A non-planned periodogram in single
+thread mode in `LombScargle.jl` is still twice faster than AstroPy.
+
 Development
 -----------
 
