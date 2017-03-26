@@ -61,10 +61,10 @@ below.  Here we only give basic information.
 ### Documentation ###
 
 The complete manual of `LombScargle.jl` is available at
-http://lombscarglejl.readthedocs.io.  It has more detailed explanation of
-functions and more examples than what you will find here, also with some plots.
-You can also download the PDF version of the manual from
-https://media.readthedocs.org/pdf/lombscarglejl/latest/lombscarglejl.pdf.
+http://lombscarglejl.readthedocs.io.  It has detailed explanation of all
+functions provided by the package and more examples than what you will find
+here, also with some plots.  You can also download the PDF version of the manual
+from https://media.readthedocs.org/pdf/lombscarglejl/latest/lombscarglejl.pdf.
 
 Installation
 ------------
@@ -190,111 +190,6 @@ time and memory for the actual computation of the periodogram.  See
 the [manual](https://lombscarglejl.readthedocs.io/#planning-the-periodogram) for
 details.
 
-### Access Frequency Grid and Power Spectrum of the Periodogram ###
-
-```julia
-power(p::Periodogram)
-freq(p::Periodogram)
-freqpower(p::Periodogram)
-period(p::Periodogram)
-periodpower(p::Periodogram)
-```
-
-`lombscargle` function return a `LombScargle.Periodogram` object, but you most
-probably want to use the frequency (or period) grid and the power spectrum.  You
-can access these vectors with `freq` (or `period`) and `power` functions, just
-like in `DSP.jl` package.  If you want to get the 2-tuple `(freq(p), power(p))`
-(`(period(p), power(p))`) use the `freqpower` (`periodpower`) function.
-
-### `findmaxpower`, `findmaxfreq`, and `findmaxperiod` Functions ###
-
-```julia
-findmaxpower(p::Periodogram)
-findmaxfreq(p::Periodogram, [interval::AbstractVector{Real}], threshold::Real=findmaxpower(p))
-findmaxperiod(p::Periodogram, [interval::AbstractVector{Real}], threshold::Real=findmaxpower(p))
-```
-
-Once you compute the periodogram, you usually want to know which are the
-frequencies or periods with highest power.  To do this, you can use the
-`findmaxfreq` and `findmaxperiod` functions, respectively.  They return the
-vector of frequencies and periods with the highest power in the periodogram `p`.
-If a scalar real argument `threshold` is provided, return the
-frequencies/periods with power larger than or equal to `threshold`.  If you want
-to limit the search to a narrower frequency/period range, pass as second
-argument a vector with the extrema of the interval.
-
-The value of the highest power of a periodogram can be calculated with the
-`findmaxpower` function.
-
-### False-Alarm Probability ###
-
-``` julia
-prob(P::Periodogram, p_0::Real)
-probinv(P::Periodogram, prob::Real)
-fap(P::Periodogram, p_0::Real)
-fapinv(P::Periodogram, fap::Real)
-```
-
-Noise in the data produce fluctuations in the periodogram that will present
-several local peaks, but not all of them related to real periodicities.  The
-significance of the peaks can be tested by calculating the probability that its
-power can arise purely from noise.  The higher the value of the power, the lower
-will be this probability.
-
-Function `prob` allows you to calculate the probability `Prob(p > p_{0})` that
-the periodogram power `p` can exceed the value `p_{0}`.  Its first argument is
-the periodogram, and the second one is the `p_{0}` value.  The function
-`probinv` is its inverse: it takes the probability as second argument and
-returns the corresponding `p_{0}` value.
-
-`LombScargle.jl` provides the `fap` function to calculate the false-alarm
-probability (FAP) of a given power in a periodogram.  Its first argument is the
-periodogram, the second one is the value `p_{0}` of the power of which you want
-to calculate the FAP.  The function `fapinv` is the inverse of `fap`: it takes
-as second argument the value of the FAP and returns the corresponding value
-`p_{0}` of the power.
-
-**Note:** see the
-[manual](http://lombscarglejl.readthedocs.io/en/latest/#false-alarm-probability)
-for more information on the false-alarm probability.  There you can also find
-instructions on the `LombScargle.bootstrap` function that allows you to perform
-bootstrap resamplings in order to better estimate the false-alarm probability in
-certain cases.
-
-### `LombScargle.model` Function ###
-
-```julia
-LombScargle.model(times::AbstractVector{Real},
-                  signal::AbstractVector{Real},
-                  [errors::AbstractVector{Real},]
-                  frequency::Real,
-                  [times_fit::AbstractVector{Real}];
-                  center_data::Bool=true,
-                  fit_mean::Bool=true)
-```
-
-The `LombScargle.model` function returns the best fitting Lomb–Scargle model for
-the given signal at the given frequency.
-
-Mandatory arguments are:
-
-* `times`: the observation times
-* `signal`: the signal, sampled at `times` (must have the same length as
-  `times`)
-* `frequency`: the frequency at which to calculate the model
-
-The optional arguments are:
-
-* `errors`: the vector of uncertainties of the signal.  If provided, it must
-  have the same length as `signal` and `times`, and be the third argument.  Like
-  for `lombscargle`, if the signal has uncertainties, the `signal` vector can
-  also be a vector of `Measurement` objects, and this argument should be omitted
-* `times_fit`: the vector of times at which the model will be calculated.  It
-  defaults to `times`.  If provided, it must come after `frequency`
-
-Optional keyword arguments `center_data` and `fit_mean` have the same meaning as
-in `lombscargle` function, which see.
-
 Examples
 --------
 
@@ -374,72 +269,6 @@ s = sinpi.(2t)
 errors = rand(0.1:1e-3:4.0, ntimes)
 plot(freqpower(lombscargle(t, s, errors, maximum_frequency=1.5))...)
 plot(freqpower(lombscargle(t, measurement(s, errors), maximum_frequency=1.5))...)
-```
-
-### Find Highest Power and Associated Frequencies ###
-
-`findmaxfreq` function tells you the frequencies with the highest power in the
-periodogram (and you can get the period by taking its inverse):
-
-```julia
-julia> t = linspace(0, 10, 1001);
-
-julia> s = sinpi.(2t);
-
-julia> plan = LombScargle.plan(t, s);
-
-julia> p = lombscargle(plan)
-
-julia> 1.0./findmaxfreq(p) # Period with highest power
-1-element Array{Float64,1}:
- 0.00502487
-```
-
-This peak is at high frequencies, very far from the expected value of the period
-of 1.  In order to find the real peak, you can either narrow the frequency range
-in order to exclude higher armonics
-
-```julia
-julia> 1.0./findmaxfreq(p, [0.5, 1.5]) # Limit the search to the interval [0.5, 1.5]
-1-element Array{Float64,1}:
- 1.0101
-```
-
-or pass the `threshold` argument to `findmaxfreq`.  You can use `findmaxpower`
-to discover the highest power in the periodogram:
-
-```julia
-julia> findmaxpower(p)
-0.9712085205753647
-
-julia> 1.0./findmaxfreq(p, 0.97) # Use a threshold
-5-element Array{Float64,1}:
- 1.0101
- 0.0101
- 0.00990197
- 0.00502487
- 0.00497537
-```
-
-The first peak is the real one, the other double peaks appear at higher
-armonics.  Usually, plotting the periodogram can give you a clue of what’s going
-on.
-
-### Find the Best-Fitting Model ###
-
-The `LombScargle.model` function can help you to test whether a certain
-frequency fits well your data.
-
-```julia
-using Plots
-t = linspace(0.01, 10pi, 1000)
-s = sin.(t) .+ 0.3rand(length(t))
-# Find the best frequency
-f = findmaxfreq(lombscargle(t, s, maximum_frequency=10, samples_per_peak=20))[1]
-t_fit = linspace(0, 1)
-s_fit = LombScargle.model(t, s, f, t_fit/f) # Determine the model
-scatter(mod.(t.*f, 1), s, lab="Phased data", title="Best Lomb-Scargle frequency: $f")
-plot!(t_fit, s_fit, lab="Best-fitting model", linewidth=4)
 ```
 
 Performance
