@@ -1,6 +1,6 @@
 ### bootstrap.jl
 #
-# Copyright (C) 2016 Mosè Giordano.
+# Copyright (C) 2016, 2017 Mosè Giordano.
 #
 # Maintainer: Mosè Giordano <mose AT gnu DOT org>
 # Keywords: periodogram, lomb scargle, bootstrapping
