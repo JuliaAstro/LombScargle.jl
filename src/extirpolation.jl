@@ -45,7 +45,7 @@ function extirpolate!{RE<:Real,NU<:Number}(result,
     # the limits are within the range 0...N
     ilo = clamp.(trunc.(Int, x .- div(M, 2)), 0, N - M)
     v = collect(0:(M - 1))
-    numerator = y .* [prod(x[j] - ilo[j] - v) for j in eachindex(x)]
+    numerator = [y[j] * prod(x[j] - ilo[j] - v) for j in eachindex(x)]
     denominator = float(factorial(M - 1))
     ilo .+= M .+ 1
     @inbounds for j in v
