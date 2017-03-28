@@ -28,11 +28,9 @@ end
 # * Townsend, R. H. D. 2010, ApJS, 191, 247 (URL:
 #   http://dx.doi.org/10.1088/0067-0049/191/2/247,
 #   Bibcode: http://adsabs.harvard.edu/abs/2010ApJS..191..247T)
-function _lombscargle_orig!{T<:Real}(P::AbstractVector{T},
-                                     times::AbstractVector{<:Real},
-                                     X::AbstractVector{<:Real},
-                                     freqs::AbstractVector{<:Real},
-                                     XX::Real)
+function _lombscargle_orig!(P::AbstractVector{T}, times::AbstractVector{<:Real},
+                            X::AbstractVector{<:Real}, freqs::AbstractVector{<:Real},
+                            XX::Real) where {T<:Real}
     nil = zero(T)
     N = length(X)
     @inbounds Threads.@threads for n in eachindex(freqs)

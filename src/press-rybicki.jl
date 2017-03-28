@@ -53,17 +53,10 @@ include("extirpolation.jl")
 # This is adapted from Astropy implementation of the method.  See
 # `lombscargle_fast' function.
 
-function _press_rybicki!{T<:AbstractFloat}(P,
-                                           times::AbstractVector{<:Real},
-                                           y::AbstractVector{<:Real},
-                                           w::AbstractVector{<:Real},
-                                           freqs::Range{<:Real},
-                                           YY::Real,
-                                           bfft_vec::AbstractVector{Complex{T}},
-                                           grid,
-                                           plan,
-                                           Nfft::Integer,
-                                           Mfft::Integer)
+function _press_rybicki!(P, times::AbstractVector{<:Real}, y::AbstractVector{<:Real},
+                         w::AbstractVector{<:Real}, freqs::Range{<:Real}, YY::Real,
+                         bfft_vec::AbstractVector{Complex{T}},
+                         grid, plan, Nfft::Integer, Mfft::Integer) where {T<:AbstractFloat}
     df = step(freqs)
     N  = length(freqs)
     f0 = minimum(freqs)
@@ -84,17 +77,11 @@ function _press_rybicki!{T<:AbstractFloat}(P,
                  (Sh .* Cw .- Ch .* Sw) .^ 2 ./ ((1 .- C2 .* C2w .- S2 .* S2w) ./ 2)) ./ YY
 end
 
-function _press_rybicki_fit_mean!{T<:AbstractFloat}(P,
-                                                    times::AbstractVector{<:Real},
-                                                    y::AbstractVector{<:Real},
-                                                    w::AbstractVector{<:Real},
-                                                    freqs::Range{<:Real},
-                                                    YY::Real,
-                                                    bfft_vec::AbstractVector{Complex{T}},
-                                                    grid,
-                                                    plan,
-                                                    Nfft::Integer,
-                                                    Mfft::Integer)
+function _press_rybicki_fit_mean!(P, times::AbstractVector{<:Real},
+                                  y::AbstractVector{<:Real}, w::AbstractVector{<:Real},
+                                  freqs::Range{<:Real}, YY::Real,
+                                  bfft_vec::AbstractVector{Complex{T}}, grid, plan,
+                                  Nfft::Integer, Mfft::Integer) where {T<:AbstractFloat}
     df = step(freqs)
     N  = length(freqs)
     f0 = minimum(freqs)

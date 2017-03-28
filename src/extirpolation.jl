@@ -20,18 +20,15 @@
 #
 ### Code:
 
-function add_at!{T1,I<:Integer,T2}(arr::AbstractVector{T1},
-                                   ind::AbstractVector{I},
-                                   vals::AbstractVector{T2})
+function add_at!(arr::AbstractVector{T1}, ind::AbstractVector{<:Integer},
+                 vals::AbstractVector{T2}) where {T1,T2}
     @inbounds for i in eachindex(ind)
         arr[ind[i]] += vals[i]
     end
 end
 
-function extirpolate!{RE<:Real,NU<:Number}(result,
-                                           x::AbstractVector{RE},
-                                           y::AbstractVector{NU},
-                                           N::Integer, M::Integer=4)
+function extirpolate!(result, x::AbstractVector{<:Real}, y::AbstractVector{NU},
+                      N::Integer, M::Integer=4) where {NU<:Number}
     # Now use legendre polynomial weights to populate the results array; This is
     # an efficient recursive implementation (See Press et al. 1989)
     fill!(result, zero(NU))
@@ -58,14 +55,10 @@ function extirpolate!{RE<:Real,NU<:Number}(result,
     return result
 end
 
-function trig_sum!{R1<:Real,R2<:Real}(grid, bfft_vec, bfft_plan,
-                                      t::AbstractVector{R1},
-                                      h::AbstractVector{R2}, df::Real,
-                                      N::Integer, Nfft::Integer,
-                                      t0::Real,
-                                      f0::Real=0.0,
-                                      freq_factor::Integer=1,
-                                      Mfft::Integer=4)
+function trig_sum!(grid, bfft_vec, bfft_plan, t::AbstractVector{<:Real},
+                   h::AbstractVector{<:Real}, df::Real, N::Integer,
+                   Nfft::Integer, t0::Real, f0::Real=0.0,
+                   freq_factor::Integer=1, Mfft::Integer=4)
     df *= freq_factor
     f0 *= freq_factor
     if f0 > 0

@@ -55,7 +55,7 @@ Return the false-alarm probability for `power` in the bootstrap sample `b`.
 
 Its inverse is the `fapinv` function.
 """
-fap{T<:AbstractFloat}(b::Bootstrap{T}, power::Real) =
+fap(b::Bootstrap{<:AbstractFloat}, power::Real) =
     length(find(x -> x >= power, b.p))/length(b.p)
 
 """
@@ -71,5 +71,5 @@ equal to 1.
 
 This is the inverse of `fap` function.
 """
-fapinv{T<:AbstractFloat}(b::Bootstrap{T}, prob::Real) =
+fapinv(b::Bootstrap{<:AbstractFloat}, prob::Real) =
     get(b.p, round(Int, length(b.p)*prob), NaN)

@@ -49,10 +49,8 @@ Return the highest power of the periodogram `p`.
 findmaxpower(p::Periodogram) = maximum(power(p))
 
 
-_findmaxfreq{R1<:Real,R2<:Real}(freq::AbstractVector{R1},
-                                power::AbstractVector{R2},
-                                threshold::Real) =
-                                    freq[find(x -> x >= threshold, power)]
+_findmaxfreq(freq::AbstractVector{<:Real}, power::AbstractVector{<:Real}, threshold::Real) =
+    freq[find(x -> x >= threshold, power)]
 
 """
     findmaxfreq(p::Periodogram, [interval::AbstractVector{Real}], threshold::Real=findmaxpower(p))
@@ -66,8 +64,7 @@ the interval.
 findmaxfreq(p::Periodogram, threshold::Real=findmaxpower(p)) =
     _findmaxfreq(freqpower(p)..., threshold)
 
-function findmaxfreq{R<:Real}(p::Periodogram, interval::AbstractVector{R},
-                              threshold::Real=NaN)
+function findmaxfreq(p::Periodogram, interval::AbstractVector{<:Real}, threshold::Real=NaN)
     f = freq(p)
     lo, hi = extrema(interval)
     indices = find(x -> lo <= x <= hi, f)
@@ -106,9 +103,9 @@ interval.
 """
 findmaxperiod(p::Periodogram, threshold::Real=findmaxpower(p)) =
     1./findmaxfreq(p, threshold)
-findmaxperiod{R<:Real}(p::Periodogram, interval::AbstractVector{R},
-                       threshold::Real=NaN) =
-                           1./findmaxfreq(p, 1./interval, threshold)
+findmaxperiod(p::Periodogram, interval::AbstractVector{<:Real},
+              threshold::Real=NaN) =
+                  1./findmaxfreq(p, 1./interval, threshold)
 
 """
     autofrequency(times::AbstractVector{Real};
@@ -134,18 +131,18 @@ This is based on prescription given at
 https://jakevdp.github.io/blog/2015/06/13/lomb-scargle-in-python/ and uses the
 same keywords names adopted in Astropy.
 """
-function autofrequency{R<:Real}(times::AbstractVector{R};
-                                samples_per_peak::Integer=5,
-                                nyquist_factor::Integer=5,
-                                minimum_frequency::Real=NaN,
-                                maximum_frequency::Real=NaN)
+function autofrequency(times::AbstractVector{<:Real};
+                       samples_per_peak::Integer=5,
+                       nyquist_factor::Integer=5,
+                       minimum_frequency::Real=NaN,
+                       maximum_frequency::Real=NaN)
     T = maximum(times) - minimum(times)
-    δf = inv(samples_per_peak*T)
-    f_min = isfinite(minimum_frequency) ? minimum_frequency : 0.5*δf
+    δf = inv(samples_per_peak * T)
+    f_min = isfinite(minimum_frequency) ? minimum_frequency : (δf / 2)
     if isfinite(maximum_frequency)
         return f_min:δf:maximum_frequency
     else
-        return f_min:δf:0.5*nyquist_factor*length(times)/T
+        return f_min:δf:(nyquist_factor * length(times) / 2T)
     end
 end
 
@@ -254,13 +251,10 @@ Optional arguments are:
 Optional keyword arguments `center_data` and `fit_mean` have the same meaning as
 in `lombscargle` function, which see.
 """
-function model{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(t::AbstractVector{R1},
-                                                    s::AbstractVector{R2},
-                                                    errors::AbstractVector{R3},
-                                                    f::Real,
-                                                    t_fit::AbstractVector{R4}=t;
-                                                    center_data::Bool=true,
-                                                    fit_mean::Bool=true)
+function model(t::AbstractVector{<:Real}, s::AbstractVector{T},
+               errors::AbstractVector{<:Real}, f::Real,
+               t_fit::AbstractVector{<:Real}=t;
+               center_data::Bool=true, fit_mean::Bool=true) where {T<:Real}
     @assert length(t) == length(s) == length(errors)
     if center_data
         # Compute weights vector
@@ -270,7 +264,7 @@ function model{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(t::AbstractVector{R1},
     else
         # We don't want to center the data: the mean is 0 and the signal is left
         # unchanged
-        m = zero(R2)
+        m = zero(T)
         y = s./errors
     end
     # The Lomb–Scargle periodogram looks for the best fitting sinusoidal
@@ -292,22 +286,12 @@ function model{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(t::AbstractVector{R1},
 end
 
 # No uncertainties: errors=ones(s)
-model{R1<:Real,R2<:Real,R3<:Real}(t::AbstractVector{R1},
-                                  s::AbstractVector{R2},
-                                  f::Real,
-                                  t_fit::AbstractVector{R3}=t;
-                                  kwargs...) =
-                                      model(t, s, ones(s), f, t_fit; kwargs...)
+model(t::AbstractVector{<:Real}, s::AbstractVector{<:Real},
+      f::Real, t_fit::AbstractVector{<:Real}=t; kwargs...) =
+          model(t, s, ones(s), f, t_fit; kwargs...)
 
 # Uncertainties provided via Measurement type
-model{R1<:Real,R2<:AbstractFloat,R3<:Real}(t::AbstractVector{R1},
-                                           s::AbstractVector{Measurement{R2}},
-                                           f::Real,
-                                           t_fit::AbstractVector{R3}=t;
-                                           kwargs...) =
-                                               model(t,
-                                                     Measurements.value.(s),
-                                                     Measurements.uncertainty.(s),
-                                                     f,
-                                                     t_fit;
-                                                     kwargs...)
+model(t::AbstractVector{<:Real}, s::AbstractVector{Measurement{<:AbstractFloat}},
+      f::Real, t_fit::AbstractVector{<:Real}=t; kwargs...) =
+          model(t, Measurements.value.(s), Measurements.uncertainty.(s),
+                f, t_fit; kwargs...)

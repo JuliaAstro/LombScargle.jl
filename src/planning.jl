@@ -12,15 +12,11 @@
 ### Code:
 
 # Switches to select the appropriate algorithm to compute the periodogram.
-function _plan_no_fast{R1<:Real,R2<:Real,R3<:Real,R4<:Real}(times::AbstractVector{R1},
-                                                            signal::AbstractVector{R2},
-                                                            w::AbstractVector{R3},
-                                                            frequencies::AbstractVector{R4},
-                                                            with_errors::Bool,
-                                                            center_data::Bool,
-                                                            fit_mean::Bool,
-                                                            noise::Real,
-                                                            normalization::Symbol)
+function _plan_no_fast(times::AbstractVector{R1}, signal::AbstractVector{R2},
+                       w::AbstractVector{R3}, frequencies::AbstractVector{R4},
+                       with_errors::Bool, center_data::Bool,
+                       fit_mean::Bool, noise::Real,
+                       normalization::Symbol) where {R1<:Real,R2<:Real,R3<:Real,R4<:Real}
     P_type = promote_type(float(R1), float(R2), float(R3), float(R4))
     P = Vector{P_type}(length(frequencies))
     if fit_mean || with_errors
@@ -54,11 +50,11 @@ end
 # There are two "_plan" methods, the only different argument being "frequencies".  When it
 # is a `Range' object (first method) it could be possible to use the fast method, provided
 # that fast == true, otherwise we can only use the non fast methods.
-function _plan{R1<:Real,R2<:Real}(times::AbstractVector{<:Real}, signal::AbstractVector{R1},
-                                  w::AbstractVector{R2}, frequencies::Range{<:Real},
-                                  fast::Bool, with_errors::Bool, center_data::Bool,
-                                  fit_mean::Bool, oversampling::Integer, Mfft::Integer,
-                                  noise::Real, normalization::Symbol)
+function _plan(times::AbstractVector{<:Real}, signal::AbstractVector{R1},
+               w::AbstractVector{R2}, frequencies::Range{<:Real}, fast::Bool,
+               with_errors::Bool, center_data::Bool, fit_mean::Bool,
+               oversampling::Integer, Mfft::Integer, noise::Real,
+               normalization::Symbol) where {R1<:Real,R2<:Real}
     if fast
         @assert Mfft > 0
         @assert step(frequencies) > 0
@@ -126,7 +122,7 @@ end
 ### Main interface functions
 
 # No uncertainties
-plan{R1<:Real,R2<:Real}(times::AbstractVector{R1}, signal::AbstractVector{R2}; kwargs...) =
+plan(times::AbstractVector{<:Real}, signal::AbstractVector{<:Real}; kwargs...) =
     _plan(times, signal, false; kwargs...)
 
 # Uncertainties provided
@@ -139,15 +135,13 @@ function plan(times::AbstractVector{<:Real}, signal::AbstractVector{<:Real},
 end
 
 # Uncertainties provided via Measurement type
-plan{T<:Real,F<:AbstractFloat}(times::AbstractVector{T},
-                               signal::AbstractVector{Measurements.Measurement{F}};
-                               kwargs...) =
-                                   plan(times, Measurements.value.(signal),
-                                        Measurements.uncertainty.(signal); kwargs...)
+plan(times::AbstractVector{<:Real}, signal::AbstractVector{Measurements.Measurement{T}};
+     kwargs...) where {T<:AbstractFloat} =
+         plan(times, Measurements.value.(signal), Measurements.uncertainty.(signal); kwargs...)
 
 """
-    LombScargle.plan(times::AbstractVector{Real}, signal::AbstractVector{Real},
-                     errors::AbstractVector{Real}=ones(signal);
+    LombScargle.plan(times::AbstractVector{<:Real}, signal::AbstractVector{<:Real},
+                     errors::AbstractVector{<:Real}=ones(signal);
                      normalization::Symbol=:standard,
                      noise_level::Real=1,
                      center_data::Bool=true,

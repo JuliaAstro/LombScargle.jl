@@ -79,8 +79,8 @@ lombscargle(p::PeriodogramPlan) =
 lombscargle(args...; kwargs...) = lombscargle(plan(args...; kwargs...))
 
 """
-    lombscargle(times::AbstractVector{Real}, signal::AbstractVector{Real},
-                errors::AbstractVector{Real}=ones(signal);
+    lombscargle(times::AbstractVector{<:Real}, signal::AbstractVector{<:Real},
+                errors::AbstractVector{<:Real}=ones(signal);
                 normalization::Symbol=:standard,
                 noise_level::Real=1,
                 center_data::Bool=true,
