@@ -54,13 +54,9 @@ include("extirpolation.jl")
 # `lombscargle_fast' function.
 
 function _press_rybicki!(P, times::AbstractVector{<:Real}, y::AbstractVector{<:Real},
-                         w::AbstractVector{<:Real}, freqs::Range{<:Real}, YY::Real,
+                         w::AbstractVector{<:Real}, t0, df, N , f0, YY::Real,
                          bfft_vec::AbstractVector{Complex{T}},
                          grid, plan, Nfft::Integer, Mfft::Integer) where {T<:AbstractFloat}
-    df = step(freqs)
-    N  = length(freqs)
-    f0 = minimum(freqs)
-    t0 = minimum(times)
     #---------------------------------------------------------------------------
     # 1. compute functions of the time-shift tau at each frequency
     Ch, Sh = trig_sum!(grid, bfft_vec, plan, times, w .* y, df, N, Nfft, t0, f0, 1, Mfft)
@@ -79,13 +75,9 @@ end
 
 function _press_rybicki_fit_mean!(P, times::AbstractVector{<:Real},
                                   y::AbstractVector{<:Real}, w::AbstractVector{<:Real},
-                                  freqs::Range{<:Real}, YY::Real,
+                                  t0, df, N , f0, YY::Real,
                                   bfft_vec::AbstractVector{Complex{T}}, grid, plan,
                                   Nfft::Integer, Mfft::Integer) where {T<:AbstractFloat}
-    df = step(freqs)
-    N  = length(freqs)
-    f0 = minimum(freqs)
-    t0 = minimum(times)
     #---------------------------------------------------------------------------
     # 1. compute functions of the time-shift tau at each frequency
     Ch, Sh = trig_sum!(grid, bfft_vec, plan, times, w .* y, df, N, Nfft, t0, f0, 1, Mfft)
@@ -106,14 +98,18 @@ function _press_rybicki_fit_mean!(P, times::AbstractVector{<:Real},
 end
 
 _periodogram!(p::FastGLSPlan) =
-    _press_rybicki!(p.P, p.times, p.y, p.w, p.freq, p.YY, p.bfft_vect, p.bfft_grid,
+    _press_rybicki!(p.P, p.times, p.y, p.w, minimum(p.times), step(p.freq),
+                    length(p.freq), minimum(p.freq), p.YY, p.bfft_vect, p.bfft_grid,
                     p.bfft_plan, length(p.bfft_vect), p.Mfft)
 _periodogram!(times, p::FastGLSPlan) =
-    _press_rybicki!(p.P, times, p.y, p.w, p.freq, p.YY, p.bfft_vect, p.bfft_grid,
-                    p.bfft_plan, length(p.bfft_vect), p.Mfft)
+    _press_rybicki!(p.P, times, p.y, p.w, minimum(p.times), step(p.freq),
+                    length(p.freq), minimum(p.freq), p.YY, p.bfft_vect,
+                    p.bfft_grid, p.bfft_plan, length(p.bfft_vect), p.Mfft)
 _periodogram!(p::FastGLSPlan_fit_mean) =
-    _press_rybicki_fit_mean!(p.P, p.times, p.y, p.w, p.freq, p.YY, p.bfft_vect,
+    _press_rybicki_fit_mean!(p.P, p.times, p.y, p.w, minimum(p.times), step(p.freq),
+                             length(p.freq), minimum(p.freq), p.YY, p.bfft_vect,
                              p.bfft_grid, p.bfft_plan, length(p.bfft_vect), p.Mfft)
 _periodogram!(times, p::FastGLSPlan_fit_mean) =
-    _press_rybicki_fit_mean!(p.P, times, p.y, p.w, p.freq, p.YY, p.bfft_vect,
+    _press_rybicki_fit_mean!(p.P, times, p.y, p.w, minimum(p.times), step(p.freq),
+                             length(p.freq), minimum(p.freq), p.YY, p.bfft_vect,
                              p.bfft_grid, p.bfft_plan, length(p.bfft_vect), p.Mfft)

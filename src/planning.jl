@@ -91,8 +91,6 @@ _plan(times::AbstractVector{<:Real}, signal::AbstractVector{<:Real},
           _plan_no_fast(times, signal, w, frequencies,
                         with_errors, center_data, fit_mean, noise, normalization)
 
-# The main purpose of this function is to compute normalization of the
-# periodogram computed with one of the functions above.
 function _plan(times::AbstractVector{<:Real},
                signal::AbstractVector{<:Real},
                with_errors::Bool,
@@ -135,8 +133,7 @@ function plan(times::AbstractVector{<:Real}, signal::AbstractVector{<:Real},
 end
 
 # Uncertainties provided via Measurement type
-plan(times::AbstractVector{<:Real}, signal::AbstractVector{Measurements.Measurement{T}};
-     kwargs...) where {T<:AbstractFloat} =
+plan(times::AbstractVector{<:Real}, signal::AbstractVector{<:Measurement}; kwargs...) =
          plan(times, Measurements.value.(signal), Measurements.uncertainty.(signal); kwargs...)
 
 """

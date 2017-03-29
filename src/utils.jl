@@ -198,9 +198,9 @@ end
 Estimates the number of independent frequencies in the periodogram `P`.
 """
 function M(P::Periodogram)
-    t = P.times
-    f = P.freq
-    return (maximum(t) - minimum(t))*(maximum(f) - minimum(f))
+    tmin, tmax = extrema(P.times)
+    fmin, fmax = extrema(P.freq)
+    return (tmax - tmin)*(fmax - fmin)
 end
 
 """
