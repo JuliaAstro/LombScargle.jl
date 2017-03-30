@@ -10,11 +10,12 @@ v0.3.0 (201?-??-??)
   `LombScargle.plan` function.  This computes some quantities needed afterwards
   and pre-allocate the memory for the actual computation of the periodogram.
   The speed-up is particularly relevant for the fast method.
+* Add `flags` optional keyword to `lombscargle` function, to set the FFTW
+  planner flags.
 
 ### Breaking Changes
 
 * Support for Julia 0.4 and 0.5 was dropped.
-
 * The `normalization` keyword of `lombscargle` function now must be a `Symbol`
   (instead of `AbstractString`), the default being `:standard` (instead of
   `"standard"`).  The same normalizations as before are supported, the names

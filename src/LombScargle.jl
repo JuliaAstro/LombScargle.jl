@@ -80,71 +80,13 @@ lombscargle(args...; kwargs...) = lombscargle(plan(args...; kwargs...))
 
 """
     lombscargle(times::AbstractVector{<:Real}, signal::AbstractVector{<:Real},
-                errors::AbstractVector{<:Real}=ones(signal);
-                normalization::Symbol=:standard,
-                noise_level::Real=1,
-                center_data::Bool=true,
-                fit_mean::Bool=true,
-                fast::Bool=true,
-                oversampling::Integer=5,
-                Mfft::Integer=4,
-                samples_per_peak::Integer=5,
-                nyquist_factor::Integer=5,
-                minimum_frequency::Real=NaN,
-                maximum_frequency::Real=NaN,
-                frequencies::AbstractVector{Real}=
-                autofrequency(times,
-                              samples_per_peak=samples_per_peak,
-                              nyquist_factor=nyquist_factor,
-                              minimum_frequency=minimum_frequency,
-                              maximum_frequency=maximum_frequency))
+                errors::AbstractVector{<:Real}=ones(signal); keywords...)
 
 Compute the Lomb–Scargle periodogram of the `signal` vector, observed at
-`times`.  You can also specify the uncertainties for each signal point with in
+`times`.  You can also specify the uncertainties for each signal point with
 `errors` argument.  All these vectors must have the same length.
 
-Optional keywords arguments are:
-
-* `normalization`: how to normalize the periodogram.  Valid choices are:
-  `:standard`, `:model`, `:log`, `:psd`, `:Scargle`, `:HorneBaliunas`,
-  `:Cumming`
-* `noise_level`: the noise level used to normalize the periodogram when
-  `normalization` is set to `:Scargle`
-* `fit_mean`: if `true`, fit for the mean of the signal using the Generalised
-  Lomb–Scargle algorithm (see Zechmeister & Kürster paper below).  If this is
-  `false` and no uncertainty on the signal is provided, the original algorithm
-  by Lomb and Scargle will be employed (see Townsend paper below)
-* `center_data`: if `true`, subtract the weighted mean of `signal` from `signal`
-  itself before performing the periodogram.  This is especially important if
-  `fit_mean` is `false`
-* `frequencies`: the frequecy grid (not angular frequencies) at which the
-  periodogram will be computed, as a vector.  If not provided, it is an evenly
-  spaced grid of type `Range`, automatically determined with
-  `LombScargle.autofrequency` function, which see.  See below for other
-  available keywords that can be used to affect the frequency grid without
-  directly setting `frequencies`
-* `fast`: whether to use the fast method by Press & Rybicki, overriding the
-  default choice.  In any case, `frequencies` must be a `Range` object in order
-  to use this method (this is the default)
-* `oversampling`: oversampling the frequency factor for the approximation;
-  roughly the number of time samples across the highest-frequency sinusoid.
-  This parameter contains the tradeoff between accuracy and speed.  Used only
-  when the fast method is employed
-* `Mfft`: the number of adjacent points to use in the FFT approximation.  Used
-  only when the fast method is employed
-
-In addition, you can use all optional keyword arguments of
-`LombScargle.autofrequency` function in order to tune the `frequencies` vector
-without calling the function:
-
-* `samples_per_peak`: the approximate number of desired samples across the
-  typical peak
-* `nyquist_factor`: the multiple of the average Nyquist frequency used to choose
-  the maximum frequency if `maximum_frequency` is not provided
-* `minimum_frequency`: if specified, then use this minimum frequency rather than
-  one chosen based on the size of the baseline
-* `maximum_frequency`: if specified, then use this maximum frequency rather than
-  one chosen based on the average Nyquist frequency
+All optional keywords are described in the docstring of `LombScargle.plan`.
 
 If the signal has uncertainties, the `signal` vector can also be a vector of
 `Measurement` objects (from

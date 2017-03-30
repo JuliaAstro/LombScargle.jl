@@ -140,6 +140,7 @@ the complete syntax:
                 center_data::Bool=true,
                 fit_mean::Bool=true,
                 fast::Bool=true,
+		flags::Integer=FFTW.ESTIMATE,
                 oversampling::Integer=5,
                 Mfft::Integer=4,
                 samples_per_peak::Integer=5,
@@ -155,11 +156,14 @@ the complete syntax:
 
 The only optional argument is:
 
--  ``errors``: the uncertainties associated to each ``signal`` point
+- ``errors``: the uncertainties associated to each ``signal`` point.  This
+  vector must have the same length as ``times`` and ``signal``.
 
-Also ``errors`` must have the same length as ``times`` and ``signal``.
-
-Optional keyword arguments are:
+Besides the two arguments introduced above, `lombscargle` has a number of other
+optional keywords in order to choose the right algorithm to use and tweak the
+periodogram (do not be scared by their number, you will most probably need to
+use sometimesonly a few of them, see the Examples_ section).  Optional keyword
+arguments are:
 
 - ``normalization``: how to normalize the periodogram.  Valid choices are:
   ``:standard``, ``:model``, ``:log``, ``:psd``, ``:Scargle``,
@@ -197,8 +201,8 @@ The frequency grid is determined by following prescriptions given at
 https://jakevdp.github.io/blog/2015/06/13/lomb-scargle-in-python/ and
 uses the same keywords names adopted in Astropy.
 
-The keywords ``fast``, ``oversampling``, and ``Mfft`` are described in the `Fast
-Algorithm`_ section below.
+The keywords ``fast``, ``flags``, ``oversampling``, and ``Mfft`` are described
+in the `Fast Algorithm`_ section below.
 
 .. Tip::
 
@@ -298,13 +302,40 @@ Setting ``fast=false`` always ensures you that this method will not be used,
 instead ``fast=true`` actually enables it only if ``frequencies`` is a
 ``Range``.
 
-The two integer keywords ``ovesampling`` and ``Mfft`` can be passed to
-:func:`lombscargle` in order to affect the computation in the fast method:
+The integer keywords ``flags``, ``ovesampling``, and ``Mfft`` can be passed to
+:func:`lombscargle` and :func:`LombScargle.plan` in order to affect the
+computation in the fast method:
 
+* ``flags``: bitwise-or of FFTW planner flags, defaulting to ``FFTW.ESTIMATE``.
+  Passing ``FFTW.MEASURE`` or ``FFTW.PATIENT`` will instead spend several
+  seconds (or more) benchmarking different possible FFT algorithms and picking
+  the fastest one; see the FFTW manual for more information on planner flags.
 * ``oversampling``: oversampling the frequency factor for the approximation;
   roughly the number of time samples across the highest-frequency sinusoid.
   This parameter contains the tradeoff between accuracy and speed.
 * ``Mfft``: the number of adjacent points to use in the FFT approximation.
+
+Planning the Periodogram
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+In a manner similar to planning Fourier transforms with FFTW, it is possible to
+speed-up computation of the Lomb–Scargle periodogram by pre-planning it with
+``LombScargle.plan`` function.  It has the same syntax as :func:`lombscargle`,
+which in the base case is:
+
+.. function:: LombScargle.plan(times::AbstractVector{Real}, signal::AbstractVector{Real})
+
+It takes all the same argument as :func:`lombscargle` shown above and returns a
+``LombScargle.PeriodogramPlan`` object after having pre-computed certain
+quantities needed afterwards, and pre-allocated the memory for the periodogram.
+It is highly suggested to plan a periodogram before actually computing it,
+especially for the fast method.  Once you plan a periodogram, you can pass the
+``LombScargle.PeriodogramPlan`` to :func:`lombscargle` as the only argument.
+
+Pre-planning the periodogram is also useful if you want to calculate the
+false-alarm probability via bootstrapping with :func:`LombScargle.bootstrap`
+function, because you ensure that you will use the same options you used to
+compute the periodogram, besides saving time and memory.
 
 Normalization
 ~~~~~~~~~~~~~
@@ -364,28 +395,6 @@ number of observations.
      P(f) = \frac{N - 3}{2} \frac{p(f)}{1 - p(f_{\text{best}})}
 
   This is the ``:Cumming`` normalization option
-
-Planning the Periodogram
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-In a manner similar to planning Fourier transforms with FFTW, it is possible to
-speed-up computation of the Lomb–Scargle periodogram by pre-planning it with
-``LombScargle.plan`` function.  It has the same syntax as :func:`lombscargle`,
-which in the base case is:
-
-.. function:: LombScargle.plan(times::AbstractVector{Real}, signal::AbstractVector{Real})
-
-It takes all the same argument as :func:`lombscargle` shown above and returns a
-``LombScargle.PeriodogramPlan`` object after having pre-computed certain
-quantities needed afterwards, and pre-allocated the memory for the periodogram.
-It is highly suggested to plan a periodogram before actually computing it,
-especially for the fast method.  Once you plan a periodogram, you can pass the
-``LombScargle.PeriodogramPlan`` to :func:`lombscargle` as the only argument.
-
-Pre-planning the periodogram is also useful if you want to calculate the
-false-alarm probability via bootstrapping with :func:`LombScargle.bootstrap`
-function, because you ensure that you will use the same options you used to
-compute the periodogram, besides saving time and memory.
 
 Access Frequency Grid and Power Spectrum of the Periodogram
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -985,16 +994,17 @@ frequency fits well your data.
 Performance
 -----------
 
-A pre-planned periodogram in ``LombScargle.jl`` computed with the fast method is
-more than 2.5 times faster than the implementation provided by AstroPy in the
-single thread mode, and more than 4 times faster if 4 FFTW threads are used (on
-systems with at least 4 physical CPUs).
+A pre-planned periodogram in ``LombScargle.jl`` computed in single thread mode
+with the fast method is more than 2.5 times faster than the implementation of
+the same algorithm provided by AstroPy, and more than 4 times faster if 4 FFTW
+threads are used (on machines with at least 4 physical CPUs).
 
 The following plot shows a comparison between the times needed to compute a
 periodogram for a signal with N datapoints using ``LombScargle.jl``, with 1 or 4
-threads, and the single-threaded AstroPy implementation.  (Julia version:
-0.6.0-pre.alpha.242, commit d694548; ``LombScargle.jl`` version: 0.3.0; Python
-version: 3.5.3; AstroPy version: 1.3.  CPU: Intel(R) Core(TM) i7-4700MQ.)
+threads (with ``flags = FFTW.MEASURE`` for better performance), and the
+single-threaded AstroPy implementation.  (Julia version: 0.6.0-pre.alpha.242,
+commit d694548; ``LombScargle.jl`` version: 0.3.0; Python version: 3.5.3;
+AstroPy version: 1.3.  CPU: Intel(R) Core(TM) i7-4700MQ.)
 
 .. image:: ../perf/benchmarks.png
 

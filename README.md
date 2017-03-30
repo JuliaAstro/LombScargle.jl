@@ -125,57 +125,15 @@ which returns a `LombScargle.Periodogram`.  The only mandatory arguments are:
 * `times`: the vector of observation times
 * `signal`: the vector of observations associated with `times`
 
-All these vectors must have the same length.
+All these vectors must have the same length.  The only optional argument is:
+
+* `errors`: the uncertainties associated to each `signal` point.  This vector
+  must have the same length as `times` and `signal`.
 
 Besides the two arguments introduced above, `lombscargle` has a number of other
-optional arguments and keywords in order to choose the right algorithm to use
-and tweak the appearance of the periodogram (do not be scared, you will most
-probably need to use only a few of them, see the "Examples" section).
-
-The only optional argument is:
-
-* `errors`: the uncertainties associated to each `signal` point
-
-Also `errors` must have the same length as `times` and `signal`.
-
-Optional keyword arguments are:
-
-* `normalization`: how to normalize the periodogram.  Valid choices are:
-  `:standard`, `:model`, `:log`, `:psd`, `:Scargle`, `:HorneBaliunas`,
-  `:Cumming`.  See
-  the [manual](http://lombscarglejl.readthedocs.io/en/latest/#normalization) for
-  details
-* `noise_level`: the noise level used to normalize the periodogram when
-  `normalization` is set to `:Scargle`
-* `fit_mean`: if `true`, fit for the mean of the signal using the Generalised
-  Lomb–Scargle algorithm (see Zechmeister & Kürster paper below).  If this is
-  `false` and no uncertainty on the signal is provided, the original algorithm
-  by Lomb and Scargle will be employed (see Townsend paper below)
-* `center_data`: if `true`, subtract the weighted mean of `signal` from `signal`
-  itself before performing the periodogram.  This is especially important if
-  `fit_mean` is `false`
-* `frequencies`: the frequecy grid (not angular frequencies) at which the
-  periodogram will be computed, as a vector.  If not provided, it is
-  automatically determined with `LombScargle.autofrequency` function, which see.
-  See below for other available keywords that can be used to adjust the
-  frequency grid without directly setting `frequencies`
-
-In addition, you can use all optional keyword arguments of
-`LombScargle.autofrequency` function in order to tune the `frequencies` vector
-without calling the function:
-
-* `samples_per_peak`: the approximate number of desired samples across the
-  typical peak
-* `nyquist_factor`: the multiple of the average Nyquist frequency used to choose
-  the maximum frequency if `maximum_frequency` is not provided
-* `minimum_frequency`: if specified, then use this minimum frequency rather than
-  one chosen based on the size of the baseline
-* `maximum_frequency`: if specified, then use this maximum frequency rather than
-  one chosen based on the average Nyquist frequency
-
-The frequency grid is determined by following prescriptions given at
-https://jakevdp.github.io/blog/2015/06/13/lomb-scargle-in-python/ and uses the
-same keywords names adopted in Astropy.
+optional keywords in order to choose the right algorithm to use and tweak the
+periodogram.  For the description of all these arguments see the complete
+manual.
 
 If the signal has uncertainties, the `signal` vector can also be a vector of
 `Measurement` objects (from
@@ -274,16 +232,17 @@ plot(freqpower(lombscargle(t, measurement(s, errors), maximum_frequency=1.5))...
 Performance
 -----------
 
-A pre-planned periodogram in `LombScargle.jl` computed with the fast method is
-more than 2.5 times faster than the implementation provided by AstroPy in the
-single thread mode, and more than 4 times faster if 4 FFTW threads are used (on
-systems with at least 4 physical CPUs).
+A pre-planned periodogram in `LombScargle.jl` computed in single thread mode
+with the fast method is more than 2.5 times faster than the implementation of
+the same algorithm provided by AstroPy, and more than 4 times faster if 4 FFTW
+threads are used (on machines with at least 4 physical CPUs).
 
 The following plot shows a comparison between the times needed to compute a
 periodogram for a signal with N datapoints using `LombScargle.jl`, with 1 or 4
-threads, and the single-threaded AstroPy implementation.  (Julia version:
-0.6.0-pre.alpha.242, commit d694548; `LombScargle.jl` version: 0.3.0; Python
-version: 3.5.3; AstroPy version: 1.3.  CPU: Intel(R) Core(TM) i7-4700MQ.)
+threads (with `flags = FFTW.MEASURE` for better performance), and the
+single-threaded AstroPy implementation.  (Julia version: 0.6.0-pre.alpha.242,
+commit d694548; `LombScargle.jl` version: 0.3.0; Python version: 3.5.3; AstroPy
+version: 1.3.  CPU: Intel(R) Core(TM) i7-4700MQ.)
 
 ![benchmarks](perf/benchmarks.png)
 

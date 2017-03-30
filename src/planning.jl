@@ -52,7 +52,7 @@ end
 # that fast == true, otherwise we can only use the non fast methods.
 function _plan(times::AbstractVector{<:Real}, signal::AbstractVector{R1},
                w::AbstractVector{R2}, frequencies::Range{<:Real}, fast::Bool,
-               with_errors::Bool, center_data::Bool, fit_mean::Bool,
+               with_errors::Bool, center_data::Bool, fit_mean::Bool, flags::Integer,
                oversampling::Integer, Mfft::Integer, noise::Real,
                normalization::Symbol) where {R1<:Real,R2<:Real}
     if fast
@@ -68,7 +68,7 @@ function _plan(times::AbstractVector{<:Real}, signal::AbstractVector{R1},
         T = promote_type(float(R1), float(R2))
         bfft_vect = Vector{Complex{T}}(Nfft)
         bfft_grid = Vector{Complex{T}}(Nfft)
-        bfft_plan = plan_bfft(bfft_vect, flags = FFTW.MEASURE)
+        bfft_plan = plan_bfft(bfft_vect, flags = flags)
         if fit_mean
             return FastGLSPlan_fit_mean(times, signal, frequencies, w, y, YY,
                                         bfft_vect, bfft_grid, bfft_plan, Mfft,
@@ -86,7 +86,7 @@ end
 
 _plan(times::AbstractVector{<:Real}, signal::AbstractVector{<:Real},
       w::AbstractVector{<:Real}, frequencies::AbstractVector{<:Real},
-      fast::Bool, with_errors::Bool, center_data::Bool, fit_mean::Bool,
+      fast::Bool, with_errors::Bool, center_data::Bool, fit_mean::Bool, flags::Integer,
       oversampling::Integer, Mfft::Integer, noise::Real, normalization::Symbol) =
           _plan_no_fast(times, signal, w, frequencies,
                         with_errors, center_data, fit_mean, noise, normalization)
@@ -99,6 +99,7 @@ function _plan(times::AbstractVector{<:Real},
                noise_level::Real=1,
                center_data::Bool=true,
                fit_mean::Bool=true,
+               flags::Integer=FFTW.ESTIMATE,
                oversampling::Integer=5,
                Mfft::Integer=4,
                samples_per_peak::Integer=5,
@@ -114,7 +115,7 @@ function _plan(times::AbstractVector{<:Real},
                fast::Bool=(length(frequencies) > 200))
     @assert length(times) == length(signal) == length(w)
     return _plan(times, signal, w, frequencies, fast, with_errors, center_data,
-                 fit_mean, oversampling, Mfft, noise_level, normalization)
+                 fit_mean, flags, oversampling, Mfft, noise_level, normalization)
 end
 
 ### Main interface functions
@@ -144,6 +145,7 @@ plan(times::AbstractVector{<:Real}, signal::AbstractVector{<:Measurement}; kwarg
                      center_data::Bool=true,
                      fit_mean::Bool=true,
                      fast::Bool=true,
+                     flags::Integer=FFTW.ESTIMATE,
                      oversampling::Integer=5,
                      Mfft::Integer=4,
                      samples_per_peak::Integer=5,
@@ -157,12 +159,12 @@ plan(times::AbstractVector{<:Real}, signal::AbstractVector{<:Measurement}; kwarg
                                    minimum_frequency=minimum_frequency,
                                    maximum_frequency=maximum_frequency))
 
-Pre-plan the Lomb–Scargle periodogram of the `signal` vector, observed at `times`.  The
-periodogram can then be computed by passing the result of this function to `lombscargle`,
-which see.
+Pre-plan the Lomb–Scargle periodogram of the `signal` vector, observed at
+`times`.  The periodogram can then be computed by passing the result of this
+function to `lombscargle`.
 
-You can also specify the uncertainties for each signal point with in `errors` argument.  All
-these vectors must have the same length.
+You can also specify the uncertainties for each signal point with `errors`
+argument.  All these vectors must have the same length.
 
 Optional keywords arguments are:
 
@@ -184,15 +186,24 @@ Optional keywords arguments are:
   `LombScargle.autofrequency` function, which see.  See below for other
   available keywords that can be used to affect the frequency grid without
   directly setting `frequencies`
-* `fast`: whether to use the fast method by Press & Rybicki, overriding the
-  default choice.  In any case, `frequencies` must be a `Range` object in order
-  to use this method (this is the default)
+
+You can explicitely require to use or not the fast method by Press & Rybicki,
+overriding the default choice, by setting the `fast` keyword.  In any case,
+`frequencies` must be a `Range` object (this is the default) in order to
+actually use this method.  A few other keywords are available to adjust the
+settings of the periodogram when the fast method is used (otherwise they are
+ignored):
+
+* `fast`: whether to use the fast method.
+* `flags`: this integer keyword is a bitwise-or of FFTW planner flags,
+  defaulting to `FFTW.ESTIMATE`.  Passing `FFTW.MEASURE` or `FFTW.PATIENT` will
+  instead spend several seconds (or more) benchmarking different possible FFT
+  algorithms and picking the fastest one; see the FFTW manual for more
+  information on planner flags.
 * `oversampling`: oversampling the frequency factor for the approximation;
   roughly the number of time samples across the highest-frequency sinusoid.
-  This parameter contains the tradeoff between accuracy and speed.  Used only
-  when the fast method is employed
-* `Mfft`: the number of adjacent points to use in the FFT approximation.  Used
-  only when the fast method is employed
+  This parameter contains the tradeoff between accuracy and speed.
+* `Mfft`: the number of adjacent points to use in the FFT approximation.
 
 In addition, you can use all optional keyword arguments of
 `LombScargle.autofrequency` function in order to tune the `frequencies` vector
