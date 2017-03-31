@@ -98,26 +98,7 @@ periodogram.
 The main function provided by the package is `lombscargle`:
 
 ```julia
-lombscargle(times::AbstractVector{Real},
-            signal::AbstractVector{Real},
-            errors::AbstractVector{Real}=ones(signal);
-            normalization::Symbol=:standard,
-            noise_level::Real=1.0,
-            center_data::Bool=true,
-            fit_mean::Bool=true,
-            fast::Bool=true,
-            oversampling::Integer=5,
-            Mfft::Integer=4,
-            samples_per_peak::Integer=5,
-            nyquist_factor::Integer=5,
-            minimum_frequency::Real=NaN,
-            maximum_frequency::Real=NaN,
-            frequencies::AbstractVector{Real}=
-            autofrequency(times,
-                          samples_per_peak=samples_per_peak,
-                          nyquist_factor=nyquist_factor,
-                          minimum_frequency=minimum_frequency,
-                          maximum_frequency=maximum_frequency))
+lombscargle(times, signal[, errors])
 ```
 
 which returns a `LombScargle.Periodogram`.  The only mandatory arguments are:
@@ -170,8 +151,10 @@ julia> t += step(t)*rand(ntimes);
 # The signal
 julia> s = sinpi.(t) .+ 1.5 .* cospi.(2t) .+ rand(ntimes);
 
+# Pre-plan the periodogram (see the documentation)
 julia> plan = LombScargle.plan(t, s);
 
+# Compute the periodogram
 julia> pgram = lombscargle(plan)
 ```
 
@@ -183,31 +166,6 @@ function to get the frequency grid and the power of the periodogram as a
 ```julia
 using Plots
 plot(freqpower(pgram)...)
-```
-
-Beware that if you use original Lomb–Scargle algorithm (`fit_mean=false` keyword
-to `lombscargle` function) without centering the data (`center_data=false`) you
-can get inaccurate results.  For example, spurious peaks at low frequencies can
-appear.
-
-```julia
-plot(freqpower(lombscargle(t, s, fit_mean=false, center_data=false))...)
-```
-
-You can tune the frequency grid with appropriate keywords to `lombscargle`
-function.  For example, in order to increase the sampling increase
-`samples_per_peak`, and set `maximum_frequency` to lower values in order to
-narrow the frequency range:
-
-```julia
-plot(freqpower(lombscargle(t, s, samples_per_peak=20, maximum_frequency=1.5))...)
-```
-
-If you simply want to use your own frequency grid, directly set the
-`frequencies` keyword:
-
-```julia
-plot(freqpower(lombscargle(t, s, frequencies=0.001:1e-3:1.5))...)
 ```
 
 ### Signal with Uncertainties ###
