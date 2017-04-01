@@ -11,16 +11,17 @@
 #
 ### Code:
 
-struct LSPlan{T,A,B<:AbstractVector{T},C,D,E,F} <: PeriodogramPlan
+struct LSPlan{T,A,B<:AbstractVector{T},C,D,E,F,G} <: PeriodogramPlan
     times::A
     signal::B
     freq::C
-    w::D
+    sumw::D
+    w::E
     X::B
-    XX::T
-    noise::E
+    YY::T
+    noise::F
     norm::Symbol
-    P::F
+    P::G
 end
 
 # Original algorithm that doesn't take into account uncertainties and doesn't
@@ -58,5 +59,5 @@ function _lombscargle_orig!(P::AbstractVector{T}, times::AbstractVector{<:Real},
     return P
 end
 
-_periodogram!(p::LSPlan) = _lombscargle_orig!(p.P, p.times, p.X, p.freq, p.XX)
-_periodogram!(times, p::LSPlan) = _lombscargle_orig!(p.P, times, p.X, p.freq, p.XX)
+_periodogram!(p::LSPlan) = _lombscargle_orig!(p.P, p.times, p.X, p.freq, p.YY)
+_periodogram!(times, p::LSPlan) = _lombscargle_orig!(p.P, times, p.X, p.freq, p.YY)

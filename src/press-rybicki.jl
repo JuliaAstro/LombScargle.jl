@@ -11,36 +11,38 @@
 #
 ### Code:
 
-struct FastGLSPlan{T,A,B<:AbstractVector{T},C,D,E,F,G,H,I,J} <: PeriodogramPlan
+struct FastGLSPlan{T,A,B<:AbstractVector{T},C,D,E,F,G,H,I,J,K} <: PeriodogramPlan
     times::A
     signal::B
     freq::C
-    w::D
+    sumw::D
+    w::E
     y::B
     YY::T
-    bfft_vect::E
-    bfft_grid::F
-    bfft_plan::G
-    Mfft::H
-    noise::I
+    bfft_vect::F
+    bfft_grid::G
+    bfft_plan::H
+    Mfft::I
+    noise::J
     norm::Symbol
-    P::J
+    P::K
 end
 
-struct FastGLSPlan_fit_mean{T,A,B<:AbstractVector{T},C,D,E,F,G,H,I,J} <: PeriodogramPlan
+struct FastGLSPlan_fit_mean{T,A,B<:AbstractVector{T},C,D,E,F,G,H,I,J,K} <: PeriodogramPlan
     times::A
     signal::B
     freq::C
-    w::D
+    sumw::D
+    w::E
     y::B
     YY::T
-    bfft_vect::E
-    bfft_grid::F
-    bfft_plan::G
-    Mfft::H
-    noise::I
+    bfft_vect::F
+    bfft_grid::G
+    bfft_plan::H
+    Mfft::I
+    noise::J
     norm::Symbol
-    P::J
+    P::K
 end
 
 include("extirpolation.jl")

@@ -45,7 +45,7 @@ include("planning.jl")
 
 function normalize!(P::AbstractVector{<:AbstractFloat},
                     signal::AbstractVector{<:Real},
-                    w::AbstractVector{<:Real},
+                    psdfactor::Real,
                     N::Integer,
                     noise_level::Real,
                     normalization::Symbol)
@@ -56,8 +56,7 @@ function normalize!(P::AbstractVector{<:AbstractFloat},
     elseif normalization == :log
         return P .= -log.(1 .- P)
     elseif normalization == :psd
-        YY = w ⋅ (signal .^ 2)
-        return P .*= N .* YY ./ 2
+        return P .*= psdfactor ./ 2
     elseif normalization == :Scargle
         return P ./= noise_level
     elseif normalization == :HorneBaliunas
@@ -71,7 +70,7 @@ function normalize!(P::AbstractVector{<:AbstractFloat},
 end
 
 normalize!(P::AbstractVector{<:AbstractFloat}, p::PeriodogramPlan) =
-    normalize!(P, p.signal, p.w, length(p.signal), p.noise, p.norm)
+    normalize!(P, p.signal, p.YY * p.sumw, length(p.signal), p.noise, p.norm)
 
 lombscargle(p::PeriodogramPlan) =
     Periodogram(normalize!(_periodogram!(p), p), p.freq, p.times, p.norm)

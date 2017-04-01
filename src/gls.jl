@@ -11,29 +11,31 @@
 #
 ### Code:
 
-struct GLSPlan{T,A,B<:AbstractVector{T},C,D,E,F} <: PeriodogramPlan
+struct GLSPlan{T,A,B<:AbstractVector{T},C,D,E,F,G} <: PeriodogramPlan
     times::A
     signal::B
     freq::C
-    w::D
+    sumw::D
+    w::E
     y::B
-    YY::T
-    noise::E
-    norm::Symbol
-    P::F
-end
-
-struct GLSPlan_fit_mean{T,A,B<:AbstractVector{T},C,D,E,F,G} <: PeriodogramPlan
-    times::A
-    signal::B
-    freq::C
-    w::D
-    y::B
-    Y::E
     YY::T
     noise::F
     norm::Symbol
     P::G
+end
+
+struct GLSPlan_fit_mean{T,A,B<:AbstractVector{T},C,D,E,F,G,H} <: PeriodogramPlan
+    times::A
+    signal::B
+    freq::C
+    sumw::D
+    w::E
+    y::B
+    Y::F
+    YY::T
+    noise::G
+    norm::Symbol
+    P::H
 end
 
 # Generalised Lomb–Scargle algorithm: this takes into account uncertainties and

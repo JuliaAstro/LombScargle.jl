@@ -12,7 +12,7 @@
 ### Code:
 
 # Switches to select the appropriate algorithm to compute the periodogram.
-function _plan_no_fast(times::AbstractVector{R1}, signal::AbstractVector{R2},
+function _plan_no_fast(times::AbstractVector{R1}, signal::AbstractVector{R2}, sumw::Real,
                        w::AbstractVector{R3}, frequencies::AbstractVector{R4},
                        with_errors::Bool, center_data::Bool,
                        fit_mean::Bool, noise::Real,
@@ -31,10 +31,10 @@ function _plan_no_fast(times::AbstractVector{R1}, signal::AbstractVector{R2},
         if fit_mean
             Y   = w ⋅ y
             YY -= Y * Y
-            return GLSPlan_fit_mean(times, signal, frequencies, w, y, Y,
+            return GLSPlan_fit_mean(times, signal, frequencies, sumw, w, y, Y,
                                     YY, noise, normalization, P)
         else
-            return GLSPlan(times, signal, frequencies, w, y,
+            return GLSPlan(times, signal, frequencies, sumw, w, y,
                            YY, noise, normalization, P)
         end
     else
@@ -43,14 +43,14 @@ function _plan_no_fast(times::AbstractVector{R1}, signal::AbstractVector{R2},
         else
             X = signal
         end
-        return LSPlan(times, signal, frequencies, w, X, X ⋅ X, noise, normalization, P)
+        return LSPlan(times, signal, frequencies, sumw, w, X, X ⋅ X, noise, normalization, P)
     end
 end
 
 # There are two "_plan" methods, the only different argument being "frequencies".  When it
 # is a `Range' object (first method) it could be possible to use the fast method, provided
 # that fast == true, otherwise we can only use the non fast methods.
-function _plan(times::AbstractVector{<:Real}, signal::AbstractVector{R1},
+function _plan(times::AbstractVector{<:Real}, signal::AbstractVector{R1}, sumw::Real,
                w::AbstractVector{R2}, frequencies::Range{<:Real}, fast::Bool,
                with_errors::Bool, center_data::Bool, fit_mean::Bool, flags::Integer,
                oversampling::Integer, Mfft::Integer, noise::Real,
@@ -70,31 +70,32 @@ function _plan(times::AbstractVector{<:Real}, signal::AbstractVector{R1},
         bfft_grid = Vector{Complex{T}}(Nfft)
         bfft_plan = plan_bfft(bfft_vect, flags = flags)
         if fit_mean
-            return FastGLSPlan_fit_mean(times, signal, frequencies, w, y, YY,
+            return FastGLSPlan_fit_mean(times, signal, frequencies, sumw, w, y, YY,
                                         bfft_vect, bfft_grid, bfft_plan, Mfft,
                                         noise, normalization, Vector{T}(length(frequencies)))
         else
-            return FastGLSPlan(times, signal, frequencies, w, y, YY,
+            return FastGLSPlan(times, signal, frequencies, sumw, w, y, YY,
                                bfft_vect, bfft_grid, bfft_plan, Mfft,
                                noise, normalization, Vector{T}(length(frequencies)))
         end
     else
-        return _plan_no_fast(times, signal, w, frequencies, with_errors,
+        return _plan_no_fast(times, signal, sumw, w, frequencies, with_errors,
                              center_data, fit_mean, noise, normalization)
     end
 end
 
-_plan(times::AbstractVector{<:Real}, signal::AbstractVector{<:Real},
+_plan(times::AbstractVector{<:Real}, signal::AbstractVector{<:Real}, sumw::Real,
       w::AbstractVector{<:Real}, frequencies::AbstractVector{<:Real},
       fast::Bool, with_errors::Bool, center_data::Bool, fit_mean::Bool, flags::Integer,
       oversampling::Integer, Mfft::Integer, noise::Real, normalization::Symbol) =
-          _plan_no_fast(times, signal, w, frequencies,
+          _plan_no_fast(times, signal, sumw, w, frequencies,
                         with_errors, center_data, fit_mean, noise, normalization)
 
 function _plan(times::AbstractVector{<:Real},
                signal::AbstractVector{<:Real},
                with_errors::Bool,
-               w::AbstractVector{<:Real}=ones(signal)/length(signal);
+               sumw::Real=length(signal),
+               w::AbstractVector{<:Real}=ones(signal)/sumw;
                normalization::Symbol=:standard,
                noise_level::Real=1,
                center_data::Bool=true,
@@ -114,7 +115,7 @@ function _plan(times::AbstractVector{<:Real},
                              maximum_frequency=maximum_frequency),
                fast::Bool=(length(frequencies) > 200))
     @assert length(times) == length(signal) == length(w)
-    return _plan(times, signal, w, frequencies, fast, with_errors, center_data,
+    return _plan(times, signal, sumw, w, frequencies, fast, with_errors, center_data,
                  fit_mean, flags, oversampling, Mfft, noise_level, normalization)
 end
 
@@ -129,8 +130,9 @@ function plan(times::AbstractVector{<:Real}, signal::AbstractVector{<:Real},
               errors::AbstractVector{<:Real}; kwargs...)
     # Compute weights vector
     w = 1 ./ errors .^ 2
-    w ./= sum(w)
-    return _plan(times, signal, true, w; kwargs...)
+    sumw = sum(w)
+    w ./= sumw
+    return _plan(times, signal, true, sumw, w; kwargs...)
 end
 
 # Uncertainties provided via Measurement type

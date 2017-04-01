@@ -48,6 +48,10 @@ feature.
 * The `LombScargle.model` function is now a bit faster and less memory-greedy
   than before.
 
+### Bug Fixes
+
+* PSD normalization with heteroskedastic errors has been fixed.
+
 v0.2.0 (2016-12-07)
 -------------------
 

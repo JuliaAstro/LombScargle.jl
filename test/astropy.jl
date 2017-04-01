@@ -11,8 +11,8 @@ ntimes = 401
     t += step(t)*rand(ntimes)
     for f in (x -> sinpi(x), x -> sin(x) + 1.5*cospi(4*x) + 3)
         s = f.(t)
-        # "psd" normalization in LombScargle slightly differ from that of
-        # Astropy and the test would fail if we includ it.
+        # "psd" normalization in LombScargle slightly differs from that of
+        # Astropy in a few points and the test would fail if we includ it.
         @testset "$fitmean, $nrm, $fast, $center" for fitmean in (true, false),
             nrm in ("standard", "model", "log"), fast in ((true, "fast"), (false, "cython")),
             center in (true, false)
@@ -38,10 +38,8 @@ errors = rand(0.1:1e-3:4.0, ntimes)
 @testset "Evenly spaced data" begin # Use both heteroskedastic and homoskedastic uncertainties.
     for f in (x -> sinpi(x), x -> sin(x) + 1.5*cospi(4*x) + 3), err in (ones(ntimes), errors)
         s = f.(t)
-        # "psd" normalization in LombScargle slightly differ from that of
-        # Astropy and the test would fail if we includ it.
         @testset "$fitmean, $nrm, $fast, $center" for fitmean in (true, false),
-            nrm in ("standard", "model", "log"), fast in ((true, "fast"), (false, "cython")),
+            nrm in ("standard", "model", "log", "psd"), fast in ((true, "fast"), (false, "cython")),
             center in (true, false)
             f_jl, p_jl = freqpower(lombscargle(t, s, err,
                                                fast = fast[1],
@@ -64,12 +62,10 @@ errors = rand(0.1:1e-3:4.0, ntimes)
 end
 
 @testset "heteroskedastic uncertainties" begin #  with non-fast method
-    # Test only standard normalization, the only one for which
-    # LombScargle and Astropy give similar results.
     for f in (x -> sinpi(x), x -> sin(x) + 1.5*cospi(4*x) + 3)
         s = f.(t)
         @testset "$fitmean, $nrm, $fast, $center" for fitmean in (true, false),
-            nrm in ("standard", "model"), fast in ((true, "fast"), (false, "cython")),
+            nrm in ("standard", "model", "psd"), fast in ((true, "fast"), (false, "cython")),
             center in (true, false)
             f_jl, p_jl = freqpower(lombscargle(t, s, errors,
                                                fit_mean = fitmean,

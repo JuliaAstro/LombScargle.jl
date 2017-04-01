@@ -31,7 +31,7 @@ pgram4 = @inferred(lombscargle(LombScargle.plan(t, s, fast = false, center_data=
         # coverage.  "autofrequency" function is tested below.
         prandom1 = lombscargle(trandom, srandom, frequencies=freqs, fit_mean=false)
         prandom2 = lombscargle(trandom, srandom, frequencies=freqs, fit_mean=true)
-        @test freqpower(pgram1)[2] ≈ periodpower(pgram2)[2] atol = 5e-3
+        @test freqpower(pgram1)[2] ≈ periodpower(pgram2)[2] atol = 5e-7
         @testset "Infinities" begin
             # Make sure there are no infinities in `pgram1'.  It seems to work only on
             # 64-bit systems.
@@ -67,6 +67,7 @@ pgram4 = @inferred(lombscargle(LombScargle.plan(t, s, fast = false, center_data=
         @test power(lombscargle(t, s, err, frequencies=0.1:0.1:1, fit_mean=false, center_data=false)) ≈ [0.06920814049261209,0.09360344864985352,0.006634919960009565,0.0015362072871144769,0.0004858250831632676,0.00018179850370583626,8.543727416919218e-5,5.379994730581837e-5,4.0107232867763e-5,2.9784059487535237e-5]
         @test power(lombscargle(t, s, err)) ==
             power(lombscargle(t, measurement.(s, err)))
+        @test power(lombscargle(t, s, err, frequencies = 0.1:0.1:1, fast = false, normalization = :psd)) ≈ [21.851224476672318,30.287888352835566,2.1740438975167593,0.5139550589572747,0.16685947834022155,0.06465335925734642,0.031690545531213095,0.020774656147387098,0.01609019430987704,0.012451342926314715]
     end
 
     pgram5 = lombscargle(t, s, maximum_frequency=30, fast=true)
