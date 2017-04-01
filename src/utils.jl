@@ -291,7 +291,7 @@ model(t::AbstractVector{<:Real}, s::AbstractVector{<:Real},
           model(t, s, ones(s), f, t_fit; kwargs...)
 
 # Uncertainties provided via Measurement type
-model(t::AbstractVector{<:Real}, s::AbstractVector{Measurement{<:AbstractFloat}},
+model(t::AbstractVector{<:Real}, s::AbstractVector{<:Measurement},
       f::Real, t_fit::AbstractVector{<:Real}=t; kwargs...) =
           model(t, Measurements.value.(s), Measurements.uncertainty.(s),
                 f, t_fit; kwargs...)
