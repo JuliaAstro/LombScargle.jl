@@ -23,7 +23,7 @@ function _plan_no_fast(times::AbstractVector{R1}, signal::AbstractVector{R2},
         # If "center_data" or "fit_mean" keywords are true,
         # subtract the weighted mean from each point.
         if center_data || fit_mean
-            y = signal .- (w ⋅ signal) ./ sum(w)
+            y = signal .- (w ⋅ signal)
         else
             y = signal
         end
