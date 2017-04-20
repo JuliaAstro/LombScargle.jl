@@ -43,7 +43,7 @@ function extirpolate!(result, x::AbstractVector{<:Real}, y::AbstractVector{NU},
     ilo = clamp!(trunc.(Int, x .- div(M, 2)), 0, N - M)
     v = collect(0:(M - 1))
     numerator = [y[j] * prod(x[j] - ilo[j] - v) for j in eachindex(x)]
-    denominator = float(factorial(M - 1))
+    denominator = gamma(M)
     ilo .+= M .+ 1
     @inbounds for j in v
         if j > 0
