@@ -53,7 +53,7 @@ end
 function _plan(times::AbstractVector{<:Real}, signal::AbstractVector{R1}, sumw::Real,
                w::AbstractVector{R2}, frequencies::Range{<:Real}, fast::Bool,
                with_errors::Bool, center_data::Bool, fit_mean::Bool, flags::Integer,
-               oversampling::Integer, Mfft::Integer, noise::Real,
+               timelimit::Real, oversampling::Integer, Mfft::Integer, noise::Real,
                normalization::Symbol) where {R1<:Real,R2<:Real}
     if fast
         @assert Mfft > 0
@@ -68,7 +68,7 @@ function _plan(times::AbstractVector{<:Real}, signal::AbstractVector{R1}, sumw::
         T = promote_type(float(R1), float(R2))
         bfft_vect = Vector{Complex{T}}(Nfft)
         bfft_grid = Vector{Complex{T}}(Nfft)
-        bfft_plan = plan_bfft(bfft_vect, flags = flags)
+        bfft_plan = plan_bfft(bfft_vect, flags = flags, timelimit = timelimit)
         if fit_mean
             return FastGLSPlan_fit_mean(times, signal, frequencies, sumw, w, y, YY,
                                         bfft_vect, bfft_grid, bfft_plan, Mfft,
@@ -87,7 +87,8 @@ end
 _plan(times::AbstractVector{<:Real}, signal::AbstractVector{<:Real}, sumw::Real,
       w::AbstractVector{<:Real}, frequencies::AbstractVector{<:Real},
       fast::Bool, with_errors::Bool, center_data::Bool, fit_mean::Bool, flags::Integer,
-      oversampling::Integer, Mfft::Integer, noise::Real, normalization::Symbol) =
+      timelimit::Real, oversampling::Integer, Mfft::Integer,
+      noise::Real, normalization::Symbol) =
           _plan_no_fast(times, signal, sumw, w, frequencies,
                         with_errors, center_data, fit_mean, noise, normalization)
 
@@ -101,6 +102,7 @@ function _plan(times::AbstractVector{<:Real},
                center_data::Bool=true,
                fit_mean::Bool=true,
                flags::Integer=FFTW.ESTIMATE,
+               timelimit::Real=Inf,
                oversampling::Integer=5,
                Mfft::Integer=4,
                samples_per_peak::Integer=5,
@@ -116,7 +118,7 @@ function _plan(times::AbstractVector{<:Real},
                fast::Bool=(length(frequencies) > 200))
     @assert length(times) == length(signal) == length(w)
     return _plan(times, signal, sumw, w, frequencies, fast, with_errors, center_data,
-                 fit_mean, flags, oversampling, Mfft, noise_level, normalization)
+                 fit_mean, flags, timelimit, oversampling, Mfft, noise_level, normalization)
 end
 
 ### Main interface functions
@@ -148,6 +150,7 @@ plan(times::AbstractVector{<:Real}, signal::AbstractVector{<:Measurement}; kwarg
                      fit_mean::Bool=true,
                      fast::Bool=true,
                      flags::Integer=FFTW.ESTIMATE,
+                     timelimit::Real=Inf,
                      oversampling::Integer=5,
                      Mfft::Integer=4,
                      samples_per_peak::Integer=5,
@@ -202,6 +205,7 @@ ignored):
   instead spend several seconds (or more) benchmarking different possible FFT
   algorithms and picking the fastest one; see the FFTW manual for more
   information on planner flags.
+* `timelimit`: specifies a rough upper bound on the allowed planning time, in seconds.
 * `oversampling`: oversampling the frequency factor for the approximation;
   roughly the number of time samples across the highest-frequency sinusoid.
   This parameter contains the tradeoff between accuracy and speed.

@@ -141,6 +141,7 @@ the complete syntax:
                 fit_mean::Bool=true,
                 fast::Bool=true,
 		flags::Integer=FFTW.ESTIMATE,
+		timelimit::Real=Inf,
                 oversampling::Integer=5,
                 Mfft::Integer=4,
                 samples_per_peak::Integer=5,
@@ -201,8 +202,8 @@ The frequency grid is determined by following prescriptions given at
 https://jakevdp.github.io/blog/2015/06/13/lomb-scargle-in-python/ and
 uses the same keywords names adopted in Astropy.
 
-The keywords ``fast``, ``flags``, ``oversampling``, and ``Mfft`` are described
-in the `Fast Algorithm`_ section below.
+The keywords ``fast``, ``flags``, ``timelimit``, ``oversampling``, and ``Mfft``
+are described in the `Fast Algorithm`_ section below.
 
 .. Tip::
 
@@ -302,14 +303,16 @@ Setting ``fast=false`` always ensures you that this method will not be used,
 instead ``fast=true`` actually enables it only if ``frequencies`` is a
 ``Range``.
 
-The integer keywords ``flags``, ``ovesampling``, and ``Mfft`` can be passed to
-:func:`lombscargle` and :func:`LombScargle.plan` in order to affect the
-computation in the fast method:
+The integer keywords ``flags``, ``timelimit``, ``ovesampling``, and ``Mfft`` can
+be passed to :func:`lombscargle` and :func:`LombScargle.plan` in order to affect
+the computation in the fast method:
 
 * ``flags``: bitwise-or of FFTW planner flags, defaulting to ``FFTW.ESTIMATE``.
   Passing ``FFTW.MEASURE`` or ``FFTW.PATIENT`` will instead spend several
   seconds (or more) benchmarking different possible FFT algorithms and picking
   the fastest one; see the FFTW manual for more information on planner flags.
+* ``timelimit``: specifies a rough upper bound on the allowed planning time, in
+  seconds.
 * ``oversampling``: oversampling the frequency factor for the approximation;
   roughly the number of time samples across the highest-frequency sinusoid.
   This parameter contains the tradeoff between accuracy and speed.

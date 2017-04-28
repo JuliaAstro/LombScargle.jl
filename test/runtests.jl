@@ -75,11 +75,11 @@ pgram4 = @inferred(lombscargle(LombScargle.plan(t, s, fast = false, center_data=
 
     @testset "Fast method" begin
         @test power(pgram5) ≈ power(pgram6) atol = 3e-6
-        @test power(lombscargle(t, s, frequencies=0.2:0.2:1, fast=true, fit_mean=true, flags = FFTW.MEASURE)) ≈
+        @test power(lombscargle(t, s, frequencies=0.2:0.2:1, fast=true, fit_mean=true, flags = FFTW.MEASURE, timelimit = 5)) ≈
             [0.029886871262324963,0.0005453105325981758,1.9499330722168046e-5,2.0859593514888897e-6,1.0129019249708592e-5]
-        @test power(lombscargle(t, s, frequencies=0.2:0.2:1, fast=true, fit_mean=false, flags = FFTW.MEASURE)) ≈
+        @test power(lombscargle(t, s, frequencies=0.2:0.2:1, fast=true, fit_mean=false, flags = FFTW.MEASURE, timelimit = 5)) ≈
             [0.029886867760422008,0.0005453104197620392,1.9499329579010375e-5,2.085948496002562e-6,1.0128073536975395e-5]
-        @test power(lombscargle(t, s, frequencies=0.2:0.2:1, fast=true, center_data=false, fit_mean=false, flags = FFTW.MEASURE)) ≈
+        @test power(lombscargle(t, s, frequencies=0.2:0.2:1, fast=true, center_data=false, fit_mean=false, flags = FFTW.MEASURE, timelimit = 5)) ≈
             [0.029886868328967718,0.0005453105220405559,1.949931928224576e-5,2.0859802347505357e-6,1.0127777365273726e-5]
         @test power(lombscargle(t, s, err, frequencies=0.2:0.2:1, fast=true, fit_mean=true)) ≈ [0.09230959166317655,0.0015654929813132702,0.00019405185108843607,6.0898671943944786e-5,6.0604505038256276e-5]
         @test power(lombscargle(t, s, err, frequencies=0.2:0.2:1, fast=true, fit_mean=false)) ≈ [0.09219168665786258,0.0015654342453078724,0.00019403694017215876,6.088944186950046e-5,6.05771360378885e-5]

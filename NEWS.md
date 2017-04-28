@@ -10,8 +10,8 @@ v0.3.0 (201?-??-??)
   `LombScargle.plan` function.  This computes some quantities needed afterwards
   and pre-allocate the memory for the actual computation of the periodogram.
   The speed-up is particularly relevant for the fast method.
-* Add `flags` optional keyword to `lombscargle` function, to set the FFTW
-  planner flags.
+* Add `flags` and `timelimit` optional keywords to `lombscargle` function, to
+  set the FFTW planner flags and the time limit.
 * Package license changed to BSD 3-clause "New" or "Revised".
 
 ### Breaking Changes
