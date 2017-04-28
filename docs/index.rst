@@ -332,10 +332,13 @@ It is highly suggested to plan a periodogram before actually computing it,
 especially for the fast method.  Once you plan a periodogram, you can pass the
 ``LombScargle.PeriodogramPlan`` to :func:`lombscargle` as the only argument.
 
-Pre-planning the periodogram is also useful if you want to calculate the
-false-alarm probability via bootstrapping with :func:`LombScargle.bootstrap`
-function, because you ensure that you will use the same options you used to
-compute the periodogram, besides saving time and memory.
+The ``LombScargle.PeriodogramPlan`` bears the time vector, but the quantities
+that are pre-computed in planning stage do not actually depend on it.  This is
+particularly useful for calculating the false-alarm probability via
+bootstrapping with :func:`LombScargle.bootstrap` function: the vector time is
+randomly shuffled, but pre-computed quantities will remain the same, saving both
+time and memory in each iteration.  In addition, you ensure that you will use
+the same options you used to compute the periodogram.
 
 Normalization
 ~~~~~~~~~~~~~
