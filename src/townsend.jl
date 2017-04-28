@@ -32,29 +32,24 @@ end
 function _lombscargle_orig!(P::AbstractVector{T}, times::AbstractVector{<:Real},
                             X::AbstractVector{<:Real}, freqs::AbstractVector{<:Real},
                             XX::Real) where {T<:Real}
-    nil = zero(T)
     N = length(X)
     @inbounds Threads.@threads for n in eachindex(freqs)
         ω = freqs[n] * 2 * pi
-        XC = XS = CC = CS = nil
+        XC = XS = CC = CS = zero(T)
         @inbounds for j in eachindex(times)
-            ωt = ω*times[j]
-            C = cos(ωt)
-            S = sin(ωt)
-            XC += X[j]*C
-            XS += X[j]*S
-            CC += C*C
-            CS += C*S
+            S, C = sincos(ω * times[j])
+            XC  += X[j]*C
+            XS  += X[j]*S
+            CC  += C*C
+            CS  += C*S
         end
-        SS      = N - CC
-        ωτ      = atan2(CS, CC - N / 2) / 2
-        c_τ     = cos(ωτ)
-        s_τ     = sin(ωτ)
-        c_τ2    = c_τ*c_τ
-        s_τ2    = s_τ*s_τ
-        cs_τ_CS = 2c_τ*s_τ*CS
-        P[n] = (abs2(c_τ*XC + s_τ*XS)/(c_τ2*CC + cs_τ_CS + s_τ2*SS) +
-                abs2(c_τ*XS - s_τ*XC)/(c_τ2*SS - cs_τ_CS + s_τ2*CC))/XX
+        SS       = N - CC
+        s_τ, c_τ = sincos(atan2(CS, CC - N / 2) / 2)
+        c_τ2     = c_τ*c_τ
+        s_τ2     = s_τ*s_τ
+        cs_τ_CS  = 2c_τ*s_τ*CS
+        P[n]     = (abs2(c_τ*XC + s_τ*XS)/(c_τ2*CC + cs_τ_CS + s_τ2*SS) +
+                    abs2(c_τ*XS - s_τ*XC)/(c_τ2*SS - cs_τ_CS + s_τ2*CC))/XX
     end
     return P
 end

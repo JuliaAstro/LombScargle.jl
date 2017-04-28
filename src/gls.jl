@@ -55,14 +55,12 @@ function _generalised_lombscargle!(P, freqs, times, y, w, Y, YY, nil)
         # Find τ for current angular frequency
         C = S = CS = CC = nil
         @inbounds for i in eachindex(times)
-            ωt  = ω*times[i]
-            W   = w[i]
-            c   = cos(ωt)
-            s   = sin(ωt)
-            CS += W*c*s
-            CC += W*c*c
-            C  += W*c
-            S  += W*s
+            W    = w[i]
+            s, c = sincos(ω * times[i])
+            CS  += W*c*s
+            CC  += W*c*c
+            C   += W*c
+            S   += W*s
         end
         CS -= C*S
         SS  = 1 - CC - S*S
@@ -71,10 +69,8 @@ function _generalised_lombscargle!(P, freqs, times, y, w, Y, YY, nil)
         # Now we can compute the power
         YC_τ = YS_τ = CC_τ = nil
         @inbounds for i in eachindex(times)
-            ωt    = ω*times[i] - ωτ
             W     = w[i]
-            c     = cos(ωt)
-            s     = sin(ωt)
+            s, c  = sincos(ω*times[i] - ωτ)
             YC_τ += W*y[i]*c
             YS_τ += W*y[i]*s
             CC_τ += W*c*c
@@ -82,8 +78,7 @@ function _generalised_lombscargle!(P, freqs, times, y, w, Y, YY, nil)
         # "C_τ" and "S_τ" are computed following equation (7) of Press &
         # Rybicki, this formula simply comes from angle difference trigonometric
         # identities.
-        cos_ωτ = cos(ωτ)
-        sin_ωτ = sin(ωτ)
+        sin_ωτ, cos_ωτ = sincos(ωτ)
         C_τ    = C*cos_ωτ + S*sin_ωτ
         S_τ    = S*cos_ωτ - C*sin_ωτ
         YC_τ  -= Y*C_τ
@@ -101,21 +96,17 @@ function _generalised_lombscargle!(P, freqs, times, y, w, YY, nil)
         # Find τ for current angular frequency
         C = S = CS = CC = nil
         @inbounds for i in eachindex(times)
-            ωt  = ω*times[i]
-            W   = w[i]
-            c   = cos(ωt)
-            s   = sin(ωt)
-            CS += W*c*s
-            CC += W*c*c
+            W    = w[i]
+            s, c = sincos(ω * times[i])
+            CS  += W*c*s
+            CC  += W*c*c
         end
         ωτ   = atan2(2CS, 2CC - 1) / 2
         # Now we can compute the power
         YC_τ = YS_τ = CC_τ = nil
         @inbounds for i in eachindex(times)
-            ωt    = ω*times[i] - ωτ
             W     = w[i]
-            c     = cos(ωt)
-            s     = sin(ωt)
+            s, c  = sincos(ω*times[i] - ωτ)
             YC_τ += W*y[i]*c
             YS_τ += W*y[i]*s
             CC_τ += W*c*c

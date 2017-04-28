@@ -295,3 +295,37 @@ model(t::AbstractVector{<:Real}, s::AbstractVector{<:Measurement},
       f::Real, t_fit::AbstractVector{<:Real}=t; kwargs...) =
           model(t, Measurements.value.(s), Measurements.uncertainty.(s),
                 f, t_fit; kwargs...)
+
+# `sincos` is not yet in Julia, but it's available through the math library.  The following
+# definitions are from Yichao Yu's code at https://github.com/nacs-lab/yyc-data and are
+# likely to be later added to Julia (so they can be removed here).  See also
+# https://discourse.julialang.org/t/poor-performance-of-the-cis-function/3402.
+if !isdefined(:sincos)
+    @inline function sincos(v::Float64)
+        Base.llvmcall("""
+        %f = bitcast i8 *%1 to void (double, double *, double *)*
+        %pres = alloca [2 x double]
+        %p1 = getelementptr inbounds [2 x double], [2 x double]* %pres, i64 0, i64 0
+        %p2 = getelementptr inbounds [2 x double], [2 x double]* %pres, i64 0, i64 1
+        call void %f(double %0, double *nocapture noalias %p1, double *nocapture noalias %p2)
+        %res = load [2 x double], [2 x double]* %pres
+        ret [2 x double] %res
+        """, Tuple{Float64,Float64}, Tuple{Float64,Ptr{Void}}, v,
+                      cglobal((:sincos, Base.libm_name)))
+    end
+    @inline function sincos(v::Float32)
+        Base.llvmcall("""
+        %f = bitcast i8 *%1 to void (float, float *, float *)*
+        %pres = alloca [2 x float]
+        %p1 = getelementptr inbounds [2 x float], [2 x float]* %pres, i64 0, i64 0
+        %p2 = getelementptr inbounds [2 x float], [2 x float]* %pres, i64 0, i64 1
+        call void %f(float %0, float *nocapture noalias %p1, float *nocapture noalias %p2)
+        %res = load [2 x float], [2 x float]* %pres
+        ret [2 x float] %res
+            """, Tuple{Float32,Float32}, Tuple{Float32,Ptr{Void}}, v,
+                      cglobal((:sincosf, Base.libm_name)))
+    end
+    @inline function sincos(v)
+        @fastmath (sin(v), cos(v))
+    end
+end

@@ -36,13 +36,14 @@ feature.
   because computation of the FFT is only a part of the algorithm.  The memory
   footprint of this function is also considerably lower.  To give you an idea of
   the improvement, for an input of 100000 datapoints, a pre-planned periodogram
-  is 70% faster than a periodogram in previous version and requires 85% memory
-  less.  With 4 FFTW threads the speed-up is of 80%.
-* The two non-fast methods now supports Julia’s
+  is 70% faster than a (non-planned) periodogram in previous version and
+  requires almost 90% less memory.  With 4 FFTW threads the speed-up is of 80%.
+* The two non-fast methods now are faster, thanks to the use of `sincos`
+  function from math library and the support of Julia’s
   native
   [multi-threading](http://docs.julialang.org/en/stable/manual/parallel-computing/#multi-threading-experimental).
   Run Julia with `n` threads (e.g., `JULIA_NUM_THREADS=4 julia` for 4 threads)
-  in order to gain an `n`-fold scaling.  These function also eat considerably
+  in order to gain an `n`-fold scaling.  These functions also eat considerably
   less memory: if the periodogram is pre-planned, all operations are then
   performed in-place, so memory usage of the periodogram only is independent of
   input size.
