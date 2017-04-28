@@ -1,5 +1,6 @@
 ### extirpolation.jl
 #
+# Copyright (C) 2016 Astropy Developers
 # Copyright (C) 2016, 2017 Mosè Giordano.
 #
 # Maintainer: Mosè Giordano <mose AT gnu DOT org>
@@ -7,7 +8,7 @@
 #
 # This file is a part of LombScargle.jl.
 #
-# License is MIT "Expat".
+# License is BSD 3-clause "New" or "Revised".
 #
 ### Commentary:
 #

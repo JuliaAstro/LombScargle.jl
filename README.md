@@ -58,7 +58,7 @@ The package provides facilities to:
 All these features are thoroughly described in the full documentation, see
 below.  Here we only give basic information.
 
-### Documentation ###
+### Documentation
 
 The complete manual of `LombScargle.jl` is available at
 http://lombscarglejl.readthedocs.io.  It has detailed explanation of all
@@ -168,7 +168,7 @@ using Plots
 plot(freqpower(pgram)...)
 ```
 
-### Signal with Uncertainties ###
+### Signal with Uncertainties
 
 The generalised Lomb–Scargle periodogram (used when the `fit_mean` optional
 keyword is `true`) is able to handle a signal with uncertainties, and they will
@@ -192,21 +192,21 @@ Performance
 
 A pre-planned periodogram in `LombScargle.jl` computed in single thread mode
 with the fast method is more than 2.5 times faster than the implementation of
-the same algorithm provided by AstroPy, and more than 4 times faster if 4 FFTW
+the same algorithm provided by Astropy, and more than 4 times faster if 4 FFTW
 threads are used (on machines with at least 4 physical CPUs).
 
 The following plot shows a comparison between the times needed to compute a
 periodogram for a signal with N datapoints using `LombScargle.jl`, with 1 or 4
 threads (with `flags = FFTW.MEASURE` for better performance), and the
-single-threaded AstroPy implementation.  (Julia version: 0.6.0-pre.alpha.242,
-commit d694548; `LombScargle.jl` version: 0.3.0; Python version: 3.5.3; AstroPy
+single-threaded Astropy implementation.  (Julia version: 0.6.0-pre.alpha.242,
+commit d694548; `LombScargle.jl` version: 0.3.0; Python version: 3.5.3; Astropy
 version: 1.3.  CPU: Intel(R) Core(TM) i7-4700MQ.)
 
 ![benchmarks](https://cdn.rawgit.com/giordano/LombScargle.jl/master/perf/benchmarks.svg)
 
-Note that this comparison is unfair, as AstroPy doesn’t support pre-planning a
+Note that this comparison is unfair, as Astropy doesn’t support pre-planning a
 periodogram nor exploiting multi-threading.  A non-planned periodogram in single
-thread mode in `LombScargle.jl` is still twice faster than AstroPy.
+thread mode in `LombScargle.jl` is still twice faster than Astropy.
 
 Development
 -----------
@@ -214,7 +214,7 @@ Development
 The package is developed at https://github.com/giordano/LombScargle.jl.  There
 you can submit bug reports, make suggestions, and propose pull requests.
 
-### History ###
+### History
 
 The ChangeLog of the package is available in
 [NEWS.md](https://github.com/giordano/LombScargle.jl/blob/master/NEWS.md) file
@@ -223,14 +223,14 @@ in top directory.
 License
 -------
 
-The `LombScargle.jl` package is licensed under the MIT "Expat" License.  The
-original author is Mosè Giordano.
+The `LombScargle.jl` package is licensed under the BSD 3-clause "New" or
+"Revised" License.  The original author is Mosè Giordano.
 
-### Acknowledgemets ###
+### Acknowledgemets
 
-This package greatly benefited from the implementation of the Lomb–Scargle
-periodogram in Astropy, in particular for the fast method by Press & Rybicki
-(1989).
+This package adapts the implementation in Astropy of the the fast Lomb–Scargle
+method by Press & Rybicki (1989).  We claim no endorsement nor promotion by the
+Astropy Team.
 
 
 

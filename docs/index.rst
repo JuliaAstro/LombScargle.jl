@@ -1029,11 +1029,11 @@ file in top directory.
 License
 -------
 
-The ``LombScargle.jl`` package is licensed under the MIT "Expat"
-License. The original author is Mosè Giordano.
+The ``LombScargle.jl`` package is licensed under the BSD 3-clause "New" or
+"Revised" License. The original author is Mosè Giordano.
 
 Acknowledgements
 ~~~~~~~~~~~~~~~~
 
-This package greatly benefited from the implementation of the Lomb–Scargle
-periodogram in Astropy, in particular for the fast method by [PR89]_.
+This package adapts the implementation in Astropy of the the fast Lomb–Scargle
+method by [PR89]_.  We claim no endorsement nor promotion by the Astropy Team.

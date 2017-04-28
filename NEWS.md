@@ -12,6 +12,7 @@ v0.3.0 (201?-??-??)
   The speed-up is particularly relevant for the fast method.
 * Add `flags` optional keyword to `lombscargle` function, to set the FFTW
   planner flags.
+* Package license changed to BSD 3-clause "New" or "Revised".
 
 ### Breaking Changes
 

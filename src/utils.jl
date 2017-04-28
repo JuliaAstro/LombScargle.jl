@@ -7,7 +7,7 @@
 #
 # This file is a part of LombScargle.jl.
 #
-# License is MIT "Expat".
+# License is BSD 3-clause "New" or "Revised".
 #
 ### Commentary
 #
