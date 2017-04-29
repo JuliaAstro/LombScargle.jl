@@ -95,6 +95,10 @@ pgram4 = @inferred(lombscargle(LombScargle.plan(t, s, fast = false, center_data=
         @test power(lombscargle(t, s, errors)) ≈ power(lombscargle(t, s, errors, fast = false)) atol = 0.3
         @test power(lombscargle(t, s, errors, fit_mean = false)) ≈ power(lombscargle(t, s, errors, fit_mean = false, fast = false)) atol = 0.2
     end
+
+   @testset "Float32" begin
+       @test typeof(period(lombscargle(Vector{Float32}(t), Vector{Float32}(s), fast = false))) == Vector{Float32}
+   end
 end
 
 @testset "Utilities" begin
