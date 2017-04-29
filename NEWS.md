@@ -1,7 +1,7 @@
 History of LombScargle.jl
 =========================
 
-v0.3.0 (201?-??-??)
+v0.3.0 (2017-04-29)
 -------------------
 
 ### New Features
@@ -38,8 +38,8 @@ feature.
   the improvement, for an input of 100000 datapoints, a pre-planned periodogram
   is 70% faster than a (non-planned) periodogram in previous version and
   requires almost 90% less memory.  With 4 FFTW threads the speed-up is of 80%.
-* The two non-fast methods now are faster, thanks to the use of `sincos`
-  function from math library and the support of Julia’s
+* The two non-fast methods now are about 20%-30% faster, thanks to the use of
+  `sincos` function from math library.  These methods now also support Julia’s
   native
   [multi-threading](http://docs.julialang.org/en/stable/manual/parallel-computing/#multi-threading-experimental).
   Run Julia with `n` threads (e.g., `JULIA_NUM_THREADS=4 julia` for 4 threads)

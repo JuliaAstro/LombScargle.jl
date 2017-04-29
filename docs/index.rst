@@ -211,8 +211,8 @@ are described in the `Fast Algorithm`_ section below.
    <http://docs.julialang.org/en/stable/manual/parallel-computing/#multi-threading-experimental>`_
    for the non-fast methods (the methods used when you set the keyword
    ``fast=false``).  Run Julia with :math:`n` threads (e.g.,
-   ``JULIA_NUM_THREADS=4 julia`` for 4 threads) in order to automatically gain
-   an :math:`n` -fold scaling.
+   ``JULIA_NUM_THREADS=4 julia`` for 4 threads, if your machine has 4 physical
+   cores) in order to automatically gain an :math:`n` -fold scaling.
 
    Please note that multi-threading is still an experimental feature in Julia,
    so you may encounter issues when running it with more than one thread.  For
