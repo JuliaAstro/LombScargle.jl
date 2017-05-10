@@ -274,14 +274,14 @@ function model(t::AbstractVector{<:Real}, s::AbstractVector{T},
     # solve the linear system A·x = y, where A is the matrix with rows:
     # [cos(ωt) sin(ωt) 1]; x is the column vector [a, b, c], and y is the
     # column vector of the signal
-    ω = f * 2 * pi
+    ω = 2 * f
     if fit_mean
-        a, b, c = [cos.(ω .* t) sin.(ω .* t)  ones(t)] ./ errors \ y
-        return a .* cos.(ω .* t_fit) .+ b .* sin.(ω .* t_fit) .+ (c + m)
+        a, b, c = [cospi.(ω .* t) sinpi.(ω .* t)  ones(t)] ./ errors \ y
+        return a .* cospi.(ω .* t_fit) .+ b .* sinpi.(ω .* t_fit) .+ (c + m)
     else
         # If fit_mean==false, the model to be fitted is a·cos(ωt) + b·sin(ωt)
-        a, b = [cos.(ω .* t) sin.(ω .* t)] ./ errors \ y
-        return a .* cos.(ω .* t_fit) .+ b .* sin.(ω .* t_fit) .+ m
+        a, b = [cospi.(ω .* t) sinpi.(ω .* t)] ./ errors \ y
+        return a .* cospi.(ω .* t_fit) .+ b .* sinpi.(ω .* t_fit) .+ m
     end
 end
 
