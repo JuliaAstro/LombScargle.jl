@@ -16,7 +16,7 @@
 #
 ### Code:
 
-immutable Bootstrap{T<:AbstractFloat}
+struct Bootstrap{T<:AbstractFloat}
     p::Vector{T} # Vector of highest peaks
 end
 
