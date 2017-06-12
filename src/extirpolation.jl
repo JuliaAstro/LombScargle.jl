@@ -41,7 +41,7 @@ function extirpolate!(result, x::AbstractVector{<:Real}, y::AbstractVector{NU},
     # For each remaining x, find the index describing the extirpolation range.
     # i.e. ilo[i] < x[i] < ilo[i] + M with x[i] in the center, adjusted so that
     # the limits are within the range 0...N
-    ilo = clamp!(trunc.(Int, x .- div(M, 2)), 0, N - M)
+    ilo = clamp.(trunc.(Int, x .- div(M, 2)), 0, N - M)
     v = collect(0:(M - 1))
     numerator = [y[j] * prod(x[j] - ilo[j] - v) for j in eachindex(x)]
     denominator = gamma(M)
