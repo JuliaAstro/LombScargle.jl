@@ -15,7 +15,8 @@ __precompile__()
 
 module LombScargle
 
-using Measurements
+using FFTW, Measurements
+importall FFTW
 
 export lombscargle
 

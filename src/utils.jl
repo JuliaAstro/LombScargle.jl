@@ -300,7 +300,7 @@ model(t::AbstractVector{<:Real}, s::AbstractVector{<:Measurement},
 # definitions are from Yichao Yu's code at https://github.com/nacs-lab/yyc-data and are
 # likely to be later added to Julia (so they can be removed here).  See also
 # https://discourse.julialang.org/t/poor-performance-of-the-cis-function/3402.
-if !isdefined(:sincos)
+if !isdefined(Base, :sincos)
     @inline function sincos(v::Float64)
         Base.llvmcall("""
         %f = bitcast i8 *%1 to void (double, double *, double *)*
