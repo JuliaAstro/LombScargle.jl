@@ -78,9 +78,9 @@ end
 """
     power(p::Periodogram)
 
-Return the period vector of Lomb–Scargle periodogram `p`.  It is equal to `1./freq(p)`.
+Return the period vector of Lomb–Scargle periodogram `p`.  It is equal to `1 ./ freq(p)`.
 """
-period(p::Periodogram) = 1./freq(p)
+period(p::Periodogram) = 1 ./ freq(p)
 
 """
     periodpower(p::Periodogram)
@@ -102,10 +102,10 @@ narrower period range, pass as second argument a vector with the extrema of the
 interval.
 """
 findmaxperiod(p::Periodogram, threshold::Real=findmaxpower(p)) =
-    1./findmaxfreq(p, threshold)
+    1 ./ findmaxfreq(p, threshold)
 findmaxperiod(p::Periodogram, interval::AbstractVector{<:Real},
               threshold::Real=NaN) =
-                  1./findmaxfreq(p, 1./interval, threshold)
+                  1 ./ findmaxfreq(p, 1 ./ interval, threshold)
 
 """
     autofrequency(times::AbstractVector{Real};

@@ -105,14 +105,14 @@ end
     @testset "findmaxpower, findmaxfreq, findmaxperiod" begin
         @test findmaxfreq(pgram1) ≈ [31.997145470342]
         @test findmaxfreq(pgram1, 0.965) ≈ [0.15602150741832602,31.685102455505348,31.997145470342,63.52622641842902,63.838269433265665]
-        @test findmaxperiod(pgram1) ≈ 1./findmaxfreq(pgram1)
-        @test findmaxperiod(pgram1, 0.965) ≈ 1./findmaxfreq(pgram1, 0.965)
+        @test findmaxperiod(pgram1) ≈ 1 ./ findmaxfreq(pgram1)
+        @test findmaxperiod(pgram1, 0.965) ≈ 1 ./ findmaxfreq(pgram1, 0.965)
         s = sinpi.(2t) + cospi.(4t)
         p = lombscargle(t, s, maximum_frequency=4)
         @test findmaxfreq(p, [0.9, 1.1]) ≈ [1.0029954048320957]
         @test findmaxfreq(p, [1.9, 2.1]) ≈ [2.002806697267899]
-        @test findmaxperiod(p, [1/0.9, 1/1.1]) ≈ 1./findmaxfreq(p, [0.9, 1.1])
-        @test findmaxperiod(p, [1/1.9, 1/2.1]) ≈ 1./findmaxfreq(p, [1.9, 2.1])
+        @test findmaxperiod(p, [1/0.9, 1/1.1]) ≈ 1 ./ findmaxfreq(p, [0.9, 1.1])
+        @test findmaxperiod(p, [1/1.9, 1/2.1]) ≈ 1 ./ findmaxfreq(p, [1.9, 2.1])
         @test findmaxpower(pgram1) ≈ 0.9695017551608017
     end
 

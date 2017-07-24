@@ -68,7 +68,7 @@ function _plan(times::AbstractVector{<:Real}, signal::AbstractVector{R1}, sumw::
         T = promote_type(float(R1), float(R2))
         bfft_vect = Vector{Complex{T}}(Nfft)
         bfft_grid = Vector{Complex{T}}(Nfft)
-        bfft_plan = plan_bfft(bfft_vect, flags = flags, timelimit = timelimit)
+        bfft_plan = FFTW.plan_bfft(bfft_vect, flags = flags, timelimit = timelimit)
         if fit_mean
             return FastGLSPlan_fit_mean(times, signal, frequencies, sumw, w, y, YY,
                                         bfft_vect, bfft_grid, bfft_plan, Mfft,
