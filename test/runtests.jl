@@ -1,5 +1,5 @@
 using LombScargle
-using Measurements
+using Measurements, FFTW
 using Base.Test
 
 Threads.nthreads() > 1 && (FFTW.set_num_threads(2); info("Multi-threading enabled"))
@@ -31,7 +31,7 @@ pgram4 = @inferred(lombscargle(LombScargle.plan(t, s, fast = false, center_data=
         # coverage.  "autofrequency" function is tested below.
         prandom1 = lombscargle(trandom, srandom, frequencies=freqs, fit_mean=false)
         prandom2 = lombscargle(trandom, srandom, frequencies=freqs, fit_mean=true)
-        @test freqpower(pgram1)[2] ≈ periodpower(pgram2)[2] atol = 5e-7
+        @test freqpower(pgram1)[2] ≈ periodpower(pgram2)[2] atol = 6e-7
         @testset "Infinities" begin
             # Make sure there are no infinities in `pgram1'.  It seems to work only on
             # 64-bit systems.
@@ -40,8 +40,8 @@ pgram4 = @inferred(lombscargle(LombScargle.plan(t, s, fast = false, center_data=
     end
 
     @testset "fit_mean and center_data" begin
-        @test power(pgram1) ≈ power(pgram2) atol = 4e-7
-        @test power(pgram3) ≈ power(pgram4) atol = 4e-7
+        @test power(pgram1) ≈ power(pgram2) atol = 5e-7
+        @test power(pgram3) ≈ power(pgram4) atol = 5e-7
     end
 
     # Test the values in order to prevent wrong results in both algorithms
