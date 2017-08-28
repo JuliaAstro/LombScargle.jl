@@ -157,13 +157,13 @@ function prob(P::Periodogram, pow::Real)
     N = length(P.times)
     normalization = P.norm
     if normalization == :standard
-        return (1.0 - pow)^((N - 3.0)*0.5)
+        return (1 - pow)^((N - 3) / 2)
     elseif normalization == :Scargle
         return exp(-pow)
     elseif normalization == :HorneBaliunas
-        return (1.0 - 2*pow/(N - 1))^((N - 3.0)*0.5)
+        return (1 - 2*pow/(N - 1))^((N - 3) / 2)
     elseif normalization == :Cumming
-        return (1.0 + 2*pow/(N - 3.0))^((3.0 - N)*0.5)
+        return (1 + 2*pow/(N - 3))^((3 - N) / 2)
     else
         error("normalization \"", string(normalization), "\" not supported")
     end
@@ -180,13 +180,13 @@ function probinv(P::Periodogram, prob::Real)
     N = length(P.times)
     normalization = P.norm
     if normalization == :standard
-        return 1.0 - prob^(2.0/(N - 3.0))
+        return 1 - prob^(2/(N - 3))
     elseif normalization == :Scargle
         return -log(prob)
     elseif normalization == :HorneBaliunas
-        return 0.5*(N - 1.0)*(1.0 - prob^(2.0/(N - 3.0)))
+        return (N - 1) * (1 - prob ^ (2 / (N - 3))) / 2
     elseif normalization == :Cumming
-        return 0.5*(N - 3.0)*(prob^(2.0/(3.0 - N)) - 1.0)
+        return (N - 3) * (prob ^ (2 / (3 - N)) - 1) / 2
     else
         error("normalization \"", string(normalization), "\" not supported")
     end
@@ -210,7 +210,7 @@ Return the false-alarm probability for periodogram `P` and power value `pow`.
 
 Its inverse is the `fapinv` function.
 """
-fap(P::Periodogram, pow::Real) = 1.0 - (1.0 - prob(P, pow))^M(P)
+fap(P::Periodogram, pow::Real) = 1 - (1 - prob(P, pow))^M(P)
 
 """
     fapinv(P::Periodogram, prob::Real)
@@ -220,7 +220,7 @@ Return the power value of the periodogram whose false-alarm probability is
 
 This is the inverse of `fap` function.
 """
-fapinv(P::Periodogram, prob::Real) = probinv(P, 1.0 - (1.0 - prob)^(inv(M(P))))
+fapinv(P::Periodogram, prob::Real) = probinv(P, 1 - (1 - prob)^(inv(M(P))))
 
 """
     LombScargle.model(times::AbstractVector{Real},
