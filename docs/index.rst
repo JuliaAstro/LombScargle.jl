@@ -1008,16 +1008,16 @@ Performance
 -----------
 
 A pre-planned periodogram in ``LombScargle.jl`` computed in single thread mode
-with the fast method is more than 2.5 times faster than the implementation of
-the same algorithm provided by AstroPy, and more than 4 times faster if 4 FFTW
+with the fast method is more than 2.9 times faster than the implementation of
+the same algorithm provided by AstroPy, and more than 4.5 times faster if 4 FFTW
 threads are used (on machines with at least 4 physical CPUs).
 
 The following plot shows a comparison between the times needed to compute a
 periodogram for a signal with N datapoints using ``LombScargle.jl``, with 1 or 4
 threads (with ``flags = FFTW.MEASURE`` for better performance), and the
-single-threaded AstroPy implementation.  (Julia version: 0.6.0-pre.alpha.242,
-commit d694548; ``LombScargle.jl`` version: 0.3.0; Python version: 3.5.3;
-AstroPy version: 1.3.  CPU: Intel(R) Core(TM) i7-4700MQ.)
+single-threaded AstroPy implementation.  (Julia version: 0.7.0-DEV.2309, commit
+7ae9955c93; `LombScargle.jl` version: 0.3.1; Python version: 3.5.4; Astropy
+version: 2.0.2.  CPU: Intel(R) Core(TM) i7-4700MQ.)
 
 .. image:: ../perf/benchmarks.*
 

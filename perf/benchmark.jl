@@ -1,6 +1,6 @@
 #!/usr/bin/env julia
 
-using LombScargle, BenchmarkTools
+using LombScargle, BenchmarkTools, FFTW
 
 N  = round.(Int, logspace(1, 5, 15))
 for nthreads in (1, 4)
