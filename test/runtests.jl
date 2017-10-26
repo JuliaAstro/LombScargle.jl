@@ -107,7 +107,7 @@ end
         @test findmaxfreq(pgram1, 0.965) ≈ [0.15602150741832602,31.685102455505348,31.997145470342,63.52622641842902,63.838269433265665]
         @test findmaxperiod(pgram1) ≈ 1 ./ findmaxfreq(pgram1)
         @test findmaxperiod(pgram1, 0.965) ≈ 1 ./ findmaxfreq(pgram1, 0.965)
-        s = sinpi.(2t) + cospi.(4t)
+        s = sinpi.(2t) .+ cospi.(4t)
         p = lombscargle(t, s, maximum_frequency=4)
         @test findmaxfreq(p, [0.9, 1.1]) ≈ [1.0029954048320957]
         @test findmaxfreq(p, [1.9, 2.1]) ≈ [2.002806697267899]
@@ -142,7 +142,7 @@ end
 
     @testset "LombScargle.model" begin
         @test s ≈ LombScargle.model(t, s, 1/2pi, center_data=false, fit_mean=false)
-        s = sinpi.(t) + pi*cospi.(t) + e
+        s = sinpi.(t) .+ pi .* cospi.(t) .+ e
         @test s ≈ LombScargle.model(t, measurement.(s, ones(s)), 0.5)
     end
 
