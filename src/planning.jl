@@ -64,19 +64,21 @@ function _plan(times::AbstractVector{<:Real}, signal::AbstractVector{R1}, sumw::
             y = signal
         end
         YY = w ⋅ (y .^ 2)
-        Nfft = nextpow2(length(frequencies) * oversampling)
+        N = length(frequencies)
+        Nfft = nextpow2(N * oversampling)
         T = promote_type(float(R1), float(R2))
         bfft_vect = Vector{Complex{T}}(Nfft)
         bfft_grid = Vector{Complex{T}}(Nfft)
+        fftgrid   = Vector{Complex{T}}(N)
         bfft_plan = FFTW.plan_bfft(bfft_vect, flags = flags, timelimit = timelimit)
         if fit_mean
             return FastGLSPlan_fit_mean(times, signal, frequencies, sumw, w, y, YY,
-                                        bfft_vect, bfft_grid, bfft_plan, Mfft,
-                                        noise, normalization, Vector{T}(length(frequencies)))
+                                        fftgrid, bfft_vect, bfft_grid, bfft_plan, Mfft,
+                                        noise, normalization, Vector{T}(N))
         else
             return FastGLSPlan(times, signal, frequencies, sumw, w, y, YY,
-                               bfft_vect, bfft_grid, bfft_plan, Mfft,
-                               noise, normalization, Vector{T}(length(frequencies)))
+                               fftgrid, bfft_vect, bfft_grid, bfft_plan, Mfft,
+                               noise, normalization, Vector{T}(N))
         end
     else
         return _plan_no_fast(times, signal, sumw, w, frequencies, with_errors,

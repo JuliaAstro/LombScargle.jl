@@ -56,7 +56,7 @@ function extirpolate!(result, x::AbstractVector{<:Real}, y::AbstractVector{NU},
     return result
 end
 
-function trig_sum!(grid, bfft_vec, bfft_plan, t::AbstractVector{<:Real},
+function trig_sum!(grid, fftgrid, bfft_vec, bfft_plan, t::AbstractVector{<:Real},
                    h::AbstractVector{<:Real}, df::Real, N::Integer,
                    Nfft::Integer, t0::Real, f0::Real=0.0,
                    freq_factor::Integer=1, Mfft::Integer=4)
@@ -70,7 +70,7 @@ function trig_sum!(grid, bfft_vec, bfft_plan, t::AbstractVector{<:Real},
     tnorm = mod.(((t .- t0) .* Nfft .* df), Nfft)
     extirpolate!(grid, tnorm, H, Nfft, Mfft)
     A_mul_B!(bfft_vec, bfft_plan, grid)
-    fftgrid = @view(bfft_vec[1:N])
+    fftgrid .= @view(bfft_vec[1:N])
     if t0 != 0
         fftgrid .*= cis.(t0 .* (f0 .+ df .* (0:(N - 1))) .* 2 .* pi)
     end
