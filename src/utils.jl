@@ -50,7 +50,7 @@ findmaxpower(p::Periodogram) = maximum(power(p))
 
 
 _findmaxfreq(freq::AbstractVector{<:Real}, power::AbstractVector{<:Real}, threshold::Real) =
-    freq[find(x -> x >= threshold, power)]
+    freq[findall(x -> x >= threshold, power)]
 
 """
     findmaxfreq(p::Periodogram, [interval::AbstractVector{Real}], threshold::Real=findmaxpower(p))
@@ -67,7 +67,7 @@ findmaxfreq(p::Periodogram, threshold::Real=findmaxpower(p)) =
 function findmaxfreq(p::Periodogram, interval::AbstractVector{<:Real}, threshold::Real=NaN)
     f = freq(p)
     lo, hi = extrema(interval)
-    indices = find(x -> lo <= x <= hi, f)
+    indices = findall(x -> lo <= x <= hi, f)
     pow = power(p)[indices]
     if isnan(threshold)
         threshold = maximum(pow)
@@ -287,7 +287,7 @@ function model(t::AbstractVector{<:Real}, s::AbstractVector{T},
     # column vector of the signal
     ω = 2 * f
     if fit_mean
-        a, b, c = [cospi.(ω .* t) sinpi.(ω .* t)  ones(t)] ./ errors \ y
+        a, b, c = [cospi.(ω .* t) sinpi.(ω .* t)  fill(1, size(t))] ./ errors \ y
         return a .* cospi.(ω .* t_fit) .+ b .* sinpi.(ω .* t_fit) .+ (c + m)
     else
         # If fit_mean==false, the model to be fitted is a·cos(ωt) + b·sin(ωt)
@@ -299,44 +299,10 @@ end
 # No uncertainties: errors=ones(s)
 model(t::AbstractVector{<:Real}, s::AbstractVector{<:Real},
       f::Real, t_fit::AbstractVector{<:Real}=t; kwargs...) =
-          model(t, s, ones(s), f, t_fit; kwargs...)
+          model(t, s, fill(1, size(s)), f, t_fit; kwargs...)
 
 # Uncertainties provided via Measurement type
 model(t::AbstractVector{<:Real}, s::AbstractVector{<:Measurement},
       f::Real, t_fit::AbstractVector{<:Real}=t; kwargs...) =
           model(t, Measurements.value.(s), Measurements.uncertainty.(s),
                 f, t_fit; kwargs...)
-
-# `sincos` is not yet in Julia, but it's available through the math library.  The following
-# definitions are from Yichao Yu's code at https://github.com/nacs-lab/yyc-data and are
-# likely to be later added to Julia (so they can be removed here).  See also
-# https://discourse.julialang.org/t/poor-performance-of-the-cis-function/3402.
-if !isdefined(Base, :sincos)
-    @inline function sincos(v::Float64)
-        Base.llvmcall("""
-        %f = bitcast i8 *%1 to void (double, double *, double *)*
-        %pres = alloca [2 x double]
-        %p1 = getelementptr inbounds [2 x double], [2 x double]* %pres, i64 0, i64 0
-        %p2 = getelementptr inbounds [2 x double], [2 x double]* %pres, i64 0, i64 1
-        call void %f(double %0, double *nocapture noalias %p1, double *nocapture noalias %p2)
-        %res = load [2 x double], [2 x double]* %pres
-        ret [2 x double] %res
-        """, Tuple{Float64,Float64}, Tuple{Float64,Ptr{Void}}, v,
-                      cglobal((:sincos, Base.libm_name)))
-    end
-    @inline function sincos(v::Float32)
-        Base.llvmcall("""
-        %f = bitcast i8 *%1 to void (float, float *, float *)*
-        %pres = alloca [2 x float]
-        %p1 = getelementptr inbounds [2 x float], [2 x float]* %pres, i64 0, i64 0
-        %p2 = getelementptr inbounds [2 x float], [2 x float]* %pres, i64 0, i64 1
-        call void %f(float %0, float *nocapture noalias %p1, float *nocapture noalias %p2)
-        %res = load [2 x float], [2 x float]* %pres
-        ret [2 x float] %res
-            """, Tuple{Float32,Float32}, Tuple{Float32,Ptr{Void}}, v,
-                      cglobal((:sincosf, Base.libm_name)))
-    end
-    @inline function sincos(v)
-        @fastmath (sin(v), cos(v))
-    end
-end

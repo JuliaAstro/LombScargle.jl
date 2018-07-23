@@ -141,7 +141,7 @@ julia> ntimes = 1001
 1001
 
 # Observation times
-julia> t = linspace(0.01, 10pi, ntimes)
+julia> t = range(0.01, stop=10pi, length=ntimes)
 0.01:0.03140592653589793:31.41592653589793
 
 # Randomize times
@@ -179,7 +179,7 @@ function with a `signal` vector of type `Measurement` (from
 ```julia
 using Measurements, Plots
 ntimes = 1001
-t = linspace(0.01, 10pi, ntimes)
+t = range(0.01, stop=10pi, length=ntimes)
 s = sinpi.(2t)
 errors = rand(0.1:1e-3:4.0, ntimes)
 plot(freqpower(lombscargle(t, s, errors, maximum_frequency=1.5))...)

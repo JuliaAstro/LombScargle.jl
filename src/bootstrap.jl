@@ -16,6 +16,8 @@
 #
 ### Code:
 
+using Random
+
 struct Bootstrap{T<:AbstractFloat}
     p::Vector{T} # Vector of highest peaks
 end
@@ -56,7 +58,7 @@ Return the false-alarm probability for `power` in the bootstrap sample `b`.
 Its inverse is the [`fapinv`](@ref) function.
 """
 fap(b::Bootstrap{<:AbstractFloat}, power::Real) =
-    length(find(x -> x >= power, b.p))/length(b.p)
+    length(findall(x -> x >= power, b.p))/length(b.p)
 
 """
     fapinv(b::Bootstrap, prob::Real)

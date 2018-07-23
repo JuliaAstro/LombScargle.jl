@@ -65,7 +65,7 @@ function _generalised_lombscargle!(P, freqs, times, y, w, Y, YY, nil)
         CS -= C*S
         SS  = 1 - CC - S*S
         CC -= C*C
-        ωτ   = atan2(2CS, CC - SS) / 2
+        ωτ   = atan(2CS, CC - SS) / 2
         # Now we can compute the power
         YC_τ = YS_τ = CC_τ = nil
         @inbounds for i in eachindex(times)
@@ -101,7 +101,7 @@ function _generalised_lombscargle!(P, freqs, times, y, w, YY, nil)
             CS  += W*c*s
             CC  += W*c*c
         end
-        ωτ   = atan2(2CS, 2CC - 1) / 2
+        ωτ   = atan(2CS, 2CC - 1) / 2
         # Now we can compute the power
         YC_τ = YS_τ = CC_τ = nil
         @inbounds for i in eachindex(times)

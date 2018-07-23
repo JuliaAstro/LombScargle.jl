@@ -25,7 +25,7 @@ sz = (1200, 800)
 
 # First periodograms
 ntimes = 1001
-t = linspace(0.01, 10pi, ntimes)
+t = range(0.01, stop=10pi, length=ntimes)
 t += step(t)*rand(ntimes)
 s = sinpi(t) + 1.5cospi(2t) + rand(ntimes)
 p = lombscargle(t, s)
@@ -38,7 +38,7 @@ savefig("period-periodogram.png")
 
 # signal with uncertainties
 ntimes = 1001
-t = linspace(0.01, 10pi, ntimes)
+t = range(0.01, stop=10pi, length=ntimes)
 s = sinpi(2t)
 errors = rand(0.1:1e-3:4.0, ntimes)
 p = lombscargle(t, s, errors, maximum_frequency=1.5)

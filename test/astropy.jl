@@ -1,13 +1,13 @@
 ### Compare LombScargle.jl with Astropy
 
-using LombScargle, Base.Test, PyCall
+using LombScargle, Test, PyCall, Random
 PyCall.@pyimport astropy.stats as ast
 
 srand(1)
 ntimes = 401
 
 @testset "Un-evenly spaced data" begin
-    t = linspace(0.01, 10pi, ntimes)
+    t = range(0.01, stop=10pi, length=ntimes)
     t += step(t)*rand(ntimes)
     for f in (x -> sinpi(x), x -> sin(x) + 1.5*cospi(4*x) + 3)
         s = f.(t)
@@ -32,7 +32,7 @@ ntimes = 401
     end
 end
 
-t = linspace(0.01, 10pi, ntimes)
+t = range(0.01, stop=10pi, length=ntimes)
 errors = rand(0.1:1e-3:4.0, ntimes)
 
 @testset "Evenly spaced data" begin # Use both heteroskedastic and homoskedastic uncertainties.
@@ -96,4 +96,4 @@ end
     end
 end
 
-info("LombScargle.jl is consistent with Astropy")
+@info("LombScargle.jl is consistent with Astropy")

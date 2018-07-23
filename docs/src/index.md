@@ -240,24 +240,20 @@ more accurate the approximation.
 
 
 The only prerequisite in order to be able to employ this fast method is to
-provide a `frequencies` vector as a `Range` object, which ensures that the
-frequency grid is perfectly evenly spaced. This is the default, since
-`LombScargle.autofrequency` returns a `Range` object.
+provide a `frequencies` vector as an `AbstractRange` object, which ensures that
+the frequency grid is perfectly evenly spaced. This is the default, since
+`LombScargle.autofrequency` returns an `AbstractRange` object.
 
 !!! tip
 
-    In Julia, a `Range` object can be constructed for example with the
-    [linspace](http://docs.julialang.org/en/stable/stdlib/arrays/#Base.linspace)
-    function (you specify the start and the end of the range, and optionally the
-    length of the vector) or with the syntax
-    [start:stop](http://docs.julialang.org/en/stable/stdlib/math/#Base.:) (you
-    specify the start and the end of the range, and optionally the linear step; a
-    related function is
-    [colon](http://docs.julialang.org/en/stable/stdlib/math/#Base.colon)).
-    Somewhere in the middle is the
-    [range](http://docs.julialang.org/en/stable/stdlib/math/#Base.range) function:
-    you specify the start of the range and the length of the vector, and optionally
-    the linear step.
+
+    In Julia, an `AbstractRange` object can be constructed for example with the
+    [`range`](https://docs.julialang.org/en/latest/base/math/#Base.range) function
+    (you specify the start of the range, and optionally the stop, the length and the
+    step of the vector) or with the syntax
+    [`start:[step:]stop`](https://docs.julialang.org/en/latest/base/math/#Base.::)
+    (you specify the start and the end of the range, and optionally the linear
+    step).
 
 Since this fast method is accurate only for large datasets, it is enabled by
 default only if the number of output frequencies is larger than 200. You can
@@ -265,15 +261,16 @@ override the default choice of using this method by setting the `fast` keyword
 to `true` or `false`. We recall that in any case, the `frequencies` vector must
 be a `Range` in order to use this method.
 
-To summarize, provided that `frequencies` vector is a `Range` object, you can
-use the fast method:
+To summarize, provided that `frequencies` vector is an `AbstractRange` object,
+you can use the fast method:
 
 - by default if the length of the output frequency grid is larger than
   200 points
 - in any case with the `fast=true` keyword
 
 Setting `fast=false` always ensures you that this method will not be used,
-instead `fast=true` actually enables it only if `frequencies` is a `Range`.
+instead `fast=true` actually enables it only if `frequencies` is an
+`AbstractRange`.
 
 ### Normalization
 
@@ -587,7 +584,7 @@ julia> using LombScargle
 julia> ntimes = 1001
 1001
 
-julia> t = linspace(0.01, 10pi, ntimes) # Observation times
+julia> t = range(0.01, stop = 10pi, length = ntimes) # Observation times
 0.01:0.03140592653589793:31.41592653589793
 
 julia> t += step(t)*rand(ntimes) # Randomize times
@@ -670,7 +667,7 @@ type `Measurement` (from
 ```julia
 using Measurements, Plots
 ntimes = 1001
-t = linspace(0.01, 10pi, ntimes)
+t = range(0.01, stop = 10pi, length = ntimes)
 s = sinpi.(2t)
 errors = rand(0.1:1e-3:4.0, ntimes)
 # Run one of the two following equivalent commands
@@ -700,7 +697,7 @@ provided, instead it is always used if the signal has uncertainties.
 in the periodogram (and you can get the period by taking its inverse):
 
 ```jldoctest
-julia> t = linspace(0, 10, 1001);
+julia> t = range(0, stop = 10, length = 1001);
 
 julia> s = sinpi.(t);
 
@@ -710,7 +707,7 @@ julia> p = lombscargle(plan);
 
 julia> findmaxperiod(p) # Period with highest power
 1-element Array{Float64,1}:
- 0.00498778
+ 0.004987779939149084
 
 julia> findmaxfreq(p) # Frequency with the highest power
 1-element Array{Float64,1}:
@@ -861,11 +858,11 @@ frequency fits well your data.
 
 ```julia
 using Plots
-t = linspace(0.01, 10pi, 1000) # Observation times
+t = range(0.01, stop = 10pi, length = 1000) # Observation times
 s = sinpi.(t) .+ 1.2cospi.(t) .+ 0.3rand(length(t)) # The noisy signal
 # Pick-up the best frequency
 f = findmaxfreq(lombscargle(t, s, maximum_frequency=10, samples_per_peak=20))[1]
-t_fit = linspace(0, 1)
+t_fit = range(0, stop = 1, length = 50)
 s_fit = LombScargle.model(t, s, f, t_fit/f) # Determine the model
 scatter(mod.(t.*f, 1), s, lab="Phased data", title="Best Lomb-Scargle frequency: $f")
 plot!(t_fit, s_fit, lab="Best-fitting model", linewidth=4)
@@ -880,7 +877,7 @@ plot!(t_fit, s_fit, lab="Best-fitting model", linewidth=4)
 
     ```julia
     using Plots
-    t = linspace(0.01, 5, 1000) # Observation times
+    t = range(0.01, stop = 5, length = 1000) # Observation times
     s = sinpi.(2t) .+ 1.2cospi.(4t) .+ 0.3rand(length(t)) # Noisy signal
     plan = LombScargle.plan(t, s, samples_per_peak=50)
     p = lombscargle(plan)

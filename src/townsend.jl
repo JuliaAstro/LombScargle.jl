@@ -44,7 +44,7 @@ function _lombscargle_orig!(P::AbstractVector{T}, times::AbstractVector{<:Real},
             CS  += C*S
         end
         SS       = N - CC
-        s_τ, c_τ = sincos(atan2(CS, CC - N / 2) / 2)
+        s_τ, c_τ = sincos(atan(CS, CC - N / 2) / 2)
         c_τ2     = c_τ*c_τ
         s_τ2     = s_τ*s_τ
         cs_τ_CS  = 2c_τ*s_τ*CS
