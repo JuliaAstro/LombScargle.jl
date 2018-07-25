@@ -85,36 +85,23 @@ Compute the Lomb–Scargle periodogram of the `signal` vector, observed at
 `times`.  You can also specify the uncertainties for each signal point with
 `errors` argument.  All these vectors must have the same length.
 
-All optional keywords are described in the docstring of `LombScargle.plan`.
+All optional keywords are described in the docstring of
+[`LombScargle.plan`](@ref).
 
 If the signal has uncertainties, the `signal` vector can also be a vector of
 `Measurement` objects (from
 [`Measurements.jl`](https://github.com/giordano/Measurements.jl) package), in
 which case you don’t need to pass a separate `errors` vector for the
-uncertainties of the signal.  See `Measurements.jl` manual at
-http://measurementsjl.readthedocs.io/ for details on how to create a vector of
-`Measurement` objects.
-
-The algorithm used here are reported in the following papers:
-
-* Press, W. H., Rybicki, G. B. 1989, ApJ, 338, 277 (URL:
-  http://dx.doi.org/10.1086/167197, Bibcode:
-  http://adsabs.harvard.edu/abs/1989ApJ...338..277P)
-* Townsend, R. H. D. 2010, ApJS, 191, 247 (URL:
-  http://dx.doi.org/10.1088/0067-0049/191/2/247,
-  Bibcode: http://adsabs.harvard.edu/abs/2010ApJS..191..247T)
-* Zechmeister, M., Kürster, M. 2009, A&A, 496, 577  (URL:
-  http://dx.doi.org/10.1051/0004-6361:200811296,
-  Bibcode: http://adsabs.harvard.edu/abs/2009A%26A...496..577Z)
+uncertainties of the signal.
 """
 lombscargle(::AbstractVector{<:Real}, rest...)
 
 """
     lombscargle(plan::PeriodogramPlan)
 
-Compute the Lomb–Scargle periodogram for the given `plan`.  This method has no other
-argument.  See documentation of `LombScargle.plan` for how to plan a Lomb–Scargle
-periodogram.
+Compute the Lomb–Scargle periodogram for the given `plan`.  This method has no
+other arguments.  See documentation of [`LombScargle.plan`](@ref) for how to
+plan a Lomb–Scargle periodogram.
 """
 lombscargle(::PeriodogramPlan)
 

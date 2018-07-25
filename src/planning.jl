@@ -214,36 +214,12 @@ ignored):
 * `Mfft`: the number of adjacent points to use in the FFT approximation.
 
 In addition, you can use all optional keyword arguments of
-`LombScargle.autofrequency` function in order to tune the `frequencies` vector
-without calling the function:
-
-* `samples_per_peak`: the approximate number of desired samples across the
-  typical peak
-* `nyquist_factor`: the multiple of the average Nyquist frequency used to choose
-  the maximum frequency if `maximum_frequency` is not provided
-* `minimum_frequency`: if specified, then use this minimum frequency rather than
-  one chosen based on the size of the baseline
-* `maximum_frequency`: if specified, then use this maximum frequency rather than
-  one chosen based on the average Nyquist frequency
+[`LombScargle.autofrequency`](@ref) function in order to tune the `frequencies`.
 
 If the signal has uncertainties, the `signal` vector can also be a vector of
 `Measurement` objects (from
 [`Measurements.jl`](https://github.com/giordano/Measurements.jl) package), in
 which case you don’t need to pass a separate `errors` vector for the
-uncertainties of the signal.  See `Measurements.jl` manual at
-http://measurementsjl.readthedocs.io/ for details on how to create a vector of
-`Measurement` objects.
-
-The algorithm used here are reported in the following papers:
-
-* Press, W. H., Rybicki, G. B. 1989, ApJ, 338, 277 (URL:
-  http://dx.doi.org/10.1086/167197, Bibcode:
-  http://adsabs.harvard.edu/abs/1989ApJ...338..277P)
-* Townsend, R. H. D. 2010, ApJS, 191, 247 (URL:
-  http://dx.doi.org/10.1088/0067-0049/191/2/247,
-  Bibcode: http://adsabs.harvard.edu/abs/2010ApJS..191..247T)
-* Zechmeister, M., Kürster, M. 2009, A&A, 496, 577  (URL:
-  http://dx.doi.org/10.1051/0004-6361:200811296,
-  Bibcode: http://adsabs.harvard.edu/abs/2009A%26A...496..577Z)
+uncertainties of the signal.
 """
 plan

@@ -128,7 +128,7 @@ Optional keyword arguments are:
   one chosen based on the average Nyquist frequency
 
 This is based on prescription given at
-https://jakevdp.github.io/blog/2015/06/13/lomb-scargle-in-python/ and uses the
+<https://jakevdp.github.io/blog/2015/06/13/lomb-scargle-in-python/> and uses the
 same keywords names adopted in Astropy.
 """
 function autofrequency(times::AbstractVector{<:Real};
@@ -193,7 +193,7 @@ function probinv(P::Periodogram, prob::Real)
 end
 
 """
-    M(P::Periodogram)
+    LombScargle.M(P::Periodogram)
 
 Estimates the number of independent frequencies in the periodogram `P`.
 """
