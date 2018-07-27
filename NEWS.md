@@ -1,6 +1,12 @@
 History of LombScargle.jl
 =========================
 
+v0.3.1 (2018-07-28)
+-------------------
+
+* Minor performance improvements
+* New documentation at https://giordano.github.io/LombScargle.jl/latest/
+
 v0.3.0 (2017-04-29)
 -------------------
 
