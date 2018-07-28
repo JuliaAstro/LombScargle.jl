@@ -34,7 +34,7 @@ bootstrap(N::Integer, t::AbstractVector{<:Real}, rest...; kwargs...) =
 
 Create `N` bootstrap samples, perform the Lomb–Scargle analysis on them, and
 store all the highest peaks for each one in a `LombScargle.Bootstrap` object.
-All the arguments after `N` are passed around to `lombscargle`, which see.
+All the arguments after `N` are passed around to [`lombscargle`](@ref).
 """
 bootstrap(::Integer, ::AbstractVector{<:Real})
 
@@ -44,7 +44,7 @@ bootstrap(::Integer, ::AbstractVector{<:Real})
 Create `N` bootstrap samples, perform the Lomb–Scargle analysis on them for the given
 `plan`, and store all the highest peaks for each one in a `LombScargle.Bootstrap` object.
 
-See documentation of `LombScargle.plan` for how to plan a Lomb–Scargle periodogram.
+See documentation of [`LombScargle.plan`](@ref) for how to plan a Lomb–Scargle periodogram.
 """
 bootstrap(::Integer, ::PeriodogramPlan)
 
@@ -53,7 +53,7 @@ bootstrap(::Integer, ::PeriodogramPlan)
 
 Return the false-alarm probability for `power` in the bootstrap sample `b`.
 
-Its inverse is the `fapinv` function.
+Its inverse is the [`fapinv`](@ref) function.
 """
 fap(b::Bootstrap{<:AbstractFloat}, power::Real) =
     length(find(x -> x >= power, b.p))/length(b.p)
@@ -69,7 +69,7 @@ determined with the bootstrap sample `b`.  In this case, you should enlarge your
 bootstrap sample so that `N*fap` can be rounded to an integer larger than or
 equal to 1.
 
-This is the inverse of `fap` function.
+This is the inverse of [`fap`](@ref) function.
 """
 fapinv(b::Bootstrap{<:AbstractFloat}, prob::Real) =
     get(b.p, round(Int, length(b.p)*prob), NaN)

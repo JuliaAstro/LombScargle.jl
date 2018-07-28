@@ -211,8 +211,8 @@ actual computation of the periodogram (completely type-stable) makes overall
 computation faster than directly calling [`lombscargle`](@ref). Secondly, the
 `LombScargle.PeriodogramPlan` bears the time vector, but the quantities that are
 pre-computed in planning stage do not actually depend on it. This is
-particularly useful if you want to calculate the false-alarm probability via
-bootstrapping with [`LombScargle.bootstrap`](@ref) function: the vector time is
+particularly useful if you want to calculate the [False-Alarm Probability](@ref)
+via bootstrapping with [`LombScargle.bootstrap`](@ref): the vector time is
 randomly shuffled, but pre-computed quantities will remain the same, saving both
 time and memory in each iteration. In addition, you ensure that you will use the
 same options you used to compute the periodogram.
@@ -346,31 +346,36 @@ of observations.
 
 ### Access Frequency Grid and Power Spectrum of the Periodogram
 
+[`lombscargle`](@ref) returns a `LombScargle.Periodogram` object, but you most
+probably want to use the frequency grid and the power spectrum. You can access
+these vectors with `freq` and `power` functions, just like in `DSP.jl`
+package. If you want to get the 2-tuple `(freq(p), power(p))` use the
+`freqpower` function.
+
 ```@docs
 power
 freq
 freqpower
 ```
 
-[`lombscargle`](@ref) function returns a `LombScargle.Periodogram` object, but
-you most probably want to use the frequency grid and the power spectrum. You can
-access these vectors with `freq` and `power` functions, just like in `DSP.jl`
-package. If you want to get the 2-tuple `(freq(p), power(p))` use the
-`freqpower` function.
+### Access Period Grid
 
-### Access Periods and their and Power in the Periodogram
+The following utilities are the analogs of [`freq`](@ref) and
+[`freqpower`](@ref), but relative to the periods instead of the
+frequencies. Thus `period(p)` returns the vector of periods in the periodogram,
+that is `1./freq(p)`, and `periodpower(p)` gives you the 2-tuple `(period(p),
+power(p))`.
 
 ```@docs
 period
 periodpower
 ```
 
-These utilities are the analogs of [`freq`](@ref) and [`freqpower`](@ref), but
-relative to the periods instead of the frequencies. Thus `period(p)` returns the
-vector of periods in the periodogram, that is `1./freq(p)`, and `periodpower(p)`
-gives you the 2-tuple `(period(p), power(p))`.
-
 ### `findmaxpower`, `findmaxfreq`, and `findmaxperiod` Functions
+
+Once you compute the periodogram, you usually want to know which are the
+frequencies or periods with highest power. To do this, you can use the
+[`findmaxfreq`](@ref) and [`findmaxperiod`](@ref) functions.
 
 ```@docs
 findmaxpower
@@ -378,27 +383,7 @@ findmaxfreq
 findmaxperiod
 ```
 
-Once you compute the periodogram, you usually want to know which are the
-frequencies or periods with highest power. To do this, you can use the
-[`findmaxfreq`](@ref) and [`findmaxperiod`](@ref) functions.  They return the
-vector of frequencies and periods, respectively, with the highest power in the
-periodogram `p`. If a scalar real argument `threshold` is provided, return the
-frequencies with power larger than or equal to `threshold`. If you want to limit
-the search to a narrower frequency or period range, pass as second argument a
-vector with the extrema of the interval.
-
-The value of the highest power of a periodogram can be calculated with the
-[`findmaxpower`](@ref) function.
-
 ### False-Alarm Probability
-
-```@docs
-prob(::LombScargle.Periodogram, ::Real)
-probinv(::LombScargle.Periodogram, ::Real)
-LombScargle.M
-fap(::LombScargle.Periodogram, ::Real)
-fapinv(::LombScargle.Periodogram, ::Real)
-```
 
 Noise in the data produce fluctuations in the periodogram that will present
 several local peaks, but not all of them related to real periodicities. The
@@ -419,6 +404,14 @@ exceed the value ``p_{0}`` can be calculated with the [`prob`](@ref) function,
 whose first argument is the periodogram and the second one is the ``p_{0}``
 value. The function [`probinv`](@ref) is its inverse: it takes the probability
 as second argument and returns the corresponding ``p_{0}`` value.
+
+```@docs
+prob(::LombScargle.Periodogram, ::Real)
+probinv(::LombScargle.Periodogram, ::Real)
+LombScargle.M
+fap(::LombScargle.Periodogram, ::Real)
+fapinv(::LombScargle.Periodogram, ::Real)
+```
 
 Here are the probability functions for each normalization supported by
 `LombScargle.jl`:
@@ -479,19 +472,12 @@ larger than ``p_{0}`` indicates that a signal is likely present (see [CUM04]).
     is not completely reliable. A different approach to calculate the false-alarm
     probability is to perform Monte Carlo or bootstrap simulations in order to
     determine how often a certain power level ``p_{0}`` is exceeded just by chance
-    (see [CMB99], [CUM04], and [ZK09]). See next section.
-
+    (see [CMB99], [CUM04], and [ZK09]). See the [Bootstrapping](@ref) section.
 
 #### Bootstrapping
 
-```@docs
-LombScargle.bootstrap
-fap(::LombScargle.Bootstrap{<:AbstractFloat}, ::Real)
-fapinv(::LombScargle.Bootstrap{<:AbstractFloat}, ::Real)
-```
-
-One of the possible and most simple statistical methods that you can use to
-measure the false-alarm probability and its inverse is
+One of the possible and simplest statistical methods that you can use to measure
+the false-alarm probability and its inverse is
 [bootstrapping](https://en.wikipedia.org/wiki/Bootstrapping_%28statistics%29)
 (see section 4.2.2 of [MHC93]).
 
@@ -520,26 +506,23 @@ used to compute the Lomb--Scargle periodogram before.
 
 `LombScargle.jl` provides simple methods to perform such analysis. The
 [`LombScargle.bootstrap`](@ref) function allows you to create a bootstrap sample
-with `N` permutations of the original data. All the arguments after the first
-one are passed around to [`lombscargle`](@ref). The output is a
-`LombScargle.Bootstrap` object.
+with `N` permutations of the original data.
 
-You can also pass to [`LombScargle.bootstrap`](@ref) a pre-computed
-`LombScargle.PeriodogramPlan` as second argument (this method takes no other
-argument nor keyword). In this way you will be sure to use exactly the same
-options you used before for computing the periodogram with the same periodogram
-plan.
+```@docs
+LombScargle.bootstrap
+```
 
 The false-alarm probability and its inverse can be calculated with [`fap`](@ref)
 and [`fapinv`](@ref) functions respectively.  Their syntax is the same as the
 methods introduced above, but with a `LombScargle.Bootstrap` object as first
 argument, instead of the `LombScargle.Periodogram` one.
 
-### `LombScargle.model` Function
-
 ```@docs
-LombScargle.model
+fap(::LombScargle.Bootstrap{<:AbstractFloat}, ::Real)
+fapinv(::LombScargle.Bootstrap{<:AbstractFloat}, ::Real)
 ```
+
+### `LombScargle.model` Function
 
 For each frequency ``f`` (and hence for the corresponding angular frequency
 ``\omega = 2\pi f``) the Lomb--Scargle algorithm looks for the sinusoidal function
@@ -588,32 +571,9 @@ This is what the [`LombScargle.model`](@ref) function does in order to return
 the best fitting Lomb--Scargle model for the given signal at the given
 frequency.
 
-Mandatory arguments are:
-
-- `times`: the observation times
-- `signal`: the signal, sampled at `times` (must have the same length
-  as `times`)
-- `frequency`: the frequency at which to calculate the model
-
-The optional arguments are:
-
-- `errors`: the vector of uncertainties of the signal. If provided, it must have
-  the same length as `signal` and `times`, and be the third argument. Like for
-  [`lombscargle`](@ref), if the signal has uncertainties, the `signal` vector
-  can also be a vector of `Measurement` objects, and this argument should be
-  omitted
-- `times_fit`: the vector of times at which the model will be calculated. It
-  defaults to `times`. If provided, it must come after `frequency`
-
-Optional boolean keywords `center_data` and `fit_mean` have the same meaning as
-in [`lombscargle`](@ref) function:
-
-- `fit_mean`: whether to fit for the mean. If this is `false`, like in the
-  original Lomb--Scargle periodogram, ``\mathbf{A}`` does not have the third
-  column of ones, ``c_f`` is set to ``0`` and the unknown vector to be determined
-  becomes ``x = [a_f, b_f]^\text{T}``
-- `center_data`: whether the data should be pre-centered before solving the
-  linear system. This is particularly important if `fit_mean=false`
+```@docs
+LombScargle.model
+```
 
 Examples
 --------

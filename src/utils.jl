@@ -95,7 +95,7 @@ periodpower(p::Periodogram) = (period(p), power(p))
 """
     findmaxperiod(p::Periodogram, [interval::AbstractVector{Real}], threshold::Real=findmaxpower(p))
 
-Return the array of period with the highest power in the periodogram `p`.  If a
+Return the array of periods with the highest power in the periodogram `p`.  If a
 scalar real argument `threshold` is provided, return the period with power
 larger than or equal to `threshold`.  If you want to limit the search to a
 narrower period range, pass as second argument a vector with the extrema of the
@@ -208,7 +208,7 @@ end
 
 Return the false-alarm probability for periodogram `P` and power value `pow`.
 
-Its inverse is the `fapinv` function.
+Its inverse is the [`fapinv`](@ref) function.
 """
 fap(P::Periodogram, pow::Real) = 1 - (1 - prob(P, pow))^M(P)
 
@@ -218,7 +218,7 @@ fap(P::Periodogram, pow::Real) = 1 - (1 - prob(P, pow))^M(P)
 Return the power value of the periodogram whose false-alarm probability is
 `prob`.
 
-This is the inverse of `fap` function.
+This is the inverse of [`fap`](@ref) function.
 """
 fapinv(P::Periodogram, prob::Real) = probinv(P, 1 - (1 - prob)^(inv(M(P))))
 
@@ -244,12 +244,23 @@ Mandatory arguments are:
 Optional arguments are:
 
 * `errors`: the vector of uncertainties of the signal.  If provided, it must
-  have the same length as `signal` and `times`, and be the third argument
+  have the same length as `signal` and `times`, and be the third argument.  Like
+  for [`lombscargle`](@ref), if the signal has uncertainties, the `signal`
+  vector can also be a vector of `Measurement` objects, and this argument should
+  be omitted
+
 * `times_fit`: the vector of times at which the model will be calculated.  It
   defaults to `times`.  If provided, it must come after `frequency`
 
 Optional keyword arguments `center_data` and `fit_mean` have the same meaning as
-in `lombscargle` function, which see.
+in [`lombscargle`](@ref):
+
+- `fit_mean`: whether to fit for the mean. If this is `false`, like in the
+  original Lomb--Scargle periodogram, ``\\mathbf{A}`` does not have the third
+  column of ones, ``c_f`` is set to ``0`` and the unknown vector to be determined
+  becomes ``x = [a_f, b_f]^\\text{T}``
+- `center_data`: whether the data should be pre-centered before solving the
+  linear system. This is particularly important if `fit_mean=false`
 """
 function model(t::AbstractVector{<:Real}, s::AbstractVector{T},
                errors::AbstractVector{<:Real}, f::Real,

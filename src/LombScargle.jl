@@ -79,7 +79,7 @@ lombscargle(args...; kwargs...) = lombscargle(plan(args...; kwargs...))
 
 """
     lombscargle(times::AbstractVector{<:Real}, signal::AbstractVector{<:Real},
-                errors::AbstractVector{<:Real}=ones(signal); keywords...)
+                [errors::AbstractVector{<:Real}]; keywords...)
 
 Compute the Lomb–Scargle periodogram of the `signal` vector, observed at
 `times`.  You can also specify the uncertainties for each signal point with

@@ -145,7 +145,7 @@ plan(times::AbstractVector{<:Real}, signal::AbstractVector{<:Measurement}; kwarg
 
 """
     LombScargle.plan(times::AbstractVector{<:Real}, signal::AbstractVector{<:Real},
-                     errors::AbstractVector{<:Real}=ones(signal);
+                     [errors::AbstractVector{<:Real}];
                      normalization::Symbol=:standard,
                      noise_level::Real=1,
                      center_data::Bool=true,

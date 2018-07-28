@@ -61,10 +61,9 @@ below.  Here we only give basic information.
 ### Documentation
 
 The complete manual of `LombScargle.jl` is available at
-http://lombscarglejl.readthedocs.io.  It has detailed explanation of all
+https://giordano.github.io/LombScargle.jl/stable/.  It has detailed explanation of all
 functions provided by the package and more examples than what you will find
-here, also with some plots.  You can also download the PDF version of the manual
-from https://media.readthedocs.org/pdf/lombscarglejl/latest/lombscarglejl.pdf.
+here, also with some plots.
 
 Installation
 ------------
@@ -122,7 +121,7 @@ If the signal has uncertainties, the `signal` vector can also be a vector of
 which case you need not to pass a separate `errors` vector for the uncertainties
 of the signal.  You can create arrays of `Measurement` objects with the
 `measurement` function, see `Measurements.jl` manual at
-http://measurementsjl.readthedocs.io/ for more details.
+https://juliaphysics.github.io/Measurements.jl/latest/ for more details.
 
 With the `LombScargle.plan` function you can pre-plan a periodogram and save
 time and memory for the actual computation of the periodogram.  See
@@ -235,10 +234,10 @@ Astropy Team.
 
 
 [docs-latest-img]: https://img.shields.io/badge/docs-latest-blue.svg
-[docs-latest-url]: https://lombscarglejl.readthedocs.io/en/latest/
+[docs-latest-url]: https://giordano.github.io/LombScargle.jl/latest/
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
-[docs-stable-url]: https://lombscarglejl.readthedocs.io/en/stable/
+[docs-stable-url]: https://giordano.github.io/LombScargle.jl/stable/
 
 [pkgeval-link]: http://pkg.julialang.org/?pkg=LombScargle
 
