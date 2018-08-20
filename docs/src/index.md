@@ -10,7 +10,7 @@ end
 Introduction
 ------------
 
-[`LombScargle.jl`](https://github.com/giordano/LombScargle.jl) is a package for
+[`LombScargle.jl`](https://github.com/JuliaAstro/LombScargle.jl) is a package for
 a fast multi-threaded estimation of the [frequency
 spectrum](https://en.wikipedia.org/wiki/Frequency_spectrum) of a periodic signal
 with [the Lomb--Scargle
@@ -155,7 +155,7 @@ All these vectors must have the same length.
 
 If the signal has uncertainties, the `signal` vector can also be a vector of
 `Measurement` objects (from
-[Measurements.jl](https://github.com/giordano/Measurements.jl) package), in
+[Measurements.jl](https://github.com/JuliaPhysics/Measurements.jl) package), in
 which case you need not to pass a separate `errors` vector for the uncertainties
 of the signal. You can create arrays of `Measurement` objects with the
 `measurement` function, see `Measurements.jl` manual at
@@ -909,7 +909,7 @@ single-threaded AstroPy implementation.  (Julia version: 0.7.0-DEV.2309, commit
 7ae9955c93; LombScargle.jl version: 0.3.1; Python version: 3.5.4; Astropy
 version: 2.0.2. CPU: Intel(R) Core(TM) i7-4700MQ.)
 
-![image](../../perf/benchmarks.png)
+![image](perf/benchmarks.png)
 
 Note that this comparison is unfair, as AstroPy doesn't support pre-planning a
 periodogram nor exploiting multi-threading. A non-planned periodogram in single
@@ -918,13 +918,14 @@ thread mode in `LombScargle.jl` is still twice faster than AstroPy.
 Development
 -----------
 
-The package is developed at <https://github.com/giordano/LombScargle.jl>. There
-you can submit bug reports, make suggestions, and propose pull requests.
+The package is developed at
+<https://github.com/JuliaAstro/LombScargle.jl>. There you can submit bug
+reports, make suggestions, and propose pull requests.
 
 ### History
 
 The ChangeLog of the package is available in
-[NEWS.md](https://github.com/giordano/LombScargle.jl/blob/master/NEWS.md) file
+[NEWS.md](https://github.com/JuliaAstro/LombScargle.jl/blob/master/NEWS.md) file
 in top directory.
 
 License
