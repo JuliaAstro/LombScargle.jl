@@ -34,7 +34,7 @@ function extirpolate!(result, x::AbstractVector{<:Real}, y::AbstractVector{NU},
     # an efficient recursive implementation (See Press et al. 1989)
     fill!(result, zero(NU))
     # first take care of the easy cases where x is an integer
-    integers = find(isinteger, x)
+    integers = findall(isinteger, x)
     add_at!(result, mod.(trunc.(Int, x[integers]), N) .+ 1, y[integers])
     deleteat!(x, integers)
     deleteat!(y, integers)
@@ -69,7 +69,7 @@ function trig_sum!(grid, fftgrid, bfft_vec, bfft_plan, t::AbstractVector{<:Real}
     end
     tnorm = mod.(((t .- t0) .* Nfft .* df), Nfft)
     extirpolate!(grid, tnorm, H, Nfft, Mfft)
-    A_mul_B!(bfft_vec, bfft_plan, grid)
+    mul!(bfft_vec, bfft_plan, grid)
     fftgrid .= @view(bfft_vec[1:N])
     if t0 != 0
         fftgrid .*= cis.(t0 .* (f0 .+ df .* (0:(N - 1))) .* 2 .* pi)

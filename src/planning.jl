@@ -18,7 +18,7 @@ function _plan_no_fast(times::AbstractVector{R1}, signal::AbstractVector{R2}, su
                        fit_mean::Bool, noise::Real,
                        normalization::Symbol) where {R1<:Real,R2<:Real,R3<:Real,R4<:Real}
     P_type = promote_type(float(R1), float(R2), float(R3), float(R4))
-    P = Vector{P_type}(length(frequencies))
+    P = Vector{P_type}(undef, length(frequencies))
     if fit_mean || with_errors
         # If "center_data" or "fit_mean" keywords are true,
         # subtract the weighted mean from each point.
@@ -51,7 +51,7 @@ end
 # is a `Range' object (first method) it could be possible to use the fast method, provided
 # that fast == true, otherwise we can only use the non fast methods.
 function _plan(times::AbstractVector{<:Real}, signal::AbstractVector{R1}, sumw::Real,
-               w::AbstractVector{R2}, frequencies::Range{<:Real}, fast::Bool,
+               w::AbstractVector{R2}, frequencies::AbstractRange{<:Real}, fast::Bool,
                with_errors::Bool, center_data::Bool, fit_mean::Bool, flags::Integer,
                timelimit::Real, oversampling::Integer, Mfft::Integer, noise::Real,
                normalization::Symbol) where {R1<:Real,R2<:Real}
@@ -65,20 +65,20 @@ function _plan(times::AbstractVector{<:Real}, signal::AbstractVector{R1}, sumw::
         end
         YY = w ⋅ (y .^ 2)
         N = length(frequencies)
-        Nfft = nextpow2(N * oversampling)
+        Nfft = nextpow(2, N * oversampling)
         T = promote_type(float(R1), float(R2))
-        bfft_vect = Vector{Complex{T}}(Nfft)
-        bfft_grid = Vector{Complex{T}}(Nfft)
-        fftgrid   = Vector{Complex{T}}(N)
+        bfft_vect = Vector{Complex{T}}(undef, Nfft)
+        bfft_grid = Vector{Complex{T}}(undef, Nfft)
+        fftgrid   = Vector{Complex{T}}(undef, N)
         bfft_plan = FFTW.plan_bfft(bfft_vect, flags = flags, timelimit = timelimit)
         if fit_mean
             return FastGLSPlan_fit_mean(times, signal, frequencies, sumw, w, y, YY,
                                         fftgrid, bfft_vect, bfft_grid, bfft_plan, Mfft,
-                                        noise, normalization, Vector{T}(N))
+                                        noise, normalization, Vector{T}(undef, N))
         else
             return FastGLSPlan(times, signal, frequencies, sumw, w, y, YY,
                                fftgrid, bfft_vect, bfft_grid, bfft_plan, Mfft,
-                               noise, normalization, Vector{T}(N))
+                               noise, normalization, Vector{T}(undef, N))
         end
     else
         return _plan_no_fast(times, signal, sumw, w, frequencies, with_errors,
@@ -98,7 +98,7 @@ function _plan(times::AbstractVector{<:Real},
                signal::AbstractVector{<:Real},
                with_errors::Bool,
                sumw::Real=length(signal),
-               w::AbstractVector{<:Real}=ones(signal)/sumw;
+               w::AbstractVector{<:Real}=fill!(similar(signal), one(eltype(signal)))/sumw;
                normalization::Symbol=:standard,
                noise_level::Real=1,
                center_data::Bool=true,
