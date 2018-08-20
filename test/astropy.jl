@@ -3,7 +3,7 @@
 using LombScargle, Test, PyCall, Random
 PyCall.@pyimport astropy.stats as ast
 
-srand(1)
+Random.seed!(1)
 ntimes = 401
 
 @testset "Un-evenly spaced data" begin
