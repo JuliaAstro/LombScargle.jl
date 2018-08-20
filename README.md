@@ -117,7 +117,7 @@ manual.
 
 If the signal has uncertainties, the `signal` vector can also be a vector of
 `Measurement` objects (from
-[`Measurements.jl`](https://github.com/giordano/Measurements.jl) package), in
+[`Measurements.jl`](https://github.com/JuliaPhysics/Measurements.jl) package), in
 which case you need not to pass a separate `errors` vector for the uncertainties
 of the signal.  You can create arrays of `Measurement` objects with the
 `measurement` function, see `Measurements.jl` manual at
@@ -174,7 +174,7 @@ keyword is `true`) is able to handle a signal with uncertainties, and they will
 be used as weights in the algorithm.  The uncertainties can be passed either as
 the third optional argument `errors` to `lombscargle` or by providing this
 function with a `signal` vector of type `Measurement` (from
-[`Measurements.jl`](https://github.com/giordano/Measurements.jl) package).
+[`Measurements.jl`](https://github.com/JuliaPhysics/Measurements.jl) package).
 
 ```julia
 using Measurements, Plots
@@ -201,7 +201,7 @@ single-threaded Astropy implementation.  (Julia version: 0.7.0-DEV.2309,
 commit 7ae9955c93; `LombScargle.jl` version: 0.3.1; Python version: 3.5.4; Astropy
 version: 2.0.2.  CPU: Intel(R) Core(TM) i7-4700MQ.)
 
-![benchmarks](https://cdn.rawgit.com/giordano/LombScargle.jl/a019e9e79baa0d16ce1dc96954bea60beecf718c/perf/benchmarks.svg)
+![benchmarks](https://cdn.rawgit.com/JuliaAstro/LombScargle.jl/a019e9e79baa0d16ce1dc96954bea60beecf718c/perf/benchmarks.svg)
 
 Note that this comparison is unfair, as Astropy doesn’t support pre-planning a
 periodogram nor exploiting multi-threading.  A non-planned periodogram in single
@@ -210,13 +210,13 @@ thread mode in `LombScargle.jl` is still twice faster than Astropy.
 Development
 -----------
 
-The package is developed at https://github.com/giordano/LombScargle.jl.  There
+The package is developed at https://github.com/JuliaAstro/LombScargle.jl.  There
 you can submit bug reports, make suggestions, and propose pull requests.
 
 ### History
 
 The ChangeLog of the package is available in
-[NEWS.md](https://github.com/giordano/LombScargle.jl/blob/master/NEWS.md) file
+[NEWS.md](https://github.com/JuliaAstro/LombScargle.jl/blob/master/NEWS.md) file
 in top directory.
 
 License
@@ -234,10 +234,10 @@ Astropy Team.
 
 
 [docs-latest-img]: https://img.shields.io/badge/docs-latest-blue.svg
-[docs-latest-url]: https://giordano.github.io/LombScargle.jl/latest/
+[docs-latest-url]: https://juliaastro.github.io/LombScargle.jl/latest/
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
-[docs-stable-url]: https://giordano.github.io/LombScargle.jl/stable/
+[docs-stable-url]: https://juliaastro.github.io/LombScargle.jl/stable/
 
 [pkgeval-link]: http://pkg.julialang.org/?pkg=LombScargle
 
@@ -246,14 +246,14 @@ Astropy Team.
 [pkg-0.6-img]: http://pkg.julialang.org/badges/LombScargle_0.6.svg
 [pkg-0.6-url]: http://pkg.julialang.org/detail/LombScargle.html
 
-[travis-img]: https://travis-ci.org/giordano/LombScargle.jl.svg?branch=master
-[travis-url]: https://travis-ci.org/giordano/LombScargle.jl
+[travis-img]: https://travis-ci.org/JuliaAstro/LombScargle.jl.svg?branch=master
+[travis-url]: https://travis-ci.org/JuliaAstro/LombScargle.jl
 
 [appvey-img]: https://ci.appveyor.com/api/projects/status/vv6mho713fuse6qy/branch/master?svg=true
-[appvey-url]: https://ci.appveyor.com/project/giordano/lombscargle-jl
+[appvey-url]: https://ci.appveyor.com/project/JuliaAstro/lombscargle-jl
 
-[coveral-img]: https://coveralls.io/repos/github/giordano/LombScargle.jl/badge.svg?branch=master
-[coveral-url]: https://coveralls.io/github/giordano/LombScargle.jl?branch=master
+[coveral-img]: https://coveralls.io/repos/github/JuliaAstro/LombScargle.jl/badge.svg?branch=master
+[coveral-url]: https://coveralls.io/github/JuliaAstro/LombScargle.jl?branch=master
 
-[codecov-img]: https://codecov.io/gh/giordano/LombScargle.jl/branch/master/graph/badge.svg
-[codecov-url]: https://codecov.io/gh/giordano/LombScargle.jl
+[codecov-img]: https://codecov.io/gh/JuliaAstro/LombScargle.jl/branch/master/graph/badge.svg
+[codecov-url]: https://codecov.io/gh/JuliaAstro/LombScargle.jl
