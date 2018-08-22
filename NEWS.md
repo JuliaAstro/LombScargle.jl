@@ -1,11 +1,18 @@
 History of LombScargle.jl
 =========================
 
+v0.4.0 (2018-08-23)
+-------------------
+
+### Breaking Changes
+
+* Support for Julia 0.6 was dropped.
+
 v0.3.1 (2018-07-28)
 -------------------
 
 * Minor performance improvements
-* New documentation at https://giordano.github.io/LombScargle.jl/latest/
+* New documentation at https://juliaastro.github.io/LombScargle.jl/stable/
 
 v0.3.0 (2017-04-29)
 -------------------
