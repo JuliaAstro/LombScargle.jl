@@ -1,9 +1,9 @@
 # LombScargle.jl
 
-| **Documentation**                       | [**Package Evaluator**][pkgeval-link] | **Build Status**                          | **Code Coverage**               |
-|:---------------------------------------:|:-------------------------------------:|:-----------------------------------------:|:-------------------------------:|
-| [![][docs-stable-img]][docs-stable-url] | [![][pkg-0.5-img]][pkg-0.5-url]       | [![Build Status][travis-img]][travis-url] | [![][coveral-img]][coveral-url] |
-| [![][docs-latest-img]][docs-latest-url] | [![][pkg-0.6-img]][pkg-0.6-url]       | [![Build Status][appvey-img]][appvey-url] | [![][codecov-img]][codecov-url] |
+| **Documentation**                       | **Build Status**                          | **Code Coverage**               |
+|:---------------------------------------:|:-----------------------------------------:|:-------------------------------:|
+| [![][docs-stable-img]][docs-stable-url] | [![Build Status][travis-img]][travis-url] | [![][coveral-img]][coveral-url] |
+| [![][docs-latest-img]][docs-latest-url] | [![Build Status][appvey-img]][appvey-url] | [![][codecov-img]][codecov-url] |
 
 Introduction
 ------------
@@ -68,18 +68,16 @@ here, also with some plots.
 Installation
 ------------
 
-`LombScargle.jl` is available for Julia 0.7 and later versions, and can be
-installed with
-[Julia built-in package manager](http://docs.julialang.org/en/stable/manual/packages/).
-In a Julia session run the commands
+The latest version of `LombScargle.jl` is available for Julia 1.0 and later
+versions, and can be installed with [Julia built-in package
+manager](https://julialang.github.io/Pkg.jl/stable/).  In a Julia
+session, aftering the package manager mode with `]`, run the command
 
 ```julia
-julia> using Pkg
-julia> Pkg.update()
-julia> Pkg.add("LombScargle")
+pkg> add LombScargle
 ```
 
-Older versions are also available for Julia 0.4-0.6.
+Older versions are also available for Julia 0.4-0.7.
 
 Usage
 -----
@@ -239,13 +237,6 @@ Astropy Team.
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
 [docs-stable-url]: https://juliaastro.github.io/LombScargle.jl/stable/
-
-[pkgeval-link]: http://pkg.julialang.org/?pkg=LombScargle
-
-[pkg-0.5-img]: http://pkg.julialang.org/badges/LombScargle_0.5.svg
-[pkg-0.5-url]: http://pkg.julialang.org/detail/LombScargle.html
-[pkg-0.6-img]: http://pkg.julialang.org/badges/LombScargle_0.6.svg
-[pkg-0.6-url]: http://pkg.julialang.org/detail/LombScargle.html
 
 [travis-img]: https://travis-ci.org/JuliaAstro/LombScargle.jl.svg?branch=master
 [travis-url]: https://travis-ci.org/JuliaAstro/LombScargle.jl

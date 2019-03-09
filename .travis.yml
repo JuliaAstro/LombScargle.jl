@@ -4,8 +4,8 @@ os:
   - linux
   - osx
 julia:
-  - 0.7
   - 1.0
+  - 1.1
   - nightly
 git:
   depth: 999999
@@ -16,6 +16,17 @@ script:
  - julia -e 'using Pkg; Pkg.clone(pwd()); Pkg.build("LombScargle"); Pkg.test("LombScargle"; coverage=true)'
  - JULIA_NUM_THREADS=4 julia -e 'using Pkg; Pkg.test("LombScargle")'
  - julia -e 'using Pkg; cd(Pkg.dir("LombScargle")); Pkg.add("PyCall"); Pkg.add("Conda"); using Conda; Conda.add("astropy"); include(joinpath("test", "astropy.jl"))'
+
 after_success:
- - julia -e 'using Pkg; cd(Pkg.dir("LombScargle")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder()); Codecov.submit(process_folder())'
- - julia -e 'using Pkg; cd(Pkg.dir("LombScargle")); Pkg.add("Documenter"); include(joinpath("docs", "make.jl"))'
+ - julia -e 'import Pkg; Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder()); Codecov.submit(process_folder())'
+
+jobs:
+  include:
+    - stage: "Documentation"
+      julia: 1.0
+      os: linux
+      script:
+        - julia --project=docs/ -e 'using Pkg; Pkg.instantiate();
+                                    Pkg.develop(PackageSpec(path=pwd()))'
+        - julia --project=docs/ docs/make.jl
+      after_success: skip
