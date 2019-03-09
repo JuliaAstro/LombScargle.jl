@@ -23,9 +23,9 @@ ntimes = 401
             f_py, p_py =
                 ast.LombScargle(t, s,
                                 fit_mean = fitmean,
-                                center_data = center)[:autopower](method=fast[2],
-                                                                  normalization=nrm,
-                                                                  maximum_frequency=20)
+                                center_data = center).autopower(method=fast[2],
+                                                                normalization=nrm,
+                                                                maximum_frequency=20)
             @test f_jl ≈ f_py
             @test p_jl ≈ p_py
         end
@@ -51,10 +51,10 @@ errors = rand(0.1:1e-3:4.0, ntimes)
             f_py, p_py =
                 ast.LombScargle(t, s, dy = err,
                                 fit_mean = fitmean,
-                                center_data = center)[:autopower](method=fast[2],
-                                                                  normalization=nrm,
-                                                                  maximum_frequency=10,
-                                                                  samples_per_peak=10)
+                                center_data = center).autopower(method=fast[2],
+                                                                normalization=nrm,
+                                                                maximum_frequency=10,
+                                                                samples_per_peak=10)
             @test f_jl ≈ f_py
             @test p_jl ≈ p_py
         end
@@ -76,9 +76,9 @@ end
             f_py, p_py =
                 ast.LombScargle(t, s, dy = errors,
                                 fit_mean = fitmean,
-                                center_data = center)[:autopower](method=fast[2],
-                                                                  normalization = nrm,
-                                                                  maximum_frequency=20)
+                                center_data = center).autopower(method=fast[2],
+                                                                normalization = nrm,
+                                                                maximum_frequency=20)
             @test f_jl ≈ f_py
             @test p_jl ≈ p_py
         end
@@ -90,7 +90,7 @@ end
         s = f.(t)
         @testset "$fm, $cd" for fm in (true, false), cd in (true, false)
             m_jl = LombScargle.model(t, s, 1/2pi, fit_mean=fm, center_data=cd)
-            m_py = ast.LombScargle(t, s, center_data=cd, fit_mean=fm)[:model](t, 1/2pi)
+            m_py = ast.LombScargle(t, s, center_data=cd, fit_mean=fm).model(t, 1/2pi)
             @test m_jl ≈ m_py
         end
     end
