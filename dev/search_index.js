@@ -1,7 +1,7 @@
 var documenterSearchIndex = {"docs": [
 
 {
-    "location": "index.html#",
+    "location": "#",
     "page": "LombScargle.jl",
     "title": "LombScargle.jl",
     "category": "page",
@@ -9,7 +9,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#LombScargle.jl-1",
+    "location": "#LombScargle.jl-1",
     "page": "LombScargle.jl",
     "title": "LombScargle.jl",
     "category": "section",
@@ -17,7 +17,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#Introduction-1",
+    "location": "#Introduction-1",
     "page": "LombScargle.jl",
     "title": "Introduction",
     "category": "section",
@@ -25,23 +25,23 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#Installation-1",
+    "location": "#Installation-1",
     "page": "LombScargle.jl",
     "title": "Installation",
     "category": "section",
-    "text": "LombScargle.jl is available for Julia 0.6 and later versions, and can be installed with Julia built-in package manager. In a Julia session run the commandsjulia> Pkg.update()\njulia> Pkg.add(\"LombScargle\")Older versions are also available for Julia 0.4 and 0.5."
+    "text": "LombScargle.jl is available for Julia 0.7 and later versions, and can be installed with Julia built-in package manager. In a Julia session run the commandsjulia> using Pkg\njulia> Pkg.update()\njulia> Pkg.add(\"LombScargle\")Older versions are also available for Julia 0.4-0.6."
 },
 
 {
-    "location": "index.html#LombScargle.lombscargle-Tuple{AbstractArray{#s6,1} where #s6<:Real,Vararg{Any,N} where N}",
+    "location": "#LombScargle.lombscargle-Tuple{AbstractArray{#s1,1} where #s1<:Real,Vararg{Any,N} where N}",
     "page": "LombScargle.jl",
     "title": "LombScargle.lombscargle",
     "category": "method",
-    "text": "lombscargle(times::AbstractVector{<:Real}, signal::AbstractVector{<:Real},\n            [errors::AbstractVector{<:Real}]; keywords...)\n\nCompute the Lomb–Scargle periodogram of the signal vector, observed at times.  You can also specify the uncertainties for each signal point with errors argument.  All these vectors must have the same length.\n\nAll optional keywords are described in the docstring of LombScargle.plan.\n\nIf the signal has uncertainties, the signal vector can also be a vector of Measurement objects (from Measurements.jl package), in which case you don’t need to pass a separate errors vector for the uncertainties of the signal.\n\n\n\n"
+    "text": "lombscargle(times::AbstractVector{<:Real}, signal::AbstractVector{<:Real},\n            [errors::AbstractVector{<:Real}]; keywords...)\n\nCompute the Lomb–Scargle periodogram of the signal vector, observed at times.  You can also specify the uncertainties for each signal point with errors argument.  All these vectors must have the same length.\n\nAll optional keywords are described in the docstring of LombScargle.plan.\n\nIf the signal has uncertainties, the signal vector can also be a vector of Measurement objects (from Measurements.jl package), in which case you don’t need to pass a separate errors vector for the uncertainties of the signal.\n\n\n\n\n\n"
 },
 
 {
-    "location": "index.html#Usage-1",
+    "location": "#Usage-1",
     "page": "LombScargle.jl",
     "title": "Usage",
     "category": "section",
@@ -49,31 +49,31 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#LombScargle.plan",
+    "location": "#LombScargle.plan",
     "page": "LombScargle.jl",
     "title": "LombScargle.plan",
     "category": "function",
-    "text": "LombScargle.plan(times::AbstractVector{<:Real}, signal::AbstractVector{<:Real},\n                 [errors::AbstractVector{<:Real}];\n                 normalization::Symbol=:standard,\n                 noise_level::Real=1,\n                 center_data::Bool=true,\n                 fit_mean::Bool=true,\n                 fast::Bool=true,\n                 flags::Integer=FFTW.ESTIMATE,\n                 timelimit::Real=Inf,\n                 oversampling::Integer=5,\n                 Mfft::Integer=4,\n                 samples_per_peak::Integer=5,\n                 nyquist_factor::Integer=5,\n                 minimum_frequency::Real=NaN,\n                 maximum_frequency::Real=NaN,\n                 frequencies::AbstractVector{Real}=\n                 autofrequency(times,\n                               samples_per_peak=samples_per_peak,\n                               nyquist_factor=nyquist_factor,\n                               minimum_frequency=minimum_frequency,\n                               maximum_frequency=maximum_frequency))\n\nPre-plan the Lomb–Scargle periodogram of the signal vector, observed at times.  The periodogram can then be computed by passing the result of this function to lombscargle.\n\nYou can also specify the uncertainties for each signal point with errors argument.  All these vectors must have the same length.\n\nOptional keywords arguments are:\n\nnormalization: how to normalize the periodogram.  Valid choices are: :standard, :model, :log, :psd, :Scargle, :HorneBaliunas, :Cumming\nnoise_level: the noise level used to normalize the periodogram when normalization is set to :Scargle\nfit_mean: if true, fit for the mean of the signal using the Generalised Lomb–Scargle algorithm (see Zechmeister & Kürster paper below).  If this is false and no uncertainty on the signal is provided, the original algorithm by Lomb and Scargle will be employed (see Townsend paper below)\ncenter_data: if true, subtract the weighted mean of signal from signal itself before performing the periodogram.  This is especially important if fit_mean is false\nfrequencies: the frequecy grid (not angular frequencies) at which the periodogram will be computed, as a vector.  If not provided, it is an evenly spaced grid of type Range, automatically determined with LombScargle.autofrequency function, which see.  See below for other available keywords that can be used to affect the frequency grid without directly setting frequencies\n\nYou can explicitely require to use or not the fast method by Press & Rybicki, overriding the default choice, by setting the fast keyword.  In any case, frequencies must be a Range object (this is the default) in order to actually use this method.  A few other keywords are available to adjust the settings of the periodogram when the fast method is used (otherwise they are ignored):\n\nfast: whether to use the fast method.\nflags: this integer keyword is a bitwise-or of FFTW planner flags, defaulting to FFTW.ESTIMATE.  Passing FFTW.MEASURE or FFTW.PATIENT will instead spend several seconds (or more) benchmarking different possible FFT algorithms and picking the fastest one; see the FFTW manual for more information on planner flags.\ntimelimit: specifies a rough upper bound on the allowed planning time, in seconds.\noversampling: oversampling the frequency factor for the approximation; roughly the number of time samples across the highest-frequency sinusoid. This parameter contains the tradeoff between accuracy and speed.\nMfft: the number of adjacent points to use in the FFT approximation.\n\nIn addition, you can use all optional keyword arguments of LombScargle.autofrequency function in order to tune the frequencies.\n\nIf the signal has uncertainties, the signal vector can also be a vector of Measurement objects (from Measurements.jl package), in which case you don’t need to pass a separate errors vector for the uncertainties of the signal.\n\n\n\n"
+    "text": "LombScargle.plan(times::AbstractVector{<:Real}, signal::AbstractVector{<:Real},\n                 [errors::AbstractVector{<:Real}];\n                 normalization::Symbol=:standard,\n                 noise_level::Real=1,\n                 center_data::Bool=true,\n                 fit_mean::Bool=true,\n                 fast::Bool=true,\n                 flags::Integer=FFTW.ESTIMATE,\n                 timelimit::Real=Inf,\n                 oversampling::Integer=5,\n                 Mfft::Integer=4,\n                 samples_per_peak::Integer=5,\n                 nyquist_factor::Integer=5,\n                 minimum_frequency::Real=NaN,\n                 maximum_frequency::Real=NaN,\n                 frequencies::AbstractVector{Real}=\n                 autofrequency(times,\n                               samples_per_peak=samples_per_peak,\n                               nyquist_factor=nyquist_factor,\n                               minimum_frequency=minimum_frequency,\n                               maximum_frequency=maximum_frequency))\n\nPre-plan the Lomb–Scargle periodogram of the signal vector, observed at times.  The periodogram can then be computed by passing the result of this function to lombscargle.\n\nYou can also specify the uncertainties for each signal point with errors argument.  All these vectors must have the same length.\n\nOptional keywords arguments are:\n\nnormalization: how to normalize the periodogram.  Valid choices are: :standard, :model, :log, :psd, :Scargle, :HorneBaliunas, :Cumming\nnoise_level: the noise level used to normalize the periodogram when normalization is set to :Scargle\nfit_mean: if true, fit for the mean of the signal using the Generalised Lomb–Scargle algorithm (see Zechmeister & Kürster paper below).  If this is false and no uncertainty on the signal is provided, the original algorithm by Lomb and Scargle will be employed (see Townsend paper below)\ncenter_data: if true, subtract the weighted mean of signal from signal itself before performing the periodogram.  This is especially important if fit_mean is false\nfrequencies: the frequecy grid (not angular frequencies) at which the periodogram will be computed, as a vector.  If not provided, it is an evenly spaced grid of type Range, automatically determined with LombScargle.autofrequency function, which see.  See below for other available keywords that can be used to affect the frequency grid without directly setting frequencies\n\nYou can explicitely require to use or not the fast method by Press & Rybicki, overriding the default choice, by setting the fast keyword.  In any case, frequencies must be a Range object (this is the default) in order to actually use this method.  A few other keywords are available to adjust the settings of the periodogram when the fast method is used (otherwise they are ignored):\n\nfast: whether to use the fast method.\nflags: this integer keyword is a bitwise-or of FFTW planner flags, defaulting to FFTW.ESTIMATE.  Passing FFTW.MEASURE or FFTW.PATIENT will instead spend several seconds (or more) benchmarking different possible FFT algorithms and picking the fastest one; see the FFTW manual for more information on planner flags.\ntimelimit: specifies a rough upper bound on the allowed planning time, in seconds.\noversampling: oversampling the frequency factor for the approximation; roughly the number of time samples across the highest-frequency sinusoid. This parameter contains the tradeoff between accuracy and speed.\nMfft: the number of adjacent points to use in the FFT approximation.\n\nIn addition, you can use all optional keyword arguments of LombScargle.autofrequency function in order to tune the frequencies.\n\nIf the signal has uncertainties, the signal vector can also be a vector of Measurement objects (from Measurements.jl package), in which case you don’t need to pass a separate errors vector for the uncertainties of the signal.\n\n\n\n\n\n"
 },
 
 {
-    "location": "index.html#LombScargle.autofrequency",
+    "location": "#LombScargle.autofrequency",
     "page": "LombScargle.jl",
     "title": "LombScargle.autofrequency",
     "category": "function",
-    "text": "autofrequency(times::AbstractVector{Real};\n              samples_per_peak::Integer=5,\n              nyquist_factor::Integer=5,\n              minimum_frequency::Real=NaN,\n              maximum_frequency::Real=NaN)\n\nDetermine a suitable frequency grid for the given vector of times.\n\nOptional keyword arguments are:\n\nsamples_per_peak: the approximate number of desired samples across the typical peak\nnyquist_factor: the multiple of the average Nyquist frequency used to choose the maximum frequency if maximum_frequency is not provided\nminimum_frequency: if specified, then use this minimum frequency rather than one chosen based on the size of the baseline\nmaximum_frequency: if specified, then use this maximum frequency rather than one chosen based on the average Nyquist frequency\n\nThis is based on prescription given at https://jakevdp.github.io/blog/2015/06/13/lomb-scargle-in-python/ and uses the same keywords names adopted in Astropy.\n\n\n\n"
+    "text": "autofrequency(times::AbstractVector{Real};\n              samples_per_peak::Integer=5,\n              nyquist_factor::Integer=5,\n              minimum_frequency::Real=NaN,\n              maximum_frequency::Real=NaN)\n\nDetermine a suitable frequency grid for the given vector of times.\n\nOptional keyword arguments are:\n\nsamples_per_peak: the approximate number of desired samples across the typical peak\nnyquist_factor: the multiple of the average Nyquist frequency used to choose the maximum frequency if maximum_frequency is not provided\nminimum_frequency: if specified, then use this minimum frequency rather than one chosen based on the size of the baseline\nmaximum_frequency: if specified, then use this maximum frequency rather than one chosen based on the average Nyquist frequency\n\nThis is based on prescription given at https://jakevdp.github.io/blog/2015/06/13/lomb-scargle-in-python/ and uses the same keywords names adopted in Astropy.\n\n\n\n\n\n"
 },
 
 {
-    "location": "index.html#LombScargle.lombscargle-Tuple{LombScargle.PeriodogramPlan}",
+    "location": "#LombScargle.lombscargle-Tuple{LombScargle.PeriodogramPlan}",
     "page": "LombScargle.jl",
     "title": "LombScargle.lombscargle",
     "category": "method",
-    "text": "lombscargle(plan::PeriodogramPlan)\n\nCompute the Lomb–Scargle periodogram for the given plan.  This method has no other arguments.  See documentation of LombScargle.plan for how to plan a Lomb–Scargle periodogram.\n\n\n\n"
+    "text": "lombscargle(plan::PeriodogramPlan)\n\nCompute the Lomb–Scargle periodogram for the given plan.  This method has no other arguments.  See documentation of LombScargle.plan for how to plan a Lomb–Scargle periodogram.\n\n\n\n\n\n"
 },
 
 {
-    "location": "index.html#Planning-the-Periodogram-1",
+    "location": "#Planning-the-Periodogram-1",
     "page": "LombScargle.jl",
     "title": "Planning the Periodogram",
     "category": "section",
@@ -81,15 +81,15 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#Fast-Algorithm-1",
+    "location": "#Fast-Algorithm-1",
     "page": "LombScargle.jl",
     "title": "Fast Algorithm",
     "category": "section",
-    "text": "When the frequency grid is evenly spaced, you can compute an approximate generalised Lomb–Scargle periodogram using a fast algorithm proposed by [PR89] that greatly speeds up calculations, as it scales as ON log(M) for N data points and M frequencies. For comparison, the true Lomb–Scargle periodogram has complexity ONM.  The larger the number of datapoints, the more accurate the approximation.note: Note\nThis method internally performs a Fast Fourier Transform (FFT) to compute some quantities, but it is in no way equivalento to conventional Fourier periodogram analysis.LombScargle.jl uses FFTW functions to compute the FFT. You can speed-up this task by using multi-threading: call FFTW.set_num_threads(n) to use n threads. However, please note that the running time will not scale as n because computation of the FFT is only a part of the algorithm.The only prerequisite in order to be able to employ this fast method is to provide a frequencies vector as a Range object, which ensures that the frequency grid is perfectly evenly spaced. This is the default, since LombScargle.autofrequency returns a Range object.tip: Tip\nIn Julia, a Range object can be constructed for example with the linspace function (you specify the start and the end of the range, and optionally the length of the vector) or with the syntax start:stop (you specify the start and the end of the range, and optionally the linear step; a related function is colon). Somewhere in the middle is the range function: you specify the start of the range and the length of the vector, and optionally the linear step.Since this fast method is accurate only for large datasets, it is enabled by default only if the number of output frequencies is larger than 200. You can override the default choice of using this method by setting the fast keyword to true or false. We recall that in any case, the frequencies vector must be a Range in order to use this method.To summarize, provided that frequencies vector is a Range object, you can use the fast method:by default if the length of the output frequency grid is larger than 200 points\nin any case with the fast=true keywordSetting fast=false always ensures you that this method will not be used, instead fast=true actually enables it only if frequencies is a Range."
+    "text": "When the frequency grid is evenly spaced, you can compute an approximate generalised Lomb–Scargle periodogram using a fast algorithm proposed by [PR89] that greatly speeds up calculations, as it scales as ON log(M) for N data points and M frequencies. For comparison, the true Lomb–Scargle periodogram has complexity ONM.  The larger the number of datapoints, the more accurate the approximation.note: Note\nThis method internally performs a Fast Fourier Transform (FFT) to compute some quantities, but it is in no way equivalento to conventional Fourier periodogram analysis.LombScargle.jl uses FFTW functions to compute the FFT. You can speed-up this task by using multi-threading: call FFTW.set_num_threads(n) to use n threads. However, please note that the running time will not scale as n because computation of the FFT is only a part of the algorithm.The only prerequisite in order to be able to employ this fast method is to provide a frequencies vector as an AbstractRange object, which ensures that the frequency grid is perfectly evenly spaced. This is the default, since LombScargle.autofrequency returns an AbstractRange object.tip: Tip\nIn Julia, an AbstractRange object can be constructed for example with the range function (you specify the start of the range, and optionally the stop, the length and the step of the vector) or with the syntax start:[step:]stop (you specify the start and the end of the range, and optionally the linear step).Since this fast method is accurate only for large datasets, it is enabled by default only if the number of output frequencies is larger than 200. You can override the default choice of using this method by setting the fast keyword to true or false. We recall that in any case, the frequencies vector must be a Range in order to use this method.To summarize, provided that frequencies vector is an AbstractRange object, you can use the fast method:by default if the length of the output frequency grid is larger than 200 points\nin any case with the fast=true keywordSetting fast=false always ensures you that this method will not be used, instead fast=true actually enables it only if frequencies is an AbstractRange."
 },
 
 {
-    "location": "index.html#Normalization-1",
+    "location": "#Normalization-1",
     "page": "LombScargle.jl",
     "title": "Normalization",
     "category": "section",
@@ -97,31 +97,31 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#LombScargle.power",
+    "location": "#LombScargle.power",
     "page": "LombScargle.jl",
     "title": "LombScargle.power",
     "category": "function",
-    "text": "power(p::Periodogram)\n\nReturn the power vector of Lomb–Scargle periodogram p.\n\n\n\n"
+    "text": "power(p::Periodogram)\n\nReturn the power vector of Lomb–Scargle periodogram p.\n\n\n\n\n\n"
 },
 
 {
-    "location": "index.html#LombScargle.freq",
+    "location": "#LombScargle.freq",
     "page": "LombScargle.jl",
     "title": "LombScargle.freq",
     "category": "function",
-    "text": "freq(p::Periodogram)\n\nReturn the frequency vector of Lomb–Scargle periodogram p.\n\n\n\n"
+    "text": "freq(p::Periodogram)\n\nReturn the frequency vector of Lomb–Scargle periodogram p.\n\n\n\n\n\n"
 },
 
 {
-    "location": "index.html#LombScargle.freqpower",
+    "location": "#LombScargle.freqpower",
     "page": "LombScargle.jl",
     "title": "LombScargle.freqpower",
     "category": "function",
-    "text": "freqpower(p::Periodogram)\n\nReturn the 2-tuple (freq(p), power(p)), where freq(p) and power(p) are the frequency vector and the power vector of Lomb–Scargle periodogram p respectively.\n\n\n\n"
+    "text": "freqpower(p::Periodogram)\n\nReturn the 2-tuple (freq(p), power(p)), where freq(p) and power(p) are the frequency vector and the power vector of Lomb–Scargle periodogram p respectively.\n\n\n\n\n\n"
 },
 
 {
-    "location": "index.html#Access-Frequency-Grid-and-Power-Spectrum-of-the-Periodogram-1",
+    "location": "#Access-Frequency-Grid-and-Power-Spectrum-of-the-Periodogram-1",
     "page": "LombScargle.jl",
     "title": "Access Frequency Grid and Power Spectrum of the Periodogram",
     "category": "section",
@@ -129,23 +129,23 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#LombScargle.period",
+    "location": "#LombScargle.period",
     "page": "LombScargle.jl",
     "title": "LombScargle.period",
     "category": "function",
-    "text": "power(p::Periodogram)\n\nReturn the period vector of Lomb–Scargle periodogram p.  It is equal to 1 ./ freq(p).\n\n\n\n"
+    "text": "power(p::Periodogram)\n\nReturn the period vector of Lomb–Scargle periodogram p.  It is equal to 1 ./ freq(p).\n\n\n\n\n\n"
 },
 
 {
-    "location": "index.html#LombScargle.periodpower",
+    "location": "#LombScargle.periodpower",
     "page": "LombScargle.jl",
     "title": "LombScargle.periodpower",
     "category": "function",
-    "text": "periodpower(p::Periodogram)\n\nReturn the 2-tuple (period(p), power(p)), where period(p) and power(p) are the period vector and the power vector of Lomb–Scargle periodogram p respectively.\n\n\n\n"
+    "text": "periodpower(p::Periodogram)\n\nReturn the 2-tuple (period(p), power(p)), where period(p) and power(p) are the period vector and the power vector of Lomb–Scargle periodogram p respectively.\n\n\n\n\n\n"
 },
 
 {
-    "location": "index.html#Access-Period-Grid-1",
+    "location": "#Access-Period-Grid-1",
     "page": "LombScargle.jl",
     "title": "Access Period Grid",
     "category": "section",
@@ -153,31 +153,31 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#LombScargle.findmaxpower",
+    "location": "#LombScargle.findmaxpower",
     "page": "LombScargle.jl",
     "title": "LombScargle.findmaxpower",
     "category": "function",
-    "text": "findmaxpower(p::Periodogram)\n\nReturn the highest power of the periodogram p.\n\n\n\n"
+    "text": "findmaxpower(p::Periodogram)\n\nReturn the highest power of the periodogram p.\n\n\n\n\n\n"
 },
 
 {
-    "location": "index.html#LombScargle.findmaxfreq",
+    "location": "#LombScargle.findmaxfreq",
     "page": "LombScargle.jl",
     "title": "LombScargle.findmaxfreq",
     "category": "function",
-    "text": "findmaxfreq(p::Periodogram, [interval::AbstractVector{Real}], threshold::Real=findmaxpower(p))\n\nReturn the array of frequencies with the highest power in the periodogram p. If a scalar real argument threshold is provided, return the frequencies with power larger than or equal to threshold.  If you want to limit the search to a narrower frequency range, pass as second argument a vector with the extrema of the interval.\n\n\n\n"
+    "text": "findmaxfreq(p::Periodogram, [interval::AbstractVector{Real}], threshold::Real=findmaxpower(p))\n\nReturn the array of frequencies with the highest power in the periodogram p. If a scalar real argument threshold is provided, return the frequencies with power larger than or equal to threshold.  If you want to limit the search to a narrower frequency range, pass as second argument a vector with the extrema of the interval.\n\n\n\n\n\n"
 },
 
 {
-    "location": "index.html#LombScargle.findmaxperiod",
+    "location": "#LombScargle.findmaxperiod",
     "page": "LombScargle.jl",
     "title": "LombScargle.findmaxperiod",
     "category": "function",
-    "text": "findmaxperiod(p::Periodogram, [interval::AbstractVector{Real}], threshold::Real=findmaxpower(p))\n\nReturn the array of periods with the highest power in the periodogram p.  If a scalar real argument threshold is provided, return the period with power larger than or equal to threshold.  If you want to limit the search to a narrower period range, pass as second argument a vector with the extrema of the interval.\n\n\n\n"
+    "text": "findmaxperiod(p::Periodogram, [interval::AbstractVector{Real}], threshold::Real=findmaxpower(p))\n\nReturn the array of periods with the highest power in the periodogram p.  If a scalar real argument threshold is provided, return the period with power larger than or equal to threshold.  If you want to limit the search to a narrower period range, pass as second argument a vector with the extrema of the interval.\n\n\n\n\n\n"
 },
 
 {
-    "location": "index.html#findmaxpower,-findmaxfreq,-and-findmaxperiod-Functions-1",
+    "location": "#findmaxpower,-findmaxfreq,-and-findmaxperiod-Functions-1",
     "page": "LombScargle.jl",
     "title": "findmaxpower, findmaxfreq, and findmaxperiod Functions",
     "category": "section",
@@ -185,47 +185,47 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#LombScargle.prob-Tuple{LombScargle.Periodogram,Real}",
+    "location": "#LombScargle.prob-Tuple{LombScargle.Periodogram,Real}",
     "page": "LombScargle.jl",
     "title": "LombScargle.prob",
     "category": "method",
-    "text": "prob(P::Periodogram, pow::Real)\n\nReturn the probability that the periodogram power can exceed the value pow.\n\nIts inverse is the probinv function.\n\n\n\n"
+    "text": "prob(P::Periodogram, pow::Real)\n\nReturn the probability that the periodogram power can exceed the value pow.\n\nIts inverse is the probinv function.\n\n\n\n\n\n"
 },
 
 {
-    "location": "index.html#LombScargle.probinv-Tuple{LombScargle.Periodogram,Real}",
+    "location": "#LombScargle.probinv-Tuple{LombScargle.Periodogram,Real}",
     "page": "LombScargle.jl",
     "title": "LombScargle.probinv",
     "category": "method",
-    "text": "probinv(P::Periodogram, prob::Real)\n\nReturn the power value of the periodogram power whose probability is prob.\n\nThis is the inverse of prob function.\n\n\n\n"
+    "text": "probinv(P::Periodogram, prob::Real)\n\nReturn the power value of the periodogram power whose probability is prob.\n\nThis is the inverse of prob function.\n\n\n\n\n\n"
 },
 
 {
-    "location": "index.html#LombScargle.M",
+    "location": "#LombScargle.M",
     "page": "LombScargle.jl",
     "title": "LombScargle.M",
     "category": "function",
-    "text": "LombScargle.M(P::Periodogram)\n\nEstimates the number of independent frequencies in the periodogram P.\n\n\n\n"
+    "text": "LombScargle.M(P::Periodogram)\n\nEstimates the number of independent frequencies in the periodogram P.\n\n\n\n\n\n"
 },
 
 {
-    "location": "index.html#LombScargle.fap-Tuple{LombScargle.Periodogram,Real}",
+    "location": "#LombScargle.fap-Tuple{LombScargle.Periodogram,Real}",
     "page": "LombScargle.jl",
     "title": "LombScargle.fap",
     "category": "method",
-    "text": "fap(P::Periodogram, pow::Real)\n\nReturn the false-alarm probability for periodogram P and power value pow.\n\nIts inverse is the fapinv function.\n\n\n\n"
+    "text": "fap(P::Periodogram, pow::Real)\n\nReturn the false-alarm probability for periodogram P and power value pow.\n\nIts inverse is the fapinv function.\n\n\n\n\n\n"
 },
 
 {
-    "location": "index.html#LombScargle.fapinv-Tuple{LombScargle.Periodogram,Real}",
+    "location": "#LombScargle.fapinv-Tuple{LombScargle.Periodogram,Real}",
     "page": "LombScargle.jl",
     "title": "LombScargle.fapinv",
     "category": "method",
-    "text": "fapinv(P::Periodogram, prob::Real)\n\nReturn the power value of the periodogram whose false-alarm probability is prob.\n\nThis is the inverse of fap function.\n\n\n\n"
+    "text": "fapinv(P::Periodogram, prob::Real)\n\nReturn the power value of the periodogram whose false-alarm probability is prob.\n\nThis is the inverse of fap function.\n\n\n\n\n\n"
 },
 
 {
-    "location": "index.html#False-Alarm-Probability-1",
+    "location": "#False-Alarm-Probability-1",
     "page": "LombScargle.jl",
     "title": "False-Alarm Probability",
     "category": "section",
@@ -233,31 +233,31 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#LombScargle.bootstrap",
+    "location": "#LombScargle.bootstrap",
     "page": "LombScargle.jl",
     "title": "LombScargle.bootstrap",
     "category": "function",
-    "text": "LombScargle.bootstrap(N::Integer,\n                      times::AbstractVector{Real},\n                      signal::AbstractVector{Real},\n                      errors::AbstractVector{Real}=ones(signal); ...)\n\nCreate N bootstrap samples, perform the Lomb–Scargle analysis on them, and store all the highest peaks for each one in a LombScargle.Bootstrap object. All the arguments after N are passed around to lombscargle.\n\n\n\nLombScargle.bootstrap(N::Integer, plan::PeriodogramPlan)\n\nCreate N bootstrap samples, perform the Lomb–Scargle analysis on them for the given plan, and store all the highest peaks for each one in a LombScargle.Bootstrap object.\n\nSee documentation of LombScargle.plan for how to plan a Lomb–Scargle periodogram.\n\n\n\n"
+    "text": "LombScargle.bootstrap(N::Integer,\n                      times::AbstractVector{Real},\n                      signal::AbstractVector{Real},\n                      errors::AbstractVector{Real}=ones(signal); ...)\n\nCreate N bootstrap samples, perform the Lomb–Scargle analysis on them, and store all the highest peaks for each one in a LombScargle.Bootstrap object. All the arguments after N are passed around to lombscargle.\n\n\n\n\n\nLombScargle.bootstrap(N::Integer, plan::PeriodogramPlan)\n\nCreate N bootstrap samples, perform the Lomb–Scargle analysis on them for the given plan, and store all the highest peaks for each one in a LombScargle.Bootstrap object.\n\nSee documentation of LombScargle.plan for how to plan a Lomb–Scargle periodogram.\n\n\n\n\n\n"
 },
 
 {
-    "location": "index.html#LombScargle.fap-Tuple{LombScargle.Bootstrap{#s6} where #s6<:AbstractFloat,Real}",
+    "location": "#LombScargle.fap-Tuple{LombScargle.Bootstrap{#s1} where #s1<:AbstractFloat,Real}",
     "page": "LombScargle.jl",
     "title": "LombScargle.fap",
     "category": "method",
-    "text": "fap(b::Bootstrap, power::Real)\n\nReturn the false-alarm probability for power in the bootstrap sample b.\n\nIts inverse is the fapinv function.\n\n\n\n"
+    "text": "fap(b::Bootstrap, power::Real)\n\nReturn the false-alarm probability for power in the bootstrap sample b.\n\nIts inverse is the fapinv function.\n\n\n\n\n\n"
 },
 
 {
-    "location": "index.html#LombScargle.fapinv-Tuple{LombScargle.Bootstrap{#s6} where #s6<:AbstractFloat,Real}",
+    "location": "#LombScargle.fapinv-Tuple{LombScargle.Bootstrap{#s1} where #s1<:AbstractFloat,Real}",
     "page": "LombScargle.jl",
     "title": "LombScargle.fapinv",
     "category": "method",
-    "text": "fapinv(b::Bootstrap, prob::Real)\n\nReturn the power value whose false-alarm probability is prob in the bootstrap sample b.\n\nIt returns NaN if the requested probability is too low and the power cannot be determined with the bootstrap sample b.  In this case, you should enlarge your bootstrap sample so that N*fap can be rounded to an integer larger than or equal to 1.\n\nThis is the inverse of fap function.\n\n\n\n"
+    "text": "fapinv(b::Bootstrap, prob::Real)\n\nReturn the power value whose false-alarm probability is prob in the bootstrap sample b.\n\nIt returns NaN if the requested probability is too low and the power cannot be determined with the bootstrap sample b.  In this case, you should enlarge your bootstrap sample so that N*fap can be rounded to an integer larger than or equal to 1.\n\nThis is the inverse of fap function.\n\n\n\n\n\n"
 },
 
 {
-    "location": "index.html#Bootstrapping-1",
+    "location": "#Bootstrapping-1",
     "page": "LombScargle.jl",
     "title": "Bootstrapping",
     "category": "section",
@@ -265,15 +265,15 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#LombScargle.model",
+    "location": "#LombScargle.model",
     "page": "LombScargle.jl",
     "title": "LombScargle.model",
     "category": "function",
-    "text": "LombScargle.model(times::AbstractVector{Real},\n                  signal::AbstractVector{R2},\n                  [errors::AbstractVector{R3},]\n                  frequency::Real,\n                  [times_fit::AbstractVector{R4}];\n                  center_data::Bool=true,\n                  fit_mean::Bool=true)\n\nReturn the best fitting Lomb–Scargle model for the given signal at the given frequency.\n\nMandatory arguments are:\n\ntimes: the observation times\nsignal: the signal, sampled at times (must have the same length as times)\nfrequency: the frequency at which to calculate the model\n\nOptional arguments are:\n\nerrors: the vector of uncertainties of the signal.  If provided, it must have the same length as signal and times, and be the third argument.  Like for lombscargle, if the signal has uncertainties, the signal vector can also be a vector of Measurement objects, and this argument should be omitted\ntimes_fit: the vector of times at which the model will be calculated.  It defaults to times.  If provided, it must come after frequency\n\nOptional keyword arguments center_data and fit_mean have the same meaning as in lombscargle:\n\nfit_mean: whether to fit for the mean. If this is false, like in the original Lomb–Scargle periodogram, mathbfA does not have the third column of ones, c_f is set to 0 and the unknown vector to be determined becomes x = a_f b_f^textT\ncenter_data: whether the data should be pre-centered before solving the linear system. This is particularly important if fit_mean=false\n\n\n\n"
+    "text": "LombScargle.model(times::AbstractVector{Real},\n                  signal::AbstractVector{R2},\n                  [errors::AbstractVector{R3},]\n                  frequency::Real,\n                  [times_fit::AbstractVector{R4}];\n                  center_data::Bool=true,\n                  fit_mean::Bool=true)\n\nReturn the best fitting Lomb–Scargle model for the given signal at the given frequency.\n\nMandatory arguments are:\n\ntimes: the observation times\nsignal: the signal, sampled at times (must have the same length as times)\nfrequency: the frequency at which to calculate the model\n\nOptional arguments are:\n\nerrors: the vector of uncertainties of the signal.  If provided, it must have the same length as signal and times, and be the third argument.  Like for lombscargle, if the signal has uncertainties, the signal vector can also be a vector of Measurement objects, and this argument should be omitted\ntimes_fit: the vector of times at which the model will be calculated.  It defaults to times.  If provided, it must come after frequency\n\nOptional keyword arguments center_data and fit_mean have the same meaning as in lombscargle:\n\nfit_mean: whether to fit for the mean. If this is false, like in the original Lomb–Scargle periodogram, mathbfA does not have the third column of ones, c_f is set to 0 and the unknown vector to be determined becomes x = a_f b_f^textT\ncenter_data: whether the data should be pre-centered before solving the linear system. This is particularly important if fit_mean=false\n\n\n\n\n\n"
 },
 
 {
-    "location": "index.html#LombScargle.model-Function-1",
+    "location": "#LombScargle.model-Function-1",
     "page": "LombScargle.jl",
     "title": "LombScargle.model Function",
     "category": "section",
@@ -281,31 +281,31 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#Examples-1",
+    "location": "#Examples-1",
     "page": "LombScargle.jl",
     "title": "Examples",
     "category": "section",
-    "text": "Here is an example of a noisy periodic signal (sin(pi t) + 15cos(2pi t)) sampled at unevenly spaced times.julia> using LombScargle\n\njulia> ntimes = 1001\n1001\n\njulia> t = linspace(0.01, 10pi, ntimes) # Observation times\n0.01:0.03140592653589793:31.41592653589793\n\njulia> t += step(t)*rand(ntimes) # Randomize times\n\njulia> s = sinpi.(t) .+ 1.5cospi.(2t) .+ rand(ntimes) # The signal\n\njulia> plan = LombScargle.plan(t, s); # Pre-plan the periodogram\n\njulia> pgram = lombscargle(plan) # Compute the periodogram\nLombScargle.Periodogram{Float64,StepRangeLen{Float64,Base.TwicePrecision{Float64},Base.TwicePrecision{Float64}},Array{Float64,1}}([0.000472346, 0.000461633, 0.000440906, 0.000412717, 0.000383552, 0.000355828, 0.000289723, 0.000154585, 3.44734e-5, 5.94437e-7  …  3.15125e-5, 0.000487391, 0.0018939, 0.00367003, 0.00484181, 0.00495189, 0.00453233, 0.00480968, 0.00619657, 0.0074052], 0.003185690706734265:0.00637138141346853:79.72190993602499, [0.0295785, 0.0540516, 0.0780093, 0.122759, 0.15685, 0.192366, 0.206601, 0.252829, 0.265771, 0.315443  …  31.1512, 31.1758, 31.2195, 31.2342, 31.2752, 31.293, 31.3517, 31.3761, 31.4148, 31.4199], :standard)You can plot the result, for example with Plots package. Use freqpower function to get the frequency grid and the power of the periodogram as a 2-tuple.using Plots\nplot(freqpower(pgram)...)(Image: image)You can also plot the power vs the period, instead of the frequency, with periodpower:using Plots\nplot(periodpower(pgram)...)(Image: image)warning: Warning\nIf you do not fit for the mean of the signal (fit_mean=false keyword to lombscargle function) without centering the data (center_data=false) you can get inaccurate results. For example, spurious peaks at low frequencies can appear and the real peaks lose power:plot(freqpower(lombscargle(t, s, fit_mean=false, center_data=false))...)(Image: image)tip: Tip\nYou can tune the frequency grid with appropriate keywords to lombscargle function. For example, in order to increase the sampling increase samples_per_peak, and set maximum_frequency to lower values in order to narrow the frequency range:plot(freqpower(lombscargle(t, s, samples_per_peak=20, maximum_frequency=1.5))...)(Image: image)If you simply want to use your own frequency grid, directly set the frequencies keyword:plot(freqpower(lombscargle(t, s, frequencies=0.001:1e-3:1.5))...)(Image: image)"
+    "text": "Here is an example of a noisy periodic signal (sin(pi t) + 15cos(2pi t)) sampled at unevenly spaced times.julia> using LombScargle\n\njulia> ntimes = 1001\n1001\n\njulia> t = range(0.01, stop = 10pi, length = ntimes) # Observation times\n0.01:0.03140592653589793:31.41592653589793\n\njulia> t += step(t)*rand(ntimes) # Randomize times\n\njulia> s = sinpi.(t) .+ 1.5cospi.(2t) .+ rand(ntimes) # The signal\n\njulia> plan = LombScargle.plan(t, s); # Pre-plan the periodogram\n\njulia> pgram = lombscargle(plan) # Compute the periodogram\nLombScargle.Periodogram{Float64,StepRangeLen{Float64,Base.TwicePrecision{Float64},Base.TwicePrecision{Float64}},Array{Float64,1}}([0.000472346, 0.000461633, 0.000440906, 0.000412717, 0.000383552, 0.000355828, 0.000289723, 0.000154585, 3.44734e-5, 5.94437e-7  …  3.15125e-5, 0.000487391, 0.0018939, 0.00367003, 0.00484181, 0.00495189, 0.00453233, 0.00480968, 0.00619657, 0.0074052], 0.003185690706734265:0.00637138141346853:79.72190993602499, [0.0295785, 0.0540516, 0.0780093, 0.122759, 0.15685, 0.192366, 0.206601, 0.252829, 0.265771, 0.315443  …  31.1512, 31.1758, 31.2195, 31.2342, 31.2752, 31.293, 31.3517, 31.3761, 31.4148, 31.4199], :standard)You can plot the result, for example with Plots package. Use freqpower function to get the frequency grid and the power of the periodogram as a 2-tuple.using Plots\nplot(freqpower(pgram)...)(Image: image)You can also plot the power vs the period, instead of the frequency, with periodpower:using Plots\nplot(periodpower(pgram)...)(Image: image)warning: Warning\nIf you do not fit for the mean of the signal (fit_mean=false keyword to lombscargle function) without centering the data (center_data=false) you can get inaccurate results. For example, spurious peaks at low frequencies can appear and the real peaks lose power:plot(freqpower(lombscargle(t, s, fit_mean=false, center_data=false))...)(Image: image)tip: Tip\nYou can tune the frequency grid with appropriate keywords to lombscargle function. For example, in order to increase the sampling increase samples_per_peak, and set maximum_frequency to lower values in order to narrow the frequency range:plot(freqpower(lombscargle(t, s, samples_per_peak=20, maximum_frequency=1.5))...)(Image: image)If you simply want to use your own frequency grid, directly set the frequencies keyword:plot(freqpower(lombscargle(t, s, frequencies=0.001:1e-3:1.5))...)(Image: image)"
 },
 
 {
-    "location": "index.html#Signal-with-Uncertainties-1",
+    "location": "#Signal-with-Uncertainties-1",
     "page": "LombScargle.jl",
     "title": "Signal with Uncertainties",
     "category": "section",
-    "text": "The generalised Lomb–Scargle periodogram is able to handle a signal with uncertainties, and they will be used as weights in the algorithm.  The uncertainties can be passed either as the third optional argument errors to lombscargle or by providing this function with a signal vector of type Measurement (from Measurements.jl package).using Measurements, Plots\nntimes = 1001\nt = linspace(0.01, 10pi, ntimes)\ns = sinpi.(2t)\nerrors = rand(0.1:1e-3:4.0, ntimes)\n# Run one of the two following equivalent commands\nplot(freqpower(lombscargle(t, s, errors, maximum_frequency=1.5))...)\nplot(freqpower(lombscargle(t, measurement(s, errors), maximum_frequency=1.5))...)(Image: image)This is the plot of the power versus the period:# Run one of the two following equivalent commands\nplot(periodpower(lombscargle(t, s, errors, maximum_frequency=1.5))...)\nplot(periodpower(lombscargle(t, measurement(s, errors), maximum_frequency=1.5))...)(Image: image)We recall that the generalised Lomb–Scargle algorithm is used when the fit_mean optional keyword to lombscargle is true if no error is provided, instead it is always used if the signal has uncertainties."
+    "text": "The generalised Lomb–Scargle periodogram is able to handle a signal with uncertainties, and they will be used as weights in the algorithm.  The uncertainties can be passed either as the third optional argument errors to lombscargle or by providing this function with a signal vector of type Measurement (from Measurements.jl package).using Measurements, Plots\nntimes = 1001\nt = range(0.01, stop = 10pi, length = ntimes)\ns = sinpi.(2t)\nerrors = rand(0.1:1e-3:4.0, ntimes)\n# Run one of the two following equivalent commands\nplot(freqpower(lombscargle(t, s, errors, maximum_frequency=1.5))...)\nplot(freqpower(lombscargle(t, measurement(s, errors), maximum_frequency=1.5))...)(Image: image)This is the plot of the power versus the period:# Run one of the two following equivalent commands\nplot(periodpower(lombscargle(t, s, errors, maximum_frequency=1.5))...)\nplot(periodpower(lombscargle(t, measurement(s, errors), maximum_frequency=1.5))...)(Image: image)We recall that the generalised Lomb–Scargle algorithm is used when the fit_mean optional keyword to lombscargle is true if no error is provided, instead it is always used if the signal has uncertainties."
 },
 
 {
-    "location": "index.html#Find-Highest-Power-and-Associated-Frequencies-and-Periods-1",
+    "location": "#Find-Highest-Power-and-Associated-Frequencies-and-Periods-1",
     "page": "LombScargle.jl",
     "title": "Find Highest Power and Associated Frequencies and Periods",
     "category": "section",
-    "text": "findmaxfreq function tells you the frequencies with the highest power in the periodogram (and you can get the period by taking its inverse):julia> t = linspace(0, 10, 1001);\n\njulia> s = sinpi.(t);\n\njulia> plan = LombScargle.plan(t, s); # Plan the periodogram\n\njulia> p = lombscargle(plan);\n\njulia> findmaxperiod(p) # Period with highest power\n1-element Array{Float64,1}:\n 0.00498778\n\njulia> findmaxfreq(p) # Frequency with the highest power\n1-element Array{Float64,1}:\n 200.49This peak is at high frequencies, very far from the expected value of the period of 2. In order to find the real peak, you can either narrow the ranges in order to exclude higher armonicsjulia> findmaxperiod(p, [1, 10]) # Limit the search to periods in [1, 10]\n1-element Array{Float64,1}:\n 2.04082\n\njulia> findmaxfreq(p, [0.1, 1]) # Limit the search to frequencies in [0.1, 1]\n1-element Array{Float64,1}:\n 0.49or pass the threshold argument to findmaxfreq or findmaxperiod. You can use findmaxpower to discover the highest power in the periodogram:julia> findmaxpower(p)\n0.9958310178312316\n\njulia> findmaxperiod(p, 0.95)\n10-element Array{Float64,1}:\n 2.04082\n 1.96078\n 0.0100513\n 0.0100492\n 0.00995124\n 0.00994926\n 0.00501278\n 0.00501228\n 0.00498778\n 0.00498728\n\njulia> findmaxfreq(p, 0.95)\n10-element Array{Float64,1}:\n   0.49\n   0.51\n  99.49\n  99.51\n 100.49\n 100.51\n 199.49\n 199.51\n 200.49\n 200.51The first peak is the real one, the other double peaks appear at higher armonics.tip: Tip\nUsually, plotting the periodogram can give you a clue of what\'s going on."
+    "text": "findmaxfreq function tells you the frequencies with the highest power in the periodogram (and you can get the period by taking its inverse):julia> t = range(0, stop = 10, length = 1001);\n\njulia> s = sinpi.(t);\n\njulia> plan = LombScargle.plan(t, s); # Plan the periodogram\n\njulia> p = lombscargle(plan);\n\njulia> findmaxperiod(p) # Period with highest power\n1-element Array{Float64,1}:\n 0.004987779939149084\n\njulia> findmaxfreq(p) # Frequency with the highest power\n1-element Array{Float64,1}:\n 200.49This peak is at high frequencies, very far from the expected value of the period of 2. In order to find the real peak, you can either narrow the ranges in order to exclude higher armonicsjulia> findmaxperiod(p, [1, 10]) # Limit the search to periods in [1, 10]\n1-element Array{Float64,1}:\n 2.04082\n\njulia> findmaxfreq(p, [0.1, 1]) # Limit the search to frequencies in [0.1, 1]\n1-element Array{Float64,1}:\n 0.49or pass the threshold argument to findmaxfreq or findmaxperiod. You can use findmaxpower to discover the highest power in the periodogram:julia> findmaxpower(p)\n0.9958310178312316\n\njulia> findmaxperiod(p, 0.95)\n10-element Array{Float64,1}:\n 2.04082\n 1.96078\n 0.0100513\n 0.0100492\n 0.00995124\n 0.00994926\n 0.00501278\n 0.00501228\n 0.00498778\n 0.00498728\n\njulia> findmaxfreq(p, 0.95)\n10-element Array{Float64,1}:\n   0.49\n   0.51\n  99.49\n  99.51\n 100.49\n 100.51\n 199.49\n 199.51\n 200.49\n 200.51The first peak is the real one, the other double peaks appear at higher armonics.tip: Tip\nUsually, plotting the periodogram can give you a clue of what\'s going on."
 },
 
 {
-    "location": "index.html#Significance-of-the-Peaks-1",
+    "location": "#Significance-of-the-Peaks-1",
     "page": "LombScargle.jl",
     "title": "Significance of the Peaks",
     "category": "section",
@@ -313,15 +313,15 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#Find-the-Best-Fitting-Model-1",
+    "location": "#Find-the-Best-Fitting-Model-1",
     "page": "LombScargle.jl",
     "title": "Find the Best-Fitting Model",
     "category": "section",
-    "text": "The LombScargle.model function can help you to test whether a certain frequency fits well your data.using Plots\nt = linspace(0.01, 10pi, 1000) # Observation times\ns = sinpi.(t) .+ 1.2cospi.(t) .+ 0.3rand(length(t)) # The noisy signal\n# Pick-up the best frequency\nf = findmaxfreq(lombscargle(t, s, maximum_frequency=10, samples_per_peak=20))[1]\nt_fit = linspace(0, 1)\ns_fit = LombScargle.model(t, s, f, t_fit/f) # Determine the model\nscatter(mod.(t.*f, 1), s, lab=\"Phased data\", title=\"Best Lomb-Scargle frequency: $f\")\nplot!(t_fit, s_fit, lab=\"Best-fitting model\", linewidth=4)(Image: image)tip: Tip\nIf there are more than one dominant frequency you may need to consider more models. This task may require some work and patience. Plot the periodogram in order to find the best frequencies.using Plots\nt = linspace(0.01, 5, 1000) # Observation times\ns = sinpi.(2t) .+ 1.2cospi.(4t) .+ 0.3rand(length(t)) # Noisy signal\nplan = LombScargle.plan(t, s, samples_per_peak=50)\np = lombscargle(plan)\n# After plotting the periodogram, you discover\n# that it has two prominent peaks around 1 and 2.\nf1 = findmaxfreq(p, [0.8, 1.2])[1] # Get peak frequency around 1\nf2 = findmaxfreq(p, [1.8, 2.2])[1] # Get peak frequency around 2\nfit1 = LombScargle.model(t, s, f1) # Determine the first model\nfit2 = LombScargle.model(t, s, f2) # Determine the second model\nscatter(t, s, lab=\"Data\", title=\"Best-fitting Lomb-Scargle model\")\nplot!(t, fit1 + fit2, lab=\"Best-fitting model\", linewidth=4)(Image: image)"
+    "text": "The LombScargle.model function can help you to test whether a certain frequency fits well your data.using Plots\nt = range(0.01, stop = 10pi, length = 1000) # Observation times\ns = sinpi.(t) .+ 1.2cospi.(t) .+ 0.3rand(length(t)) # The noisy signal\n# Pick-up the best frequency\nf = findmaxfreq(lombscargle(t, s, maximum_frequency=10, samples_per_peak=20))[1]\nt_fit = range(0, stop = 1, length = 50)\ns_fit = LombScargle.model(t, s, f, t_fit/f) # Determine the model\nscatter(mod.(t.*f, 1), s, lab=\"Phased data\", title=\"Best Lomb-Scargle frequency: $f\")\nplot!(t_fit, s_fit, lab=\"Best-fitting model\", linewidth=4)(Image: image)tip: Tip\nIf there are more than one dominant frequency you may need to consider more models. This task may require some work and patience. Plot the periodogram in order to find the best frequencies.using Plots\nt = range(0.01, stop = 5, length = 1000) # Observation times\ns = sinpi.(2t) .+ 1.2cospi.(4t) .+ 0.3rand(length(t)) # Noisy signal\nplan = LombScargle.plan(t, s, samples_per_peak=50)\np = lombscargle(plan)\n# After plotting the periodogram, you discover\n# that it has two prominent peaks around 1 and 2.\nf1 = findmaxfreq(p, [0.8, 1.2])[1] # Get peak frequency around 1\nf2 = findmaxfreq(p, [1.8, 2.2])[1] # Get peak frequency around 2\nfit1 = LombScargle.model(t, s, f1) # Determine the first model\nfit2 = LombScargle.model(t, s, f2) # Determine the second model\nscatter(t, s, lab=\"Data\", title=\"Best-fitting Lomb-Scargle model\")\nplot!(t, fit1 + fit2, lab=\"Best-fitting model\", linewidth=4)(Image: image)"
 },
 
 {
-    "location": "index.html#Performance-1",
+    "location": "#Performance-1",
     "page": "LombScargle.jl",
     "title": "Performance",
     "category": "section",
@@ -329,15 +329,15 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#Development-1",
+    "location": "#Development-1",
     "page": "LombScargle.jl",
     "title": "Development",
     "category": "section",
-    "text": "The package is developed at https://github.com/giordano/LombScargle.jl. There you can submit bug reports, make suggestions, and propose pull requests."
+    "text": "The package is developed at https://github.com/JuliaAstro/LombScargle.jl. There you can submit bug reports, make suggestions, and propose pull requests."
 },
 
 {
-    "location": "index.html#History-1",
+    "location": "#History-1",
     "page": "LombScargle.jl",
     "title": "History",
     "category": "section",
@@ -345,7 +345,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#License-1",
+    "location": "#License-1",
     "page": "LombScargle.jl",
     "title": "License",
     "category": "section",
@@ -353,7 +353,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#Acknowledgements-1",
+    "location": "#Acknowledgements-1",
     "page": "LombScargle.jl",
     "title": "Acknowledgements",
     "category": "section",
