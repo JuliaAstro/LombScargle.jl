@@ -7,7 +7,7 @@ makedocs(
 )
 
 deploydocs(
-    repo = "github.com/giordano/LombScargle.jl.git",
+    repo = "github.com/JuliaAstro/LombScargle.jl.git",
     target = "build",
     deps = nothing,
     make = nothing,
