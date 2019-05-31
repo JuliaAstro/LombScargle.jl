@@ -70,8 +70,8 @@ Installation
 
 The latest version of `LombScargle.jl` is available for Julia 1.0 and later
 versions, and can be installed with [Julia built-in package
-manager](https://julialang.github.io/Pkg.jl/stable/).  In a Julia
-session, aftering the package manager mode with `]`, run the command
+manager](https://julialang.github.io/Pkg.jl/stable/).  In a Julia session, after
+entering the package manager mode with `]`, run the command
 
 ```julia
 pkg> add LombScargle
