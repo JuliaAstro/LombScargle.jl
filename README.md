@@ -123,9 +123,9 @@ of the signal.  You can create arrays of `Measurement` objects with the
 https://juliaphysics.github.io/Measurements.jl/latest/ for more details.
 
 With the `LombScargle.plan` function you can pre-plan a periodogram and save
-time and memory for the actual computation of the periodogram.  See
-the [manual](https://lombscarglejl.readthedocs.io/#planning-the-periodogram) for
-details.
+time and memory for the actual computation of the periodogram.  See the
+[manual](https://juliaastro.github.io/LombScargle.jl/stable/#Planning-the-Periodogram-1)
+for details.
 
 Examples
 --------
