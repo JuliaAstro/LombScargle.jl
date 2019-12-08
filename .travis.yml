@@ -11,7 +11,7 @@ julia:
 env:
   matrix:
     - JULIA_NUM_THREADS=1
-    - JULIA_NUM_THREADS=1
+    - JULIA_NUM_THREADS=2
   allow_failures:
     - julia: nightly
 
