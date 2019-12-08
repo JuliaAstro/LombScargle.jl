@@ -1,0 +1,22 @@
+name = "LombScargle"
+uuid = "fc60dff9-86e7-5f2f-a8a0-edeadbb75bd9"
+authors = ["Mosè Giordano <mose@gnu.org>"]
+version = "0.5.0"
+
+[deps]
+FFTW = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
+Measurements = "eff96d63-e80a-5855-80a2-b1b0885c5ab7"
+SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
+
+[compat]
+FFTW = "0.2.3, 0.3, 1"
+Measurements = "1, 2"
+SpecialFunctions = "0.5, 0.6, 0.7, 0.8, 0.9"
+julia = "1"
+
+[extras]
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test", "Random"]
