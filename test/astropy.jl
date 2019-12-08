@@ -1,7 +1,7 @@
 ### Compare LombScargle.jl with Astropy
 
 using LombScargle, Test, PyCall, Random
-PyCall.@pyimport astropy.stats as ast
+ast = pyimport("astropy.stats")
 
 Random.seed!(1)
 ntimes = 401
