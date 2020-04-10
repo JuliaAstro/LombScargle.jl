@@ -60,8 +60,8 @@ below.  Here we only give basic information.
 
 ### Documentation
 
-The complete manual of `LombScargle.jl` is available at
-https://giordano.github.io/LombScargle.jl/stable/.  It has detailed explanation of all
+The complete manual of `LombScargle.jl` is available
+[here](https://juliaastro.github.io/LombScargle.jl/stable/).  It has detailed explanation of all
 functions provided by the package and more examples than what you will find
 here, also with some plots.
 
