@@ -231,7 +231,7 @@ more accurate the approximation.
 
     This method internally performs a [Fast Fourier
     Transform](https://en.wikipedia.org/wiki/Fast_Fourier_transform) (FFT) to
-    compute some quantities, but it is in no way equivalento to conventional Fourier
+    compute some quantities, but it is in no way equivalent to conventional Fourier
     periodogram analysis.
 
     `LombScargle.jl` uses [FFTW](http://fftw.org/) functions to compute the FFT. You
