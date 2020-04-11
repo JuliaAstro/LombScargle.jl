@@ -88,7 +88,7 @@ Installation
 ------------
 
 `LombScargle.jl` is available for Julia 0.7 and later versions, and can
-be installed with [Julia built-in package
+be installed with [Julia's built-in package
 manager](http://docs.julialang.org/en/stable/manual/packages/). In a
 Julia session run the commands
 
@@ -174,7 +174,7 @@ them.
     datapoints with lower uncertainties. The case where all measurements have the
     same uncertainty (a condition known as
     [homoskedasticity](https://en.wikipedia.org/wiki/Homoscedasticity)) results in a
-    costant weights vector, like if there are no uncertainties at all. If you have
+    constant weights vector, like if there are no uncertainties at all. If you have
     homoskedastic errors, you do not need to provide them to
     [`lombscargle`](@ref).
 
