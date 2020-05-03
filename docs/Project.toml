@@ -1,6 +1,5 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-LombScargle = "fc60dff9-86e7-5f2f-a8a0-edeadbb75bd9"
 
 [compat]
 Documenter = "~0.24"
