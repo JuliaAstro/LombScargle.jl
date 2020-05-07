@@ -122,7 +122,7 @@ end
         @test LombScargle.autofrequency(t, maximum_frequency=10) ≈ 0.003184112396292367:0.006368224792584734:9.99492881196174
         # This last test also makes sure that `freq` and `power` fields of a Periodogram
         # object can have different type.
-        if nthreads() > 1 && Sys.isapple()
+        if Threads.nthreads() > 1 && Sys.isapple()
             # This would make Julia crash, skip it.  See
             # https://github.com/JuliaLang/julia/issues/35702
             @test_skip freq(lombscargle(1:11, big.(sin.(1:11)))) ≈ 0.01:0.02:2.75
