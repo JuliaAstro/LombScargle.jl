@@ -1,6 +1,6 @@
 #!/usr/bin/env julia
 
-using Plots
+using Plots, DelimitedFiles
 pyplot()
 
 julia1 = readdlm("julia_times-1.dat")

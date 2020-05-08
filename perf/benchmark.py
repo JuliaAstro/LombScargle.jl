@@ -9,7 +9,7 @@ io = open("python_times.dat", "w")
 N = logspace(1, 5, 15).astype(int)
 for (i, n) in enumerate(N):
     setup = """
-from astropy.stats import LombScargle
+from astropy.timeseries import LombScargle
 import numpy as np
 t = np.linspace(0.01, 10, {0:d})
 s = np.sin(t) + 1.5*np.cos(4 * np.pi * t) + 3

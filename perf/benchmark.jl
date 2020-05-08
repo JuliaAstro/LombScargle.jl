@@ -5,7 +5,7 @@ using LombScargle, BenchmarkTools, FFTW
 N  = round.(Int, exp10.(range(1, stop=5, length=15)))
 for nthreads in (1, 4)
     FFTW.set_num_threads(nthreads)
-    info(string(nthreads) * " FFTW thread(s)")
+    @info(string(nthreads) * " FFTW thread(s)")
     open(joinpath(@__DIR__, "julia_times-" * string(nthreads) * ".dat"), "w") do file
         for (j, n) in enumerate(N)
             println("Iteration ", j, " (", n, " datapoints)")
