@@ -22,11 +22,20 @@ struct Bootstrap{T<:AbstractFloat}
     p::Vector{T} # Vector of highest peaks
 end
 
-bootstrap(N::Integer, p::PeriodogramPlan) =
-    Bootstrap(sort!([maximum(normalize!(_periodogram!(shuffle(p.times), p), p)) for _ in 1:N], rev = true))
+const _default_rng = if VERSION < v"1.3"
+    () -> Random.GLOBAL_RNG
+else
+    Random.default_rng
+end
+
+bootstrap(rng::AbstractRNG, N::Integer, p::PeriodogramPlan) =
+    Bootstrap(sort!([maximum(normalize!(_periodogram!(shuffle(rng, p.times), p), p)) for _ in 1:N], rev = true))
+
+bootstrap(rng::AbstractRNG, N::Integer, t::AbstractVector{<:Real}, rest...; kwargs...) =
+    bootstrap(rng, N, plan(t, rest...; kwargs...))
 
 bootstrap(N::Integer, t::AbstractVector{<:Real}, rest...; kwargs...) =
-    bootstrap(N, plan(t, rest...; kwargs...))
+    bootstrap(_default_rng(), N, plan(t, rest...; kwargs...))
 
 """
     LombScargle.bootstrap(N::Integer,

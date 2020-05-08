@@ -1,5 +1,5 @@
 using LombScargle
-using Measurements, FFTW, Random
+using Measurements, FFTW, StableRNGs
 using Test
 
 Threads.nthreads() > 1 && (FFTW.set_num_threads(2); @info("Multi-threading enabled"))
@@ -17,16 +17,16 @@ pgram4 = @inferred(lombscargle(LombScargle.plan(t, s, fast = false, center_data=
 
 @testset "Periodograms" begin
     @testset "Random stuff" begin
-        Random.seed!(1)
+        rng = StableRNG(1)
         # Randomized times
-        trandom = t .+ step(t)*rand(ntimes)
+        trandom = t .+ step(t) .* rand(rng, ntimes)
         # Randomized signal
-        srandom = sinpi.(trandom) .+ cospi.(2trandom) .+ rand(ntimes)
+        srandom = sinpi.(trandom) .+ cospi.(2trandom) .+ rand(rng, ntimes)
         # Frequency grid
         nfreqs = 10000
         freqs = range(0.01, stop=3, length=nfreqs)
         # Randomize frequency grid
-        freqs += step(freqs)*rand(nfreqs)
+        freqs += step(freqs) * rand(rng, nfreqs)
         # Use "freqpower" and "periodpower" just to call that function and increase code
         # coverage.  "autofrequency" function is tested below.
         prandom1 = lombscargle(trandom, srandom, frequencies=freqs, fit_mean=false)
@@ -90,8 +90,8 @@ pgram4 = @inferred(lombscargle(LombScargle.plan(t, s, fast = false, center_data=
 
     # Compare result of uncertainties with both methods (fast and non-fast).
     @testset "Fast and non-fast methods" begin
-        Random.seed!(1)
-        errors = rand(0.1:1e-3:4.0, ntimes)
+        rng = StableRNG(1)
+        errors = rand(rng, 0.1:1e-3:4.0, ntimes)
         @test power(lombscargle(t, s, errors)) ≈ power(lombscargle(t, s, errors, fast = false)) atol = 0.3
         @test power(lombscargle(t, s, errors, fit_mean = false)) ≈ power(lombscargle(t, s, errors, fit_mean = false, fast = false)) atol = 0.2
     end
@@ -185,26 +185,24 @@ end
     end
 
     @testset "Bootstrap" begin
-        Random.seed!(1)
-        @test LombScargle.bootstrap(5, x, y).p ≈
-            [0.25956949678034225, 0.2360115683328911, 0.22016267001066891, 0.1665406952388801,
-             0.12516095308735742]
-        Random.seed!(1)
-        @test LombScargle.bootstrap(5, x, y, fit_mean = false).p ≈
-            [0.2593941251038504, 0.23547209359157387, 0.219973555583272,
-             0.1665298143445746, 0.11304204776090254]
+        rng = StableRNG(1)
+        @test LombScargle.bootstrap(rng, 5, x, y).p ≈
+            [0.2549825402531699, 0.24553569643707795, 0.22355555139200417, 0.18835595455875265, 0.17751916071818083]
+        rng = StableRNG(1)
+        @test LombScargle.bootstrap(rng, 5, x, y, fit_mean = false).p ≈
+            [0.25478239985427653, 0.24479954400845347, 0.22354470907113227, 0.1782926054604495, 0.17751203617791073]
         err = collect(range(0.5, stop = 1.5, length = 50))
-        Random.seed!(1)
-        b = LombScargle.bootstrap(50, x, measurement.(y, err), fast = true)
+        rng = StableRNG(1)
+        b = LombScargle.bootstrap(rng, 50, x, measurement.(y, err), fast = true)
         @test fap(b, fapinv(b, 0.02)) ≈ 0.02
-        Random.seed!(1)
-        b = LombScargle.bootstrap(50, x, measurement.(y, err), fast = false)
+        rng = StableRNG(1)
+        b = LombScargle.bootstrap(rng, 50, x, measurement.(y, err), fast = false)
         @test fap(b, fapinv(b, 0.02)) ≈ 0.02
-        Random.seed!(1)
-        @test fapinv(LombScargle.bootstrap(50, x, measurement.(y, err), fast = false, fit_mean = false),
-                     0.2) ≈ 0.25009623372392176
-        Random.seed!(1)
-        @test fapinv(LombScargle.bootstrap(1000, x, y, fast=false, fit_mean=false), 0.2) ≈
-            0.22195685099625417
+        rng = StableRNG(1)
+        @test fapinv(LombScargle.bootstrap(rng, 50, x, measurement.(y, err), fast = false, fit_mean = false),
+                     0.2) ≈ 0.23917691901908134
+        rng = StableRNG(1)
+        @test fapinv(LombScargle.bootstrap(rng, 1000, x, y, fast=false, fit_mean=false), 0.2) ≈
+            0.2157617143004672
     end
 end
