@@ -2,7 +2,6 @@ using Documenter, LombScargle
 
 makedocs(
     modules = [LombScargle],
-    format = :html,
     sitename = "LombScargle",
 )
 

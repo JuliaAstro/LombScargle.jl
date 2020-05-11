@@ -20,9 +20,6 @@ git:
 notifications:
   email: false
 
-after_success:
- - julia --color=yes -e 'using Pkg, LombScargle; Pkg.add("PyCall"); Pkg.add("Conda"); using Conda; Conda.add("astropy"); include(joinpath(dirname(pathof(LombScargle)), "..", "test", "astropy.jl"))'
-
 branches:
   only:
   - master
@@ -38,11 +35,18 @@ jobs:
   allow_failures:
     - julia: nightly
   include:
+    - stage: "Test against AstroPy"
+      julia: 1.4
+      os: linux
+      script:
+        - julia --color=yes -e 'using Pkg, LombScargle; Pkg.add("PyCall"); Pkg.add("Conda"); using Conda; Conda.add("astropy"); include(joinpath(dirname(pathof(LombScargle)), "..", "test", "astropy.jl"))'
+      after_success: skip
     - stage: "Documentation"
       julia: 1.4
       os: linux
       script:
-        - julia --project=docs/ -e 'using Pkg; Pkg.instantiate();
-                                    Pkg.develop(PackageSpec(path=pwd()))'
+        - julia --project=docs/ -e 'using Pkg;
+                                    Pkg.develop(PackageSpec(path=pwd()));
+                                    Pkg.instantiate()'
         - julia --project=docs/ docs/make.jl
       after_success: skip
