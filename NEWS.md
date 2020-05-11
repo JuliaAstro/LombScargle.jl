@@ -1,6 +1,20 @@
 History of LombScargle.jl
 =========================
 
+v1.0.0 (2020-1?-??)
+-------------------
+
+### New Features
+
+* Previously, when using the fast method the vector of the signal was padded to
+  a length which is a power of 2, but now you can choose the factors of the
+  length of the padded vector with the new keyword argument for
+  `LombScargle.lombscargle` and `LombScargle.plan` functions:
+  `padding_factors::Union{NTuple{N,<:Integer} where {N},Vector{<:Integer}}`.
+  This defaults to `[2,3,5,7]`, which is the optimal choice for FFTW and allows
+  for smaller vectors compared to powers of 2.  To reproduce the same results as
+  with the previous default setting you need to use `padding_factors=[2]`.
+
 v0.5.1 (2020-05-15)
 -------------------
 

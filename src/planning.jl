@@ -53,8 +53,8 @@ end
 function _plan(times::AbstractVector{<:Real}, signal::AbstractVector{R1}, sumw::Real,
                w::AbstractVector{R2}, frequencies::AbstractRange{<:Real}, fast::Bool,
                with_errors::Bool, center_data::Bool, fit_mean::Bool, flags::Integer,
-               timelimit::Real, oversampling::Integer, Mfft::Integer, noise::Real,
-               normalization::Symbol) where {R1<:Real,R2<:Real}
+               timelimit::Real, padding_factors::Union{NTuple{N,<:Integer} where {N},Vector{<:Integer}},
+               oversampling::Integer, Mfft::Integer, noise::Real, normalization::Symbol) where {R1<:Real,R2<:Real}
     if fast
         @assert Mfft > 0
         @assert step(frequencies) > 0
@@ -65,7 +65,7 @@ function _plan(times::AbstractVector{<:Real}, signal::AbstractVector{R1}, sumw::
         end
         YY = w ⋅ (y .^ 2)
         N = length(frequencies)
-        Nfft = nextpow(2, N * oversampling)
+        Nfft = nextprod(padding_factors, N * oversampling)
         T = promote_type(float(R1), float(R2))
         bfft_vect = Vector{Complex{T}}(undef, Nfft)
         bfft_grid = Vector{Complex{T}}(undef, Nfft)
@@ -89,8 +89,8 @@ end
 _plan(times::AbstractVector{<:Real}, signal::AbstractVector{<:Real}, sumw::Real,
       w::AbstractVector{<:Real}, frequencies::AbstractVector{<:Real},
       fast::Bool, with_errors::Bool, center_data::Bool, fit_mean::Bool, flags::Integer,
-      timelimit::Real, oversampling::Integer, Mfft::Integer,
-      noise::Real, normalization::Symbol) =
+      timelimit::Real, padding_factors::Union{NTuple{N,<:Integer} where {N},Vector{<:Integer}},
+      oversampling::Integer, Mfft::Integer, noise::Real, normalization::Symbol) =
           _plan_no_fast(times, signal, sumw, w, frequencies,
                         with_errors, center_data, fit_mean, noise, normalization)
 
@@ -106,6 +106,7 @@ function _plan(times::AbstractVector{<:Real},
                flags::Integer=FFTW.ESTIMATE,
                timelimit::Real=Inf,
                oversampling::Integer=5,
+               padding_factors::Union{NTuple{N,<:Integer} where {N},Vector{<:Integer}}=[2],
                Mfft::Integer=4,
                samples_per_peak::Integer=5,
                nyquist_factor::Integer=5,
@@ -120,7 +121,7 @@ function _plan(times::AbstractVector{<:Real},
                fast::Bool=(length(frequencies) > 200))
     @assert length(times) == length(signal) == length(w)
     return _plan(times, signal, sumw, w, frequencies, fast, with_errors, center_data,
-                 fit_mean, flags, timelimit, oversampling, Mfft, noise_level, normalization)
+                 fit_mean, flags, timelimit, padding_factors, oversampling, Mfft, noise_level, normalization)
 end
 
 ### Main interface functions
@@ -154,6 +155,7 @@ plan(times::AbstractVector{<:Real}, signal::AbstractVector{<:Measurement}; kwarg
                      flags::Integer=FFTW.ESTIMATE,
                      timelimit::Real=Inf,
                      oversampling::Integer=5,
+                     padding_factors::Vector{Int}=[2],
                      Mfft::Integer=4,
                      samples_per_peak::Integer=5,
                      nyquist_factor::Integer=5,
@@ -211,6 +213,11 @@ ignored):
 * `oversampling`: oversampling the frequency factor for the approximation;
   roughly the number of time samples across the highest-frequency sinusoid.
   This parameter contains the tradeoff between accuracy and speed.
+* `padding_factors`: the FFT is performed on a vector with length equal to the
+  smallest number larger than or equal to `N * oversampling` which is a product
+  of all numbers in this vector.  E.g., use `padding_factors=[2]` to perform the
+  FFT on a vector padded to a power of 2, or `padding_factors=[2, 3, 5, 7]` for
+  the optimal size for the FFTW library.
 * `Mfft`: the number of adjacent points to use in the FFT approximation.
 
 In addition, you can use all optional keyword arguments of
