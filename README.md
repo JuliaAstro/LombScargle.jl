@@ -200,7 +200,7 @@ single-threaded Astropy implementation.  (Julia version: 1.41.; `LombScargle.jl`
 version: 0.5.0; Python version: 3.8.2; Astropy version: 4.0.1.  CPU: Intel(R)
 Core(TM) i7-4870HQ CPU @ 2.50GHz.)
 
-![benchmarks](https://cdn.rawgit.com/JuliaAstro/LombScargle.jl/a019e9e79baa0d16ce1dc96954bea60beecf718c/perf/benchmarks.svg)
+![benchmarks](https://raw.githubusercontent.com/JuliaAstro/LombScargle.jl/master/perf/benchmarks.svg)
 
 Note that this comparison is unfair, as Astropy doesn’t support pre-planning a
 periodogram nor exploiting multi-threading.  A non-planned periodogram in single
