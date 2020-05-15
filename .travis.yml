@@ -30,16 +30,17 @@ branches:
 cache:
   directories:
   - $HOME/.julia/artifacts
+  - $HOME/.julia/conda
 
 jobs:
   allow_failures:
     - julia: nightly
   include:
-    - stage: "Test against AstroPy"
+    - stage: "Test against Astropy"
       julia: 1.4
       os: linux
       script:
-        - julia --color=yes -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.add("PyCall"); Pkg.add("Conda"); using LombScargle, Conda; Conda.add("astropy"); include(joinpath(dirname(pathof(LombScargle)), "..", "test", "astropy.jl"))'
+        - julia --color=yes -e 'using Pkg; Pkg.add("PyCall"); Pkg.add("Conda"); using LombScargle, Conda; Conda.add("astropy"); include(joinpath(dirname(pathof(LombScargle)), "..", "test", "astropy.jl"))'
       after_success: skip
     - stage: "Documentation"
       julia: 1.4
