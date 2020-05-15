@@ -1,6 +1,21 @@
 History of LombScargle.jl
 =========================
 
+v0.5.1 (2020-05-15)
+-------------------
+
+### Bug Fixes
+
+* Minor reorganisation of the bootstraping code.
+
+v0.5.0 (2019-12-08)
+-------------------
+
+### Breaking Changes
+
+* Support for Julia 0.7 was dropped, now the minimum version required is Julia
+  v1.0.
+
 v0.4.0 (2018-08-23)
 -------------------
 
