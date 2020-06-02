@@ -138,7 +138,7 @@ All these vectors must have the same length.
     function, which has the same syntax as [`lombscargle`](@ref)
     described in this section. In this way the actual computation of the
     periodogram is faster and you will save memory. See the [Planning the
-    Periodogram](#planning-the-periodogram) section below.
+    Periodogram](#Planning-the-Periodogram-1) section below.
 
 !!! tip
 
