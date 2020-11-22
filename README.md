@@ -1,9 +1,9 @@
 # LombScargle.jl
 
-| **Documentation**                       | **Build Status**                          | **Code Coverage**               |
-|:---------------------------------------:|:-----------------------------------------:|:-------------------------------:|
-| [![][docs-stable-img]][docs-stable-url] | [![Build Status][travis-img]][travis-url] | [![][coveral-img]][coveral-url] |
-| [![][docs-latest-img]][docs-latest-url] | [![Build Status][appvey-img]][appvey-url] | [![][codecov-img]][codecov-url] |
+| **Documentation**                       | **Build Status**                    | **Code Coverage**               |
+|:---------------------------------------:|:-----------------------------------:|:-------------------------------:|
+| [![][docs-stable-img]][docs-stable-url] | [![Build Status][gha-img]][gha-url] | [![][coveral-img]][coveral-url] |
+| [![][docs-latest-img]][docs-latest-url] |                                     | [![][codecov-img]][codecov-url] |
 
 Introduction
 ------------
@@ -238,11 +238,8 @@ Astropy Team.
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
 [docs-stable-url]: https://juliaastro.github.io/LombScargle.jl/stable/
 
-[travis-img]: https://travis-ci.org/JuliaAstro/LombScargle.jl.svg?branch=master
-[travis-url]: https://travis-ci.org/JuliaAstro/LombScargle.jl
-
-[appvey-img]: https://ci.appveyor.com/api/projects/status/vv6mho713fuse6qy/branch/master?svg=true
-[appvey-url]: https://ci.appveyor.com/project/giordano/lombscargle-jl
+[gha-img]: https://github.com/JuliaAstro/LombScargle.jl/workflows/CI/badge.svg
+[gha-url]: https://github.com/JuliaAstro/LombScargle.jl/actions?query=workflow%3ACI
 
 [coveral-img]: https://coveralls.io/repos/github/JuliaAstro/LombScargle.jl/badge.svg?branch=master
 [coveral-url]: https://coveralls.io/github/JuliaAstro/LombScargle.jl?branch=master
