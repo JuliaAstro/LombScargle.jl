@@ -905,16 +905,18 @@ threads are used (on machines with at least 4 physical CPUs).
 
 The following plot shows a comparison between the times needed to compute a
 periodogram for a signal with N datapoints using `LombScargle.jl`, with 1 or 4
-threads (with `flags = FFTW.MEASURE` for better performance), and the
-single-threaded AstroPy implementation.  (Julia version: 1.41.; `LombScargle.jl`
-version: 0.5.0; Python version: 3.8.2; Astropy version: 4.0.1.  CPU: Intel(R)
+FFTW threads (with `flags = FFTW.MEASURE` for better performance), and the
+single-threaded Astropy implementation.  (Julia version: 1.6.0; `LombScargle.jl`
+version: 1.0.0; Python version: 3.8.6; Astropy version: 4.1.  CPU: Intel(R)
 Core(TM) i7-4870HQ CPU @ 2.50GHz.)
 
-![image](../../perf/benchmarks.png)
+![image](benchmarks.png)
 
-Note that this comparison is unfair, as AstroPy doesn't support pre-planning a
-periodogram nor exploiting multi-threading. A non-planned periodogram in single
-thread mode in `LombScargle.jl` is still twice faster than AstroPy.
+Note that this comparison is unfair, as Astropy doesn’t support pre-planning a
+periodogram nor multi-threading, and it pads vectors for FFT to a length which
+is a power of 2, while by default `LombScargle.jl` uses length which are
+multiples of 2, 3, 5, 7.  A non-planned periodogram in single thread mode in
+`LombScargle.jl` is still twice as fast as Astropy.
 
 Development
 -----------
