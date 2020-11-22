@@ -107,3 +107,4 @@ jobs:
       - uses: julia-actions/julia-docdeploy@releases/v1
         env:
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
+          JULIA_GR_PROVIDER: BinaryBuilder

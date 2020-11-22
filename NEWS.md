@@ -1,8 +1,6 @@
-History of LombScargle.jl
-=========================
+# History of LombScargle.jl
 
-v1.0.0 (2020-1?-??)
--------------------
+## v1.0.0 (2020-11-22)
 
 ### New Features
 
@@ -15,36 +13,31 @@ v1.0.0 (2020-1?-??)
   for smaller vectors compared to powers of 2.  To reproduce the same results as
   with the previous default setting you need to use `padding_factors=[2]`.
 
-v0.5.1 (2020-05-15)
--------------------
+## v0.5.1 (2020-05-15)
 
 ### Bug Fixes
 
 * Minor reorganisation of the bootstraping code.
 
-v0.5.0 (2019-12-08)
--------------------
+## v0.5.0 (2019-12-08)
 
 ### Breaking Changes
 
 * Support for Julia 0.7 was dropped, now the minimum version required is Julia
   v1.0.
 
-v0.4.0 (2018-08-23)
--------------------
+## v0.4.0 (2018-08-23)
 
 ### Breaking Changes
 
 * Support for Julia 0.6 was dropped.
 
-v0.3.1 (2018-07-28)
--------------------
+## v0.3.1 (2018-07-28)
 
 * Minor performance improvements
 * New documentation at https://juliaastro.github.io/LombScargle.jl/stable/
 
-v0.3.0 (2017-04-29)
--------------------
+## v0.3.0 (2017-04-29)
 
 ### New Features
 
@@ -96,8 +89,7 @@ feature.
 
 * PSD normalization with heteroskedastic errors has been fixed.
 
-v0.2.0 (2016-12-07)
--------------------
+## v0.2.0 (2016-12-07)
 
 ### Breaking Changes
 
@@ -115,8 +107,7 @@ v0.2.0 (2016-12-07)
   from the signal the weighted average of the signal itself, instead of the
   arithmetic mean.
 
-v0.1.2 (2016-10-17)
--------------------
+## v0.1.2 (2016-10-17)
 
 ### New Features
 
@@ -131,8 +122,7 @@ v0.1.2 (2016-10-17)
   Lomb–Scargle algorithm with `fit_mean = true`.  You will find different
   results than before, but for the better, previous results were slightly wrong.
 
-v0.1.1 (2016-08-20)
--------------------
+## v0.1.1 (2016-08-20)
 
 ### New Features
 
@@ -141,8 +131,7 @@ v0.1.1 (2016-08-20)
 * `findmaxfreq` function now can take an optional argument (`interval`) to limit
   the search for the maximum frequency to a certain frequency range.
 
-v0.1.0 (2016-08-18)
--------------------
+## v0.1.0 (2016-08-18)
 
 ### New Features
 
@@ -154,15 +143,13 @@ v0.1.0 (2016-08-18)
 * The generalised Lomb–Scargle algorithm by Zechmeister & Kürster is used also
   with `fit_mean=false`, when the user provided the uncertainties.
 
-v0.0.2 (2016-08-05)
--------------------
+## v0.0.2 (2016-08-05)
 
 ### New Features
 
 * New functions: `findmaxpower`, `prob`, `probinv`, `fap`, `fapinv`.
 * New optional keyword for `lombscargle` function: `noise_level`.
 
-v0.0.1 (2016-07-16)
--------------------
+## v0.0.1 (2016-07-16)
 
 Initial release.

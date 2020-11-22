@@ -19,6 +19,7 @@ ntimes = 401
             f_jl, p_jl = freqpower(lombscargle(t, s, fit_mean = fitmean,
                                                center_data = center,
                                                normalization=Symbol(nrm),
+                                               padding_factors=[2],
                                                maximum_frequency=20, fast = fast[1]))
             f_py, p_py =
                 ast.LombScargle(t, s,
@@ -46,6 +47,7 @@ errors = rand(0.1:1e-3:4.0, ntimes)
                                                fit_mean = fitmean,
                                                center_data = center,
                                                normalization=Symbol(nrm),
+                                               padding_factors=[2],
                                                maximum_frequency=10,
                                                samples_per_peak=10))
             f_py, p_py =
@@ -72,6 +74,7 @@ end
                                                center_data = center,
                                                fast = fast[1],
                                                normalization = Symbol(nrm),
+                                               padding_factors=[2],
                                                maximum_frequency=20))
             f_py, p_py =
                 ast.LombScargle(t, s, dy = errors,
