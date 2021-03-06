@@ -93,7 +93,7 @@ jobs:
           Pkg.build("PyCall")
           using LombScargle, Conda
           Conda.add("astropy")
-          include(joinpath(pkgdir(LombScargle), "..", "test", "astropy.jl"))
+          include(joinpath(pkgdir(LombScargle), "test", "astropy.jl"))
 
   Documentation:
     runs-on: ubuntu-latest
