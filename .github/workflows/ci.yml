@@ -77,14 +77,23 @@ jobs:
           cache-name: cache-artifacts
         with:
           path: ~/.julia/artifacts
-          key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
+          key: ${{ runner.os }}-astropy-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
           restore-keys: |
-            ${{ runner.os }}-test-${{ env.cache-name }}-
-            ${{ runner.os }}-test-
+            ${{ runner.os }}-astropy-${{ env.cache-name }}-
+            ${{ runner.os }}-astropy-
             ${{ runner.os }}-
       - uses: julia-actions/julia-buildpkg@latest
       - name: Compare with Astropy
-        run: julia --project=. --color=yes -e 'using Pkg; Pkg.add("Conda"); ENV["PYTHON"]=""; Pkg.add("PyCall"); Pkg.build("PyCall"); using LombScargle, Conda; Conda.add("astropy"); include(joinpath(dirname(pathof(LombScargle)), "..", "test", "astropy.jl"))'
+        shell: julia --project=. --color=yes {0}
+        run: |
+          using Pkg
+          Pkg.add("Conda")
+          ENV["PYTHON"] = ""
+          Pkg.add("PyCall")
+          Pkg.build("PyCall")
+          using LombScargle, Conda
+          Conda.add("astropy")
+          include(joinpath(pkgdir(LombScargle), "..", "test", "astropy.jl"))
 
   Documentation:
     runs-on: ubuntu-latest
@@ -99,10 +108,10 @@ jobs:
           cache-name: cache-artifacts
         with:
           path: ~/.julia/artifacts
-          key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/docs/Project.toml') }}
+          key: ${{ runner.os }}-docs-${{ env.cache-name }}-${{ hashFiles('**/docs/Project.toml') }}
           restore-keys: |
-            ${{ runner.os }}-test-${{ env.cache-name }}-
-            ${{ runner.os }}-test-
+            ${{ runner.os }}-docs-${{ env.cache-name }}-
+            ${{ runner.os }}-docs-
             ${{ runner.os }}-
       - uses: julia-actions/julia-docdeploy@releases/v1
         env:
