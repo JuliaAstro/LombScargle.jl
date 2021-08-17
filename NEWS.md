@@ -1,5 +1,12 @@
 # History of LombScargle.jl
 
+## v1.0.1 (2021-08-17)
+
+### Bug Fixes
+
+* Restore `bootstrap(::Integer, ::PeriodogramPlan)` method that was accidentally
+  removed in v0.5.1.
+
 ## v1.0.0 (2020-11-22)
 
 ### New Features
