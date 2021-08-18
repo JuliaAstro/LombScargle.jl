@@ -102,19 +102,13 @@ function _press_rybicki_fit_mean!(P, times::AbstractVector{<:Real},
                  ((1 .- C2 .* C2w .- S2 .* S2w) ./ 2 .- (S .* Cw .- C .* Sw) .^ 2)) ./ YY
 end
 
-_periodogram!(p::FastGLSPlan) =
-    _press_rybicki!(p.P, p.times, p.y, p.w, minimum(p.times), step(p.freq), length(p.freq),
-                    minimum(p.freq), p.YY, p.fftgrid, p.bfft_vect, p.bfft_grid, p.bfft_plan,
-                    length(p.bfft_vect), p.Mfft)
-_periodogram!(times, p::FastGLSPlan) =
-    _press_rybicki!(p.P, times, p.y, p.w, minimum(p.times), step(p.freq),
+_periodogram!(P::AbstractVector, times, p::FastGLSPlan) =
+    _press_rybicki!(P, times, p.y, p.w, minimum(p.times), step(p.freq),
                     length(p.freq), minimum(p.freq), p.YY, p.fftgrid, p.bfft_vect,
                     p.bfft_grid, p.bfft_plan, length(p.bfft_vect), p.Mfft)
-_periodogram!(p::FastGLSPlan_fit_mean) =
-    _press_rybicki_fit_mean!(p.P, p.times, p.y, p.w, minimum(p.times), step(p.freq),
+_periodogram!(p::FastGLSPlan) = _periodogram!(p.P, p.times, p)
+_periodogram!(P::AbstractVector, times, p::FastGLSPlan_fit_mean) =
+    _press_rybicki_fit_mean!(P, times, p.y, p.w, minimum(p.times), step(p.freq),
                              length(p.freq), minimum(p.freq), p.YY, p.fftgrid, p.bfft_vect,
                              p.bfft_grid, p.bfft_plan, length(p.bfft_vect), p.Mfft)
-_periodogram!(times, p::FastGLSPlan_fit_mean) =
-    _press_rybicki_fit_mean!(p.P, times, p.y, p.w, minimum(p.times), step(p.freq),
-                             length(p.freq), minimum(p.freq), p.YY, p.fftgrid, p.bfft_vect,
-                             p.bfft_grid, p.bfft_plan, length(p.bfft_vect), p.Mfft)
+_periodogram!(p::FastGLSPlan_fit_mean) = _periodogram!(p.P, p.times, p)
