@@ -1,5 +1,12 @@
 # History of LombScargle.jl
 
+## v1.0.2 (2021-08-19)
+
+### Bug Fixes
+
+* Make sure `bootstrap([::AbstractRNG,] ::Integer, ::PeriodogramPlan)` methods
+  don't modify the periodogram of the input plan.
+
 ## v1.0.1 (2021-08-17)
 
 ### Bug Fixes

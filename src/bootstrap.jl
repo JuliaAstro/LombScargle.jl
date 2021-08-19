@@ -28,8 +28,10 @@ else
     Random.default_rng
 end
 
-bootstrap(rng::AbstractRNG, N::Integer, p::PeriodogramPlan) =
-    Bootstrap(sort!([maximum(normalize!(_periodogram!(shuffle(rng, p.times), p), p)) for _ in 1:N], rev = true))
+function bootstrap(rng::AbstractRNG, N::Integer, p::PeriodogramPlan)
+    P = similar(p.P)
+    Bootstrap(sort!([maximum(normalize!(_periodogram!(P, shuffle(rng, p.times), p), p)) for _ in 1:N], rev = true))
+end
 
 bootstrap(N::Integer, p::PeriodogramPlan) =
     bootstrap(_default_rng(), N, p)
