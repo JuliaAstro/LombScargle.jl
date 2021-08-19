@@ -120,9 +120,11 @@ function _generalised_lombscargle!(P, freqs, times, y, w, YY, nil)
     return P
 end
 
-_periodogram!(P::AbstractVector, times, p::GLSPlan_fit_mean) =
-    _generalised_lombscargle!(P, p.freq, times, p.y, p.w, p.Y, p.YY, zero(eltype(p.P)))
-_periodogram!(p::GLSPlan_fit_mean) = _periodogram!(p.P, p.times, p)
-_periodogram!(P::AbstractVector, times, p::GLSPlan) =
-    _generalised_lombscargle!(P, p.freq, times, p.y, p.w, p.YY, zero(eltype(p.P)))
-_periodogram!(p::GLSPlan) = _periodogram!(p.P, p.times, p)
+_periodogram!(p::GLSPlan_fit_mean) =
+    _generalised_lombscargle!(p.P, p.freq, p.times, p.y, p.w, p.Y, p.YY, zero(eltype(p.P)))
+_periodogram!(times, p::GLSPlan_fit_mean) =
+    _generalised_lombscargle!(p.P, p.freq,   times, p.y, p.w, p.Y, p.YY, zero(eltype(p.P)))
+_periodogram!(p::GLSPlan) =
+    _generalised_lombscargle!(p.P, p.freq, p.times, p.y, p.w, p.YY, zero(eltype(p.P)))
+_periodogram!(times, p::GLSPlan) =
+    _generalised_lombscargle!(p.P, p.freq,   times, p.y, p.w, p.YY, zero(eltype(p.P)))
