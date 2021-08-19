@@ -76,7 +76,7 @@ pgram4 = @inferred(lombscargle(LombScargle.plan(t, s, fast = false, center_data=
     @testset "Fast method" begin
         @test power(pgram5) ≈ power(pgram6) atol = 3e-4
         @test power(lombscargle(t, s, frequencies=0.2:0.2:1, fast=true, fit_mean=true, flags = FFTW.MEASURE, timelimit = 5)) ≈
-            [0.029886871262325053, 0.0005447325913220627, 2.1246300058375996e-5, 4.1259517049745417e-7, 5.04610747916143e-5]
+            [0.029886871262325053, 0.0005447325913220627, 2.1246300058375996e-5, 4.1259517049745417e-7, 5.04610747916143e-5] 
         @test power(lombscargle(t, s, frequencies=0.2:0.2:1, fast=true, fit_mean=false, flags = FFTW.MEASURE, timelimit = 5)) ≈
             [0.0298868677604221, 0.0005447324642349108, 2.1246261449681898e-5, 4.125675324400738e-7, 5.042481545188997e-5]
         @test power(lombscargle(t, s, frequencies=0.2:0.2:1, fast=true, center_data=false, fit_mean=false, flags = FFTW.MEASURE, timelimit = 5)) ≈
@@ -186,51 +186,23 @@ end
 
     @testset "Bootstrap" begin
         rng = StableRNG(1)
-        plan = LombScargle.plan(x, y)
-        # Fill the periodogram in the plan with random numbers, to remove
-        # possible NaNs, which would make the check below harder.  Zeroing the
-        # vector would be uninteresting.
-        plan.P .= rand.()
-        P = copy(plan.P)
-        @test LombScargle.bootstrap(rng, 5, plan).p ≈
+        @test LombScargle.bootstrap(rng, 5, x, y).p ≈
             [0.2583163570869385, 0.24972129609003385, 0.23092196417031927, 0.18502993723773883, 0.1789661587851332]
-        # Make sure the periodogram in the plan didn't change.
-        @test plan.P == P
         rng = StableRNG(1)
-        plan = LombScargle.plan(x, y; fit_mean = false)
-        plan.P .= rand.()
-        P = copy(plan.P)
-        @test LombScargle.bootstrap(rng, 5, plan).p ≈
+        @test LombScargle.bootstrap(rng, 5, x, y, fit_mean = false).p ≈
             [0.2580212594813987, 0.24897444742007394, 0.23090538831280463, 0.18492853793841382, 0.17895144706266247]
-        @test plan.P == P
         err = collect(range(0.5, stop = 1.5, length = 50))
         rng = StableRNG(1)
-        plan = LombScargle.plan(x, measurement.(y, err); fast = true)
-        plan.P .= rand.()
-        P = copy(plan.P)
-        b = LombScargle.bootstrap(rng, 50, plan)
+        b = LombScargle.bootstrap(rng, 50, x, measurement.(y, err), fast = true)
         @test fap(b, fapinv(b, 0.02)) ≈ 0.02
-        @test plan.P == P
         rng = StableRNG(1)
-        plan = LombScargle.plan(x, measurement.(y, err); fast = false)
-        plan.P .= rand.()
-        P = copy(plan.P)
-        b = LombScargle.bootstrap(rng, 50, plan)
+        b = LombScargle.bootstrap(rng, 50, x, measurement.(y, err), fast = false)
         @test fap(b, fapinv(b, 0.02)) ≈ 0.02
-        @test plan.P == P
         rng = StableRNG(1)
-        plan = LombScargle.plan(x, measurement.(y, err), fast = false, fit_mean = false)
-        plan.P .= rand.()
-        P = copy(plan.P)
-        @test fapinv(LombScargle.bootstrap(rng, 50, plan),
+        @test fapinv(LombScargle.bootstrap(rng, 50, x, measurement.(y, err), fast = false, fit_mean = false),
                      0.2) ≈ 0.23917691901908134
-        @test plan.P == P
         rng = StableRNG(1)
-        plan = LombScargle.plan(x, y; fast=false, fit_mean=false)
-        plan.P .= rand.()
-        P = copy(plan.P)
-        @test fapinv(LombScargle.bootstrap(rng, 1000, plan), 0.2) ≈
+        @test fapinv(LombScargle.bootstrap(rng, 1000, x, y, fast=false, fit_mean=false), 0.2) ≈
             0.2157617143004672
-        @test plan.P == P
     end
 end
