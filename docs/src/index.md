@@ -308,9 +308,11 @@ of observations.
 
   ```math
   P(f) = \frac{1}{2}\left[\frac{YC^2_{\tau}}{CC_{\tau}} +
-  \frac{YS^2_{\tau}}{SS_{\tau}}\right] = p(f) \frac{YY}{2}
+  \frac{YS^2_{\tau}}{SS_{\tau}}\right] = p(f) \frac{W*YY}{2}
   ```
-
+  
+  where W is the sum of the inverse of the individual errors, ``W = \sum \frac{1}{\sigma_{i}}``, as given in [ZK09].
+  
 - `:Scargle`:
 
   ```math
