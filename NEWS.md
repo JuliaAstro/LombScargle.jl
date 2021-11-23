@@ -1,5 +1,12 @@
 # History of LombScargle.jl
 
+## v1.0.3 (2021-11-23)
+
+### Bug Fixes
+
+* Removed some redundant internal methods.
+* Fixed a typo in PSD normalisation formula in documentation (#28, #29).
+
 ## v1.0.2 (2021-08-19)
 
 ### Bug Fixes
