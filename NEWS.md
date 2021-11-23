@@ -5,7 +5,9 @@
 ### Bug Fixes
 
 * Removed some redundant internal methods.
-* Fixed a typo in PSD normalisation formula in documentation (#28, #29).
+* Fixed a typo in PSD normalisation formula in documentation
+  ([#28](https://github.com/JuliaAstro/LombScargle.jl/issues/28),
+  [#29](https://github.com/JuliaAstro/LombScargle.jl/pull/29)).
 
 ## v1.0.2 (2021-08-19)
 
