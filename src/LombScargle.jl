@@ -105,4 +105,6 @@ plan a Lomb–Scargle periodogram.
 """
 lombscargle(::PeriodogramPlan)
 
+_periodogram!(p::PeriodogramPlan) = _periodogram!(p.P, p.times, p)
+
 end # module

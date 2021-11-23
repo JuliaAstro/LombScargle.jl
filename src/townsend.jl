@@ -55,4 +55,3 @@ function _lombscargle_orig!(P::AbstractVector{T}, times::AbstractVector{<:Real},
 end
 
 _periodogram!(P::AbstractVector, times, p::LSPlan) = _lombscargle_orig!(P, times, p.X, p.freq, p.YY)
-_periodogram!(p::LSPlan) = _periodogram!(p.P, p.times, p)

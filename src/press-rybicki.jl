@@ -106,9 +106,7 @@ _periodogram!(P::AbstractVector, times, p::FastGLSPlan) =
     _press_rybicki!(P, times, p.y, p.w, minimum(p.times), step(p.freq),
                     length(p.freq), minimum(p.freq), p.YY, p.fftgrid, p.bfft_vect,
                     p.bfft_grid, p.bfft_plan, length(p.bfft_vect), p.Mfft)
-_periodogram!(p::FastGLSPlan) = _periodogram!(p.P, p.times, p)
 _periodogram!(P::AbstractVector, times, p::FastGLSPlan_fit_mean) =
     _press_rybicki_fit_mean!(P, times, p.y, p.w, minimum(p.times), step(p.freq),
                              length(p.freq), minimum(p.freq), p.YY, p.fftgrid, p.bfft_vect,
                              p.bfft_grid, p.bfft_plan, length(p.bfft_vect), p.Mfft)
-_periodogram!(p::FastGLSPlan_fit_mean) = _periodogram!(p.P, p.times, p)
