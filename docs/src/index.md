@@ -307,7 +307,7 @@ of observations.
 - `:psd`:
 
   ```math
-  P(f) = \frac{1}{2}\left[\frac{YC^2_{\tau}}{CC_{\tau}} +
+  P(f) = \frac{W}{2}\left[\frac{YC^2_{\tau}}{CC_{\tau}} +
   \frac{YS^2_{\tau}}{SS_{\tau}}\right] = p(f) \frac{W*YY}{2}
   ```
   
