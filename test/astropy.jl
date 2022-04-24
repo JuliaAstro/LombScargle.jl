@@ -1,6 +1,6 @@
 ### Compare LombScargle.jl with Astropy
 
-using LombScargle, Test, PyCall, Random
+using LombScargle, Test, PythonCall, Random
 ast = pyimport("astropy.timeseries")
 
 Random.seed!(1)
@@ -27,8 +27,8 @@ ntimes = 401
                                 center_data = center).autopower(method=fast[2],
                                                                 normalization=nrm,
                                                                 maximum_frequency=20)
-            @test f_jl ≈ f_py
-            @test p_jl ≈ p_py
+            @test f_jl ≈ pyconvert(Vector, f_py)
+            @test p_jl ≈ pyconvert(Vector, p_py)
         end
     end
 end
@@ -57,8 +57,8 @@ errors = rand(0.1:1e-3:4.0, ntimes)
                                                                 normalization=nrm,
                                                                 maximum_frequency=10,
                                                                 samples_per_peak=10)
-            @test f_jl ≈ f_py
-            @test p_jl ≈ p_py
+            @test f_jl ≈ pyconvert(Vector, f_py)
+            @test p_jl ≈ pyconvert(Vector, p_py)
         end
     end
 end
@@ -82,8 +82,8 @@ end
                                 center_data = center).autopower(method=fast[2],
                                                                 normalization = nrm,
                                                                 maximum_frequency=20)
-            @test f_jl ≈ f_py
-            @test p_jl ≈ p_py
+            @test f_jl ≈ pyconvert(Vector, f_py)
+            @test p_jl ≈ pyconvert(Vector, p_py)
         end
     end
 end
@@ -94,7 +94,7 @@ end
         @testset "$fm, $cd" for fm in (true, false), cd in (true, false)
             m_jl = LombScargle.model(t, s, 1/2pi, fit_mean=fm, center_data=cd)
             m_py = ast.LombScargle(t, s, center_data=cd, fit_mean=fm).model(t, 1/2pi)
-            @test m_jl ≈ m_py
+            @test m_jl ≈ pyconvert(Vector, m_py)
         end
     end
 end
