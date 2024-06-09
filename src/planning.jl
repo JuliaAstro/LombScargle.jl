@@ -1,4 +1,4 @@
-### press-rybicki.jl ---  Plan the Lomb–Scargle periodogram
+### planning.jl ---  Plan the Lomb–Scargle periodogram
 #
 # Copyright (C) 2017 Mosè Giordano.
 #
