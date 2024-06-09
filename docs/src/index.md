@@ -705,7 +705,7 @@ provided, instead it is always used if the signal has uncertainties.
 [`findmaxfreq`](@ref) function tells you the frequencies with the highest power
 in the periodogram (and you can get the period by taking its inverse):
 
-```jldoctest
+```jldoctest demo1
 julia> t = range(0, stop = 10, length = 1001);
 
 julia> s = sinpi.(t);
@@ -715,11 +715,11 @@ julia> plan = LombScargle.plan(t, s); # Plan the periodogram
 julia> p = lombscargle(plan);
 
 julia> findmaxperiod(p) # Period with highest power
-1-element Array{Float64,1}:
+1-element Vector{Float64}:
  0.004987779939149084
 
 julia> findmaxfreq(p) # Frequency with the highest power
-1-element Array{Float64,1}:
+1-element Vector{Float64}:
  200.49
 ```
 
@@ -727,13 +727,13 @@ This peak is at high frequencies, very far from the expected value of the period
 of 2. In order to find the real peak, you can either narrow the ranges in order
 to exclude higher armonics
 
-```julia
+```jldoctest demo1
 julia> findmaxperiod(p, [1, 10]) # Limit the search to periods in [1, 10]
-1-element Array{Float64,1}:
- 2.04082
+1-element Vector{Float64}:
+ 2.0408163265306123
 
 julia> findmaxfreq(p, [0.1, 1]) # Limit the search to frequencies in [0.1, 1]
-1-element Array{Float64,1}:
+1-element Vector{Float64}:
  0.49
 ```
 
@@ -741,25 +741,25 @@ or pass the `threshold` argument to [`findmaxfreq`](@ref) or
 [`findmaxperiod`](@ref). You can use [`findmaxpower`](@ref) to discover the
 highest power in the periodogram:
 
-```julia
+```jldoctest demo1
 julia> findmaxpower(p)
-0.9958310178312316
+0.9996235276303144
 
 julia> findmaxperiod(p, 0.95)
-10-element Array{Float64,1}:
- 2.04082
- 1.96078
- 0.0100513
- 0.0100492
- 0.00995124
- 0.00994926
- 0.00501278
- 0.00501228
- 0.00498778
- 0.00498728
+10-element Vector{Float64}:
+ 2.0408163265306123
+ 1.9607843137254901
+ 0.010051261433309882
+ 0.010049241282283187
+ 0.009951238929246691
+ 0.009949258780220873
+ 0.005012782595618828
+ 0.005012280086211218
+ 0.004987779939149084
+ 0.004987282429804
 
 julia> findmaxfreq(p, 0.95)
-10-element Array{Float64,1}:
+10-element Vector{Float64}:
    0.49
    0.51
   99.49
@@ -777,7 +777,7 @@ armonics.
 
 !!! tip
 
-    Usually, plotting the periodogram can give you a clue of what's going on.
+    Usually, plotting the periodogram can give you a clearer idea of what's going on.
 
 
 ### Significance of the Peaks
