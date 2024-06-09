@@ -84,6 +84,15 @@ The package provides facilities to:
 - determine the best-fitting Lomb--Scargle model for the given data
   set at the given frequency.
 
+
+Contents
+--------
+```@contents
+Pages = ["index.md"]
+Depth = 4
+```
+
+
 Installation
 ------------
 
