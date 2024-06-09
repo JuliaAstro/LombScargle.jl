@@ -587,23 +587,16 @@ Examples
 Here is an example of a noisy periodic signal (``\sin(\pi t) + 1.5\cos(2\pi t)``)
 sampled at unevenly spaced times.
 
-```julia
-julia> using LombScargle
-
-julia> ntimes = 1001
-1001
-
-julia> t = range(0.01, stop = 10pi, length = ntimes) # Observation times
-0.01:0.03140592653589793:31.41592653589793
-
-julia> t += step(t)*rand(ntimes) # Randomize times
-
-julia> s = sinpi.(t) .+ 1.5cospi.(2t) .+ rand(ntimes) # The signal
-
-julia> plan = LombScargle.plan(t, s); # Pre-plan the periodogram
-
-julia> pgram = lombscargle(plan) # Compute the periodogram
-LombScargle.Periodogram{Float64,StepRangeLen{Float64,Base.TwicePrecision{Float64},Base.TwicePrecision{Float64}},Array{Float64,1}}([0.000472346, 0.000461633, 0.000440906, 0.000412717, 0.000383552, 0.000355828, 0.000289723, 0.000154585, 3.44734e-5, 5.94437e-7  …  3.15125e-5, 0.000487391, 0.0018939, 0.00367003, 0.00484181, 0.00495189, 0.00453233, 0.00480968, 0.00619657, 0.0074052], 0.003185690706734265:0.00637138141346853:79.72190993602499, [0.0295785, 0.0540516, 0.0780093, 0.122759, 0.15685, 0.192366, 0.206601, 0.252829, 0.265771, 0.315443  …  31.1512, 31.1758, 31.2195, 31.2342, 31.2752, 31.293, 31.3517, 31.3761, 31.4148, 31.4199], :standard)
+```@repl example1
+using LombScargle
+using Random
+Random.seed!(42); # make plots reproducible
+ntimes = 1001;
+t = range(0.01, 10pi, length = ntimes) # Observation times
+t += step(t)*rand(ntimes); # Randomize times
+s = sinpi.(t) .+ 1.5cospi.(2t) .+ rand(ntimes); # The signal
+plan = LombScargle.plan(t, s); # Pre-plan the periodogram
+pgram = lombscargle(plan) # Compute the periodogram
 ```
 
 You can plot the result, for example with
@@ -611,22 +604,26 @@ You can plot the result, for example with
 function to get the frequency grid and the power of the periodogram as a
 2-tuple.
 
-```julia
+```@example example1
 using Plots
+gr(size = (1200, 800)) # hide
 plot(freqpower(pgram)...)
+xlims!(0, 2.0) # hide
+xlabel!("Frequency") # hide
+ylabel!("Lomb–Scargle power") # hide
 ```
-
-![image](freq-periodogram.png)
 
 You can also plot the power vs the period, instead of the frequency, with
 [`periodpower`](@ref):
 
-```julia
+```@example example1
 using Plots
+gr(size = (1200, 800)) # hide
 plot(periodpower(pgram)...)
+xlims!(0.5, 2.5) # hide
+xlabel!("Period")
+ylabel!("Lomb–Scargle power")
 ```
-
-![image](period-periodogram.png)
 
 !!! warning
     If you do not fit for the mean of the signal (`fit_mean=false` keyword to
@@ -634,11 +631,10 @@ plot(periodpower(pgram)...)
     you can get inaccurate results. For example, spurious peaks at low frequencies
     can appear and the real peaks lose power:
 
-    ```julia
+    ```@example example1
     plot(freqpower(lombscargle(t, s, fit_mean=false, center_data=false))...)
+    xlims!(0, 2.0) # hide
     ```
-
-    ![image](figure_2.png)
 
 
 !!! tip
@@ -648,20 +644,17 @@ plot(periodpower(pgram)...)
     increase `samples_per_peak`, and set `maximum_frequency` to lower values in
     order to narrow the frequency range:
 
-    ```julia
+    ```@example example1
     plot(freqpower(lombscargle(t, s, samples_per_peak=20, maximum_frequency=1.5))...)
     ```
 
-    ![image](figure_3.png)
 
     If you simply want to use your own frequency grid, directly set the
     `frequencies` keyword:
 
-    ```julia
+    ```@example example1
     plot(freqpower(lombscargle(t, s, frequencies=0.001:1e-3:1.5))...)
     ```
-
-    ![image](figure_4.png)
 
 
 ### Signal with Uncertainties
@@ -673,18 +666,19 @@ uncertainties can be passed either as the third optional argument `errors` to
 type `Measurement` (from
 [Measurements.jl](https://github.com/JuliaPhysics/Measurements.jl) package).
 
-```julia
+```@example uncertainties
+using LombScargle # hide
 using Measurements, Plots
+gr(size = (1200, 800)) # hide
 ntimes = 1001
 t = range(0.01, stop = 10pi, length = ntimes)
 s = sinpi.(2t)
 errors = rand(0.1:1e-3:4.0, ntimes)
 # Run one of the two following equivalent commands
 plot(freqpower(lombscargle(t, s, errors, maximum_frequency=1.5))...)
-plot(freqpower(lombscargle(t, measurement(s, errors), maximum_frequency=1.5))...)
+plot(freqpower(lombscargle(t, measurement.(s, errors), maximum_frequency=1.5))...)
+xlims!(0.25, 1.5) # hide
 ```
-
-![image](freq-uncertainties.png)
 
 This is the plot of the power versus the period:
 
@@ -693,8 +687,10 @@ This is the plot of the power versus the period:
 plot(periodpower(lombscargle(t, s, errors, maximum_frequency=1.5))...)
 plot(periodpower(lombscargle(t, measurement(s, errors), maximum_frequency=1.5))...)
 ```
-
-![image](period-uncertainties.png)
+```@example uncertainties
+plot(periodpower(lombscargle(t, s, errors, maximum_frequency=1.5))...) # hide
+xlims!(0.75, 2) # hide
+```
 
 We recall that the generalised Lomb--Scargle algorithm is used when the
 `fit_mean` optional keyword to [`lombscargle`](@ref) is `true` if no error is
@@ -865,8 +861,12 @@ or equal to one (for example ``N = 10^{5}``).
 The [`LombScargle.model`](@ref) function can help you to test whether a certain
 frequency fits well your data.
 
-```julia
+```@example
+using LombScargle
+using Random
 using Plots
+gr(size = (1200, 800)) # hide
+Random.seed!(42)
 t = range(0.01, stop = 10pi, length = 1000) # Observation times
 s = sinpi.(t) .+ 1.2cospi.(t) .+ 0.3rand(length(t)) # The noisy signal
 # Pick-up the best frequency
@@ -877,15 +877,17 @@ scatter(mod.(t.*f, 1), s, lab="Phased data", title="Best Lomb-Scargle frequency:
 plot!(t_fit, s_fit, lab="Best-fitting model", linewidth=4)
 ```
 
-![image](figure_6.png)
-
 !!! tip
     If there are more than one dominant frequency you may need to consider more
     models. This task may require some work and patience. Plot the periodogram in
     order to find the best frequencies.
 
-    ```julia
+    ```@example
+    using LombScargle
+    using Random
     using Plots
+    gr(size = (1200, 800)) # hide
+    Random.seed!(42)
     t = range(0.01, stop = 5, length = 1000) # Observation times
     s = sinpi.(2t) .+ 1.2cospi.(4t) .+ 0.3rand(length(t)) # Noisy signal
     plan = LombScargle.plan(t, s, samples_per_peak=50)
@@ -899,8 +901,6 @@ plot!(t_fit, s_fit, lab="Best-fitting model", linewidth=4)
     scatter(t, s, lab="Data", title="Best-fitting Lomb-Scargle model")
     plot!(t, fit1 + fit2, lab="Best-fitting model", linewidth=4)
     ```
-
-    ![image](figure_7.png)
 
 
 Performance
