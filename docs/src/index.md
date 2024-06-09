@@ -783,14 +783,14 @@ by measuring the [False-Alarm Probability](#false-alarm-probability). Analytic
 expressions of this quantity and its inverse can be obtained with the
 [`fap`](@ref) and [`fapinv`](@ref) functions, respectively.
 
-```julia
-julia> t = linspace(0.01, 20, samples_per_peak = 10)
+```julia-repl
+julia> t = linspace(0.01, 20, samples_per_peak = 10);
 
-julia> s = sinpi.(e.*t).^2 .- cos.(5t).^4
+julia> s = sinpi.(e.*t).^2 .- cos.(5t).^4;
 
 julia> plan = LombScargle.plan(t, s);
 
-julia> p = lombscargle(plan)
+julia> p = lombscargle(plan);
 
 # Find the false-alarm probability for the highest peak.
 julia> fap(p, 0.3)
@@ -803,7 +803,7 @@ probability as well: what is the minimum power whose false-alarm probability is
 lower than the given probability? For example, if you want to know the minimum
 power for which the false-alarm probability is at most ``0.01`` you can use:
 
-```julia
+```julia-repl
 julia> fapinv(p, 0.01)
 0.3304696923786712
 ```
@@ -825,20 +825,23 @@ you can calculate the false-alarm probability and its inverse using this sample.
     normalization). More robust results can be obtained with the `fast = false`
     option.
 
-```julia
-# Create a bootstrap sample with 10000
-# resamplings of the original data, re-using the
-# same periodogram plan.  The larger the better.
-# This may take some minutes.
+Create a bootstrap sample with 10000 resamplings of the original data,
+re-using the same periodogram plan.  The larger the better.
+This may take some minutes.
+```julia-repl
 julia> b = LombScargle.bootstrap(10000, plan)
+```
 
-# Calculate the false-alarm probability of a peak
-# with power 0.3 using this bootstrap sample.
+Calculate the false-alarm probability of a peak
+with power 0.3 using this bootstrap sample.
+```julia-repl
 julia> fap(b, 0.3)
 0.0209
+```
 
-# Calculate the lowest power that has probability
-# less than 0.01 in this bootstrap sample.
+Calculate the lowest power that has probability
+less than 0.01 in this bootstrap sample.
+```julia-repl
 julia> fapinv(b, 0.01)
 0.3268290388848437
 ```
@@ -846,7 +849,7 @@ julia> fapinv(b, 0.01)
 If you query [`fapinv`](@ref) with a too low probability, the corresponding
 power cannot be determined and you will get `NaN` as result.
 
-```julia
+```julia-repl
 julia> fapinv(b, 1e-5)
 NaN
 ```
