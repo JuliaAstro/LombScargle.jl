@@ -88,9 +88,9 @@ Installation
 ------------
 
 `LombScargle.jl` is available for Julia 0.7 and later versions, and can
-be installed with [Julia's built-in package
-manager](http://docs.julialang.org/en/stable/manual/packages/). In a
-Julia session run the commands
+be installed with Julia's built-in
+[package manager](http://docs.julialang.org/en/stable/manual/packages/).
+In a Julia session run the commands
 
 ```julia
 julia> using Pkg
@@ -284,8 +284,10 @@ function. [ZK09] wrote the formula for the power of the periodogram at frequency
 ``f`` as
 
 ```math
-p(f) = \frac{1}{YY}\left[\frac{YC^2_{\tau}}{CC_{\tau}} +
-\frac{YS^2_{\tau}}{SS_{\tau}}\right]
+p(f) = \frac{1}{YY} \left[
+\frac{YC^2_{\tau}}{CC_{\tau}} +
+\frac{YS^2_{\tau}}{SS_{\tau}}
+\right]
 ```
 
 See the paper for details. The other normalizations for periodograms
@@ -310,9 +312,9 @@ of observations.
   P(f) = \frac{W}{2}\left[\frac{YC^2_{\tau}}{CC_{\tau}} +
   \frac{YS^2_{\tau}}{SS_{\tau}}\right] = p(f) \frac{W*YY}{2}
   ```
-  
+
   where W is the sum of the inverse of the individual errors, ``W = \sum \frac{1}{\sigma_{i}}``, as given in [ZK09].
-  
+
 - `:Scargle`:
 
   ```math
@@ -399,11 +401,11 @@ will be this probability.
     reported by [ZK09], that are `:standard`, `:Scargle`,
     `:HorneBaliunas`, and `:Cumming`.
 
-The probability ``\text{Prob}(p > p_{0})`` that the periodogram power ``p`` can
-exceed the value ``p_{0}`` can be calculated with the [`prob`](@ref) function,
-whose first argument is the periodogram and the second one is the ``p_{0}``
+The probability ``\Pr(p > p_0)`` that the periodogram power ``p`` can
+exceed the value ``p_0`` can be calculated with the [`prob`](@ref) function,
+whose first argument is the periodogram and the second one is the ``p_0``
 value. The function [`probinv`](@ref) is its inverse: it takes the probability
-as second argument and returns the corresponding ``p_{0}`` value.
+as second argument and returns the corresponding ``p_0`` value.
 
 ```@docs
 prob(::LombScargle.Periodogram, ::Real)
@@ -419,25 +421,25 @@ Here are the probability functions for each normalization supported by
 - `:standard` (``p \in [0, 1]``):
 
   ```math
-  \text{Prob}(p > p_{0}) = (1 - p_{0})^{(N - 3)/2}
+  \Pr(p > p_0) = (1 - p_0)^{(N - 3)/2}
   ```
 
 - `:Scargle` (``p \in [0, \infty)``):
 
   ```math
-  \text{Prob}(p > p_{0}) = \exp(-p_{0})
+  \Pr(p > p_0) = \exp(-p_0)
   ```
 
 - `:HorneBaliunas` (``p \in [0, (N - 1)/2]``):
 
   ```math
-  \text{Prob}(p > p_{0}) = \left(1 - \frac{2p_{0}}{N - 1}\right)^{(N - 3)/2}
+  \Pr(p > p_0) = \left(1 - \frac{2p_0}{N - 1}\right)^{(N - 3)/2}
   ```
 
 - `:Cumming` (``p \in [0, \infty)``):
 
   ```math
-  \text{Prob}(p > p_{0}) = \left(1 + \frac{2p_{0}}{N - 3}\right)^{-(N - 3)/2}
+  \Pr(p > p_0) = \left(1 + \frac{2p_0}{N - 3}\right)^{-(N - 3)/2}
   ```
 
 As explained by [SS10], «the term "false-alarm probability denotes the
@@ -446,12 +448,12 @@ prescribed search band of a power spectrum computed from a white-noise time
 series is expected to be as large as or larger than a given
 value». `LombScargle.jl` provides the [`fap`](@ref) function to calculate the
 false-alarm probability (FAP) of a given power in a periodogram. Its first
-argument is the periodogram, the second one is the value ``p_{0}`` of the power
+argument is the periodogram, the second one is the value ``p_0`` of the power
 of which you want to calculate the FAP. The function [`fap`](@ref) uses the
 formula
 
 ```math
-\text{FAP} = 1 - (1 - \text{Prob}(p > p_{0}))^M
+\mathrm{FAP} = 1 - (1 - \Pr(p > p_0))^M
 ```
 
 where ``M`` is the number of independent frequencies estimated with ``M = T
@@ -459,19 +461,19 @@ where ``M`` is the number of independent frequencies estimated with ``M = T
 the width of the frequency range in which the periodogram has been calculated
 (see [CUM04]). The function [`fapinv`](@ref) is the inverse of [`fap`](@ref): it
 takes as second argument the value of the FAP and returns the corresponding
-value ``p_{0}`` of the power.
+value ``p_0`` of the power.
 
-The detection threshold ``p_{0}`` is the periodogram power corresponding to some
-(small) value of ``\text{FAP}``, i.e. the value of ``p`` exceeded due to noise
-alone in only a small fraction ``\text{FAP}`` of trials. An observed power
-larger than ``p_{0}`` indicates that a signal is likely present (see [CUM04]).
+The detection threshold ``p_0`` is the periodogram power corresponding to some
+(small) value of ``\mathrm{FAP}``, i.e. the value of ``p`` exceeded due to noise
+alone in only a small fraction ``\mathrm{FAP}`` of trials. An observed power
+larger than ``p_0`` indicates that a signal is likely present (see [CUM04]).
 
 !!! warning
 
     Some authors stressed that this method to calculate the false-alarm probability
     is not completely reliable. A different approach to calculate the false-alarm
     probability is to perform Monte Carlo or bootstrap simulations in order to
-    determine how often a certain power level ``p_{0}`` is exceeded just by chance
+    determine how often a certain power level ``p_0`` is exceeded just by chance
     (see [CMB99], [CUM04], and [ZK09]). See the [Bootstrapping](@ref) section.
 
 #### Bootstrapping
@@ -525,8 +527,8 @@ fapinv(::LombScargle.Bootstrap{<:AbstractFloat}, ::Real)
 ### `LombScargle.model` Function
 
 For each frequency ``f`` (and hence for the corresponding angular frequency
-``\omega = 2\pi f``) the Lomb--Scargle algorithm looks for the sinusoidal function
-of the type
+``\omega = 2\pi f``) the Lomb--Scargle algorithm looks for the
+sinusoidal function of the type
 
 ```math
 a_f\cos(\omega t) + b_f\sin(\omega t) + c_f
@@ -535,36 +537,32 @@ a_f\cos(\omega t) + b_f\sin(\omega t) + c_f
 that best fits the data. In the original Lomb--Scargle algorithm the offset
 ``c`` is null (see [LOM76]). In order to find the best-fitting coefficients
 ``a_f``, ``b_f``, and ``c_f`` for the given frequency ``f``, without actually
-performing the periodogram, you can solve the linear system ``\mathbf{A}x =
-\mathbf{y}``, where ``\mathbf{A}`` is the matrix
+performing the periodogram, you can solve the linear system
+``\mathbf{A} \mathbf{x} = \mathbf{y}``, where ``\mathbf{A}`` is the matrix
 
 ```math
-\begin{aligned}
 \begin{bmatrix}
   \cos(\omega t) & \sin(\omega t) & 1
 \end{bmatrix} =
 \begin{bmatrix}
-  \cos(\omega t_{1}) & \sin(\omega t_{1}) & 1      \\
-  \vdots             & \vdots             & \vdots \\
-  \cos(\omega t_{n}) & \sin(\omega t_{n}) & 1
+  \cos(\omega t_1) & \sin(\omega t_1) & 1      \\
+  \vdots           & \vdots           & \vdots \\
+  \cos(\omega t_n) & \sin(\omega t_n) & 1
 \end{bmatrix}
-\end{aligned}
 ```
 
-``t = [t_1, \dots, t_n]^\text{T}`` is the column vector of observation
-times, ``x`` is the column vector with the unknown coefficients
+``t = [t_1, \dots, t_n]^\mathsf{T}`` is the column vector of observation
+times, ``\mathbf{x}`` is the column vector with the unknown coefficients
 
 ```math
-\begin{aligned}
 \begin{bmatrix}
-  a_f \\
-  b_f \\
-  c_f
+    a_f \\
+    b_f \\
+    c_f
 \end{bmatrix}
-\end{aligned}
 ```
 
-and ``\textbf{y}`` is the column vector of the signal. The solution of the matrix
+and ``\mathbf{y}`` is the column vector of the signal. The solution of the matrix
 gives the wanted coefficients.
 
 This is what the [`LombScargle.model`](@ref) function does in order to return
