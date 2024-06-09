@@ -96,14 +96,13 @@ Depth = 4
 Installation
 ------------
 
-`LombScargle.jl` is available for Julia 0.7 and later versions, and can
+`LombScargle.jl` is available for Julia 1.0 and later versions, and can
 be installed with Julia's built-in
 [package manager](http://docs.julialang.org/en/stable/manual/packages/).
 In a Julia session run the commands
 
-```julia
-julia> using Pkg
-julia> Pkg.update()
+```julia-repl
+julia> import Pkg
 julia> Pkg.add("LombScargle")
 ```
 
