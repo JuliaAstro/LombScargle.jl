@@ -27,39 +27,27 @@ widely used.
 
 The algorithms used in this package are reported in the following papers:
 
-* [PR89] Press, W. H., Rybicki, G. B. 1989, ApJ, 338, 277 (URL:
-  <http://dx.doi.org/10.1086/167197>, Bibcode:
-  <http://adsabs.harvard.edu/abs/1989ApJ...338..277P>)
-* [TOW10] Townsend, R. H. D. 2010, ApJS, 191, 247 (URL:
-  <http://dx.doi.org/10.1088/0067-0049/191/2/247>, Bibcode:
-  <http://adsabs.harvard.edu/abs/2010ApJS..191..247T>)
-* [ZK09] Zechmeister, M., Kürster, M. 2009, A&A, 496, 577 (URL:
-  <http://dx.doi.org/10.1051/0004-6361:200811296>, Bibcode:
-  <http://adsabs.harvard.edu/abs/2009A%26A...496..577Z>)
+```@bibliography
+Pages = []
+Canonical = false
+PR89
+TOW10
+ZK09
+```
 
 Other relevant papers are:
 
-* [CMB99] Cumming, A., Marcy, G. W., & Butler, R. P. 1999, ApJ, 526, 890 (URL:
-  <http://dx.doi.org/10.1086/308020>, Bibcode:
-  <http://adsabs.harvard.edu/abs/1999ApJ...526..890C>)
-* [CUM04] Cumming, A. 2004, MNRAS, 354, 1165 (URL:
-  <http://dx.doi.org/10.1111/j.1365-2966.2004.08275.x>, Bibcode:
-  <http://adsabs.harvard.edu/abs/2004MNRAS.354.1165C>)
-* [HB86] Horne, J. H., & Baliunas, S. L. 1986, ApJ, 302, 757 (URL:
-  <http://dx.doi.org/10.1086/164037>, Bibcode:
-  <http://adsabs.harvard.edu/abs/1986ApJ...302..757H>)
-* [LOM76] Lomb, N. R. 1976, Ap&SS, 39, 447 (URL:
-  <http://dx.doi.org/10.1007/BF00648343>, Bibcode:
-  <http://adsabs.harvard.edu/abs/1976Ap%26SS..39..447L>)
-* [MHC93] Murdoch, K. A., Hearnshaw, J. B., & Clark, M. 1993, ApJ, 413, 349
-  (URL: <http://dx.doi.org/10.1086/173003>, Bibcode:
-  <http://adsabs.harvard.edu/abs/1993ApJ...413..349M>)
-* [SCA82] Scargle, J. D. 1982, ApJ, 263, 835 (URL:
-  <http://dx.doi.org/10.1086/160554>, Bibcode:
-  <http://adsabs.harvard.edu/abs/1982ApJ...263..835S>)
-* [SS10] Sturrock, P. A., & Scargle, J. D. 2010, ApJ, 718, 527 (URL:
-  <http://dx.doi.org/10.1088/0004-637X/718/1/527>, Bibcode:
-  <http://adsabs.harvard.edu/abs/2010ApJ...718..527S>)
+```@bibliography
+Pages = []
+Canonical = false
+CMB99
+CUM04
+HB86
+LOM76
+MHC93
+SCA82
+SS10
+```
 
 The package provides facilities to:
 
@@ -169,16 +157,16 @@ which case you need not to pass a separate `errors` vector for the uncertainties
 of the signal. You can create arrays of `Measurement` objects with the
 `measurement` function, see `Measurements.jl` manual at
 <https://juliaphysics.github.io/Measurements.jl/stable> for more details. The
-generalised Lomb--Scargle periodogram by [ZK09] is always used when the signal
-has uncertainties, because the original Lomb--Scargle algorithm cannot handle
-them.
+generalised Lomb--Scargle periodogram by [ZK09](@citet) is always used when the
+signal has uncertainties, because the original Lomb--Scargle algorithm cannot
+handle them.
 
 !!! tip
 
     The uncertainties are only used in the generalised Lomb--Scargle algorithm to
     build an
     [inverse-variance](https://en.wikipedia.org/wiki/Inverse-variance_weighting)
-    weights vector (see [ZK09]), that gives more importance to
+    weights vector (see [ZK09](@citet)), that gives more importance to
     datapoints with lower uncertainties. The case where all measurements have the
     same uncertainty (a condition known as
     [homoskedasticity](https://en.wikipedia.org/wiki/Homoscedasticity)) results in a
@@ -229,7 +217,7 @@ same options you used to compute the periodogram.
 ### Fast Algorithm
 
 When the frequency grid is evenly spaced, you can compute an approximate
-generalised Lomb--Scargle periodogram using a fast algorithm proposed by [PR89]
+generalised Lomb--Scargle periodogram using a fast algorithm proposed by [PR89](@citet)
 that greatly speeds up calculations, as it scales as ``O[N \log(M)]`` for ``N``
 data points and ``M`` frequencies. For comparison, the true Lomb--Scargle
 periodogram has complexity ``O[NM]``.  The larger the number of datapoints, the
@@ -286,10 +274,10 @@ instead `fast=true` actually enables it only if `frequencies` is an
 By default, the periodogram ``p(f)`` is normalized so that it has values in the
 range ``0 \leq p(f) \leq 1``, with ``p = 0`` indicating no improvement of the
 fit and ``p = 1`` a "perfect" fit (100% reduction of ``\chi^2`` or
-``\chi^2 = 0``). This is the normalization suggested by [LOM76] and [ZK09], and
-corresponds to the `:standard` normalization in [`lombscargle`](@ref)
-function. [ZK09] wrote the formula for the power of the periodogram at frequency
-``f`` as
+``\chi^2 = 0``). This is the normalization suggested by [LOM76](@citet) and
+[ZK09](@citet), and corresponds to the `:standard` normalization in
+[`lombscargle`](@ref) function. [ZK09](@citet) wrote the formula for the power of the
+periodogram at frequency ``f`` as
 
 ```math
 p(f) = \frac{1}{YY} \left[
@@ -321,7 +309,8 @@ of observations.
   \frac{YS^2_{\tau}}{SS_{\tau}}\right] = p(f) \frac{W*YY}{2}
   ```
 
-  where W is the sum of the inverse of the individual errors, ``W = \sum \frac{1}{\sigma_{i}}``, as given in [ZK09].
+  where W is the sum of the inverse of the individual errors,
+  ``W = \sum \frac{1}{\sigma_{i}}``, as given in [ZK09](@citet).
 
 - `:Scargle`:
 
@@ -331,7 +320,7 @@ of observations.
 
   This normalization can be used when you know the noise level (expected from
   the a priori known noise variance or population variance), but this isn't
-  usually the case. See [SCA82]
+  usually the case. See [SCA82](@citet)
 
 - `:HorneBaliunas`:
 
@@ -340,13 +329,13 @@ of observations.
   ```
 
   This is like the `:Scargle` normalization, where the noise has been estimated
-  for Gaussian noise to be ``(N - 1)/2``. See [HB86]
+  for Gaussian noise to be ``(N - 1)/2``. See [HB86](@citet)
 
 - If the data contains a signal or if errors are under- or overestimated or if
   intrinsic variability is present, then ``(N-1)/2`` may not be a good
-  uncorrelated estimator for the noise level.  [CMB99] suggested to estimate the
-  noise level a posteriori with the residuals of the best fit and normalised the
-  periodogram as:
+  uncorrelated estimator for the noise level.  [CMB99](@citet) suggested to
+  estimate the noise level a posteriori with the residuals of the best fit and
+  normalised the periodogram as:
 
   ```math
   P(f) = \frac{N - 3}{2} \frac{p(f)}{1 - p(f_{\text{best}})}
@@ -403,10 +392,10 @@ will be this probability.
 
 !!! note
 
-    [CMB99] showed that the different normalizations result
+    [CMB99](@citet) showed that the different normalizations result
     in different probability functions. `LombScargle.jl` can calculate the
     probability (and the false-alarm probability) only for the normalizations
-    reported by [ZK09], that are `:standard`, `:Scargle`,
+    reported by [ZK09](@citet), that are `:standard`, `:Scargle`,
     `:HorneBaliunas`, and `:Cumming`.
 
 The probability ``\Pr(p > p_0)`` that the periodogram power ``p`` can
@@ -450,7 +439,7 @@ Here are the probability functions for each normalization supported by
   \Pr(p > p_0) = \left(1 + \frac{2p_0}{N - 3}\right)^{-(N - 3)/2}
   ```
 
-As explained by [SS10], «the term "false-alarm probability denotes the
+As explained by [SS10](@citet), «the term "false-alarm probability denotes the
 probability that at least one out of ``M`` independent power values in a
 prescribed search band of a power spectrum computed from a white-noise time
 series is expected to be as large as or larger than a given
@@ -467,14 +456,14 @@ formula
 where ``M`` is the number of independent frequencies estimated with ``M = T
 \cdot \Delta f``, being ``T`` the duration of the observations and ``\Delta f``
 the width of the frequency range in which the periodogram has been calculated
-(see [CUM04]). The function [`fapinv`](@ref) is the inverse of [`fap`](@ref): it
-takes as second argument the value of the FAP and returns the corresponding
-value ``p_0`` of the power.
+(see [CUM04](@citet)). The function [`fapinv`](@ref) is the inverse of
+[`fap`](@ref): it takes as second argument the value of the FAP and returns the
+corresponding value ``p_0`` of the power.
 
 The detection threshold ``p_0`` is the periodogram power corresponding to some
 (small) value of ``\mathrm{FAP}``, i.e. the value of ``p`` exceeded due to noise
 alone in only a small fraction ``\mathrm{FAP}`` of trials. An observed power
-larger than ``p_0`` indicates that a signal is likely present (see [CUM04]).
+larger than ``p_0`` indicates that a signal is likely present (see [CUM04](@citet)).
 
 !!! warning
 
@@ -482,22 +471,22 @@ larger than ``p_0`` indicates that a signal is likely present (see [CUM04]).
     is not completely reliable. A different approach to calculate the false-alarm
     probability is to perform Monte Carlo or bootstrap simulations in order to
     determine how often a certain power level ``p_0`` is exceeded just by chance
-    (see [CMB99], [CUM04], and [ZK09]). See the [Bootstrapping](@ref) section.
+    (see [CMB99](@citet), [CUM04](@citet), and [ZK09](@citet)). See the
+    [Bootstrapping](@ref) section.
 
 #### Bootstrapping
 
 One of the possible and simplest statistical methods that you can use to measure
 the false-alarm probability and its inverse is
 [bootstrapping](https://en.wikipedia.org/wiki/Bootstrapping_%28statistics%29)
-(see section 4.2.2 of [MHC93]).
+(see section 4.2.2 of [MHC93](@citet)).
 
 !!! note
 
     We emphasize that you can use this method only if you know your data points are
     [independent and identically
     distributed](https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_variables),
-    and they have [white uncorrelated
-    noise](https://en.wikipedia.org/wiki/White_noise).
+    and they have [white uncorrelated noise](https://en.wikipedia.org/wiki/White_noise).
 
 The recipe of the bootstrap method is very simple to implement:
 
@@ -543,9 +532,9 @@ a_f\cos(\omega t) + b_f\sin(\omega t) + c_f
 ```
 
 that best fits the data. In the original Lomb--Scargle algorithm the offset
-``c`` is null (see [LOM76]). In order to find the best-fitting coefficients
-``a_f``, ``b_f``, and ``c_f`` for the given frequency ``f``, without actually
-performing the periodogram, you can solve the linear system
+``c`` is null (see [LOM76](@citet)). In order to find the best-fitting
+coefficients ``a_f``, ``b_f``, and ``c_f`` for the given frequency ``f``,
+without actually performing the periodogram, you can solve the linear system
 ``\mathbf{A} \mathbf{x} = \mathbf{y}``, where ``\mathbf{A}`` is the matrix
 
 ```math
@@ -951,4 +940,9 @@ The `LombScargle.jl` package is licensed under the BSD 3-clause "New" or
 ### Acknowledgements
 
 This package adapts the implementation in Astropy of the the fast Lomb--Scargle
-method by [PR89]. We claim no endorsement nor promotion by the Astropy Team.
+method by [PR89](@citet). We claim no endorsement nor promotion by the Astropy Team.
+
+References
+----------
+```@bibliography
+```
