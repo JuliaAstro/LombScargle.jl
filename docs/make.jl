@@ -1,5 +1,4 @@
 using Documenter
-using DocumenterCitations
 using LombScargle
 
 # # Generate all images
@@ -7,14 +6,13 @@ using LombScargle
 cp(joinpath(@__DIR__, "..", "perf", "benchmarks.png"),
    joinpath(@__DIR__, "src", "benchmarks.png"))
 
-bib = CitationBibliography(
-    joinpath(@__DIR__, "src", "references.bib");
-    style=:authoryear,
-)
+# gives `pages` and `bib`
+include("pages.jl")
 
 makedocs(
     modules = [LombScargle],
     sitename = "LombScargle",
+    pages = pages,
     plugins = [bib],
 )
 
