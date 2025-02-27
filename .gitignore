@@ -2,5 +2,5 @@
 *.jl.*.cov
 *.jl.mem
 /docs/build/
-/Manifest.toml
-/docs/Manifest.toml
+Manifest.toml
+docs/src/benchmarks.png
