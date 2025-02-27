@@ -1,6 +1,10 @@
 using DocumenterCitations
 
-pages = ["Home" => "index.md"]
+pages = [
+    "Home" => "index.md",
+    "Usage" => "usage.md",
+    "Examples" => "examples.md",
+]
 
 
 # put bib here for juliaastro.github.io so that the builder for that site can
