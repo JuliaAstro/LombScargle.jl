@@ -53,7 +53,8 @@ _findmaxfreq(freq::AbstractVector{<:Real}, power::AbstractVector{<:Real}, thresh
     freq[findall(x -> x >= threshold, power)]
 
 """
-    findmaxfreq(p::Periodogram, [interval::AbstractVector{Real}], threshold::Real=findmaxpower(p))
+    findmaxfreq(p::Periodogram, [interval::AbstractVector{Real}],
+                threshold::Real=findmaxpower(p))
 
 Return the array of frequencies with the highest power in the periodogram `p`.
 If a scalar real argument `threshold` is provided, return the frequencies with
@@ -93,7 +94,8 @@ periodpower(p::Periodogram) = (period(p), power(p))
 
 
 """
-    findmaxperiod(p::Periodogram, [interval::AbstractVector{Real}], threshold::Real=findmaxpower(p))
+    findmaxperiod(p::Periodogram, [interval::AbstractVector{Real}],
+                  threshold::Real=findmaxpower(p))
 
 Return the array of periods with the highest power in the periodogram `p`.  If a
 scalar real argument `threshold` is provided, return the period with power
