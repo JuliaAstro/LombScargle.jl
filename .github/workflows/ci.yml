@@ -29,9 +29,9 @@ jobs:
         julia-threads:
           - "1"
           - "2"
-        # Tests on Windows with Julia v1.0 crash when using multiple threads.  I
-        # don't think investigating why this failure on such an old version of
-        # Julia is worth the effort
+        # Tests on Windows with Julia v1.0 crash when using multiple threads.
+        # I don't think investigating why this failure on such an old version
+        # of Julia is worth the effort
         exclude:
           - os: windows-latest
             julia-version: "1.0"
