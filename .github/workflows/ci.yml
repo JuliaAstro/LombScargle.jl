@@ -65,7 +65,7 @@ jobs:
         with:
           cache-name: astropy
       - uses: julia-actions/julia-buildpkg@latest
-      - name: Install Astropy
+      - name: Install PythonCall
         shell: julia --project=. --color=yes {0}
         run: |
           using Pkg
