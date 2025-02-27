@@ -65,11 +65,14 @@ jobs:
         with:
           cache-name: astropy
       - uses: julia-actions/julia-buildpkg@latest
-      - name: Compare with Astropy
+      - name: Install Astropy
         shell: julia --project=. --color=yes {0}
         run: |
           using Pkg
           Pkg.add(name="PythonCall", version="0.8")
+      - name: Compare with Astropy
+        shell: julia --project=. --color=yes {0}
+        run: |
           using LombScargle
           include(joinpath(pkgdir(LombScargle), "test", "astropy.jl"))
 
