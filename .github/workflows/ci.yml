@@ -29,24 +29,24 @@ jobs:
         julia-threads:
           - "1"
           - "2"
-        # Tests on Windows with Julia v1.0 crash when using multiple threads.  I
-        # don't think investigating why this failure on such an old version of
-        # Julia is worth the effort
+        # Tests on Windows with Julia v1.0 crash when using multiple threads.
+        # I don't think investigating why this failure on such an old version
+        # of Julia is worth the effort
         exclude:
           - os: windows-latest
             julia-version: "1.0"
             julia-threads: "2"
     steps:
-      - uses: actions/checkout@v3
-      - uses: julia-actions/setup-julia@v1
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v2
         with:
           version: ${{ matrix.julia-version }}
           arch: ${{ matrix.julia-arch }}
-      - uses: julia-actions/cache@v1
+      - uses: julia-actions/cache@v2
       - uses: julia-actions/julia-buildpkg@latest
       - uses: julia-actions/julia-runtest@latest
-      - uses: julia-actions/julia-uploadcodecov@v0.1
-        continue-on-error: true
+      - uses: julia-actions/julia-processcoverage@v1
+      - uses: codecov/codecov-action@v5
       - uses: julia-actions/julia-uploadcoveralls@v0.1
         continue-on-error: true
 
@@ -56,31 +56,34 @@ jobs:
     strategy:
       fail-fast: false
     steps:
-      - uses: actions/checkout@v3
-      - uses: julia-actions/setup-julia@v1
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v2
         with:
           version: "1"
           arch: x64
-      - uses: julia-actions/cache@v1
+      - uses: julia-actions/cache@v2
         with:
           cache-name: astropy
       - uses: julia-actions/julia-buildpkg@latest
-      - name: Compare with Astropy
+      - name: Install PythonCall
         shell: julia --project=. --color=yes {0}
         run: |
           using Pkg
           Pkg.add(name="PythonCall", version="0.8")
+      - name: Compare with Astropy
+        shell: julia --project=. --color=yes {0}
+        run: |
           using LombScargle
           include(joinpath(pkgdir(LombScargle), "test", "astropy.jl"))
 
   Documentation:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@latest
         with:
           version: 1
-      - uses: julia-actions/cache@v1
+      - uses: julia-actions/cache@v2
         with:
           cache-name: astropy
       - uses: julia-actions/julia-docdeploy@releases/v1
