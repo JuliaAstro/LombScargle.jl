@@ -15,7 +15,7 @@ makedocs(
     format = Documenter.HTML(;
         prettyurls = get(ENV, "CI", "false") == "true",
         canonical = "https://juliaastro.org/Cosmology/stable",
-    )
+    ),
     pages = pages,
     plugins = [bib],
 )
