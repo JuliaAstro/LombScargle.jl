@@ -3,7 +3,7 @@
 | **Documentation**                       | **Build Status**                    | **Code Coverage**               |
 |:---------------------------------------:|:-----------------------------------:|:-------------------------------:|
 | [![][docs-stable-img]][docs-stable-url] | [![Build Status][gha-img]][gha-url] | [![][coveral-img]][coveral-url] |
-| [![][docs-latest-img]][docs-latest-url] |                                     | [![][codecov-img]][codecov-url] |
+| [![][docs-dev-img]][docs-dev-url]       |                                     | [![][codecov-img]][codecov-url] |
 
 Introduction
 ------------
@@ -120,7 +120,7 @@ If the signal has uncertainties, the `signal` vector can also be a vector of
 which case you need not to pass a separate `errors` vector for the uncertainties
 of the signal.  You can create arrays of `Measurement` objects with the
 `measurement` function, see `Measurements.jl` manual at
-https://juliaphysics.github.io/Measurements.jl/latest/ for more details.
+https://juliaphysics.github.io/Measurements.jl/dev/ for more details.
 
 With the `LombScargle.plan` function you can pre-plan a periodogram and save
 time and memory for the actual computation of the periodogram.  See the
@@ -234,11 +234,11 @@ Astropy Team.
 
 
 
-[docs-latest-img]: https://img.shields.io/badge/docs-latest-blue.svg
-[docs-latest-url]: https://juliaastro.github.io/LombScargle.jl/latest/
+[docs-dev-img]: https://img.shields.io/badge/docs-dev-blue.svg
+[docs-dev-url]: https://juliaastro.org/LombScargle.jl/dev/
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
-[docs-stable-url]: https://juliaastro.github.io/LombScargle.jl/stable/
+[docs-stable-url]: https://juliaastro.org/LombScargle/stable/
 
 [gha-img]: https://github.com/JuliaAstro/LombScargle.jl/workflows/CI/badge.svg
 [gha-url]: https://github.com/JuliaAstro/LombScargle.jl/actions?query=workflow%3ACI
@@ -246,5 +246,5 @@ Astropy Team.
 [coveral-img]: https://coveralls.io/repos/github/JuliaAstro/LombScargle.jl/badge.svg?branch=master
 [coveral-url]: https://coveralls.io/github/JuliaAstro/LombScargle.jl?branch=master
 
-[codecov-img]: https://codecov.io/gh/JuliaAstro/LombScargle.jl/branch/master/graph/badge.svg
+[codecov-img]: https://codecov.io/gh/JuliaAstro/LombScargle.jl/graph/badge.svg?token=c8Vz9GBFNH
 [codecov-url]: https://codecov.io/gh/JuliaAstro/LombScargle.jl
