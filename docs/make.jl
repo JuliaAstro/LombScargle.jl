@@ -14,7 +14,7 @@ makedocs(;
     sitename = "LombScargle",
     format = Documenter.HTML(;
         prettyurls = get(ENV, "CI", "false") == "true",
-        canonical = "https://juliaastro.org/Cosmology/stable/",
+        canonical = "https://juliaastro.org/LombScargle/stable/",
     ),
     pages = pages,
     plugins = [bib],
