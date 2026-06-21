@@ -5,3 +5,13 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+
+  - package-ecosystem: "julia"
+    directories: ["/", "/docs", "/perf"] # Location of Julia projects
+    schedule:
+      interval: "weekly"
+    ignore:
+      - dependency-name: "LombScargle" # Ignore package itself
+    groups:
+      per-dependency:
+        group-by: dependency-name
