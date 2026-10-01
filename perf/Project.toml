@@ -7,7 +7,7 @@ PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee"
 
 [compat]
 BenchmarkTools = "1"
-DelimitedFiles = "1"
+DelimitedFiles = "<0.0.1, 1"
 FFTW = "0.2.3, 0.3, 1"
 Plots = "1"
 PyPlot = "2.11.6"
